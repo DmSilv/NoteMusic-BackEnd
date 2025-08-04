@@ -1,185 +1,224 @@
-# Backend NoteMusic API
+# NoteMusic Backend API
 
-API REST para o aplicativo NoteMusic - Plataforma de ensino musical gamificada.
+Backend completo para o aplicativo NoteMusic - Uma aplicação educacional de música gamificada.
 
-## 🚀 Tecnologias
+## 🎵 Sobre o Projeto
+
+O NoteMusic Backend é uma API REST desenvolvida em Node.js que fornece toda a infraestrutura necessária para um aplicativo de ensino musical gamificado. A API gerencia autenticação de usuários, módulos educacionais, quizzes, sistema de gamificação e progresso do usuário.
+
+## 🚀 Tecnologias Utilizadas
 
 - **Node.js** - Runtime JavaScript
-- **Express** - Framework web
+- **Express.js** - Framework web
 - **MongoDB** - Banco de dados NoSQL
 - **Mongoose** - ODM para MongoDB
-- **JWT** - Autenticação
-- **Bcrypt** - Criptografia de senhas
-- **Express Validator** - Validação de dados
-- **Helmet** - Segurança
-- **CORS** - Cross-Origin Resource Sharing
+- **JWT** - Autenticação via tokens
+- **bcryptjs** - Hash de senhas
+- **express-validator** - Validação de dados
+- **dotenv** - Gerenciamento de variáveis de ambiente
+- **cors** - Controle de CORS
+- **helmet** - Segurança HTTP
+- **express-rate-limit** - Rate limiting
 
-## 📋 Pré-requisitos
+## 📁 Estrutura do Projeto
 
-- Node.js (v14 ou superior)
-- MongoDB (local ou MongoDB Atlas)
-- NPM ou Yarn
-
-## 🔧 Instalação
-
-1. Clone o repositório
-2. Entre na pasta do backend:
-```bash
-cd "Back End"
+```
+src/
+├── config/
+│   └── database.js           # Configuração do MongoDB
+├── controllers/
+│   ├── auth.controller.js    # Autenticação
+│   ├── user.controller.js    # Usuários
+│   ├── module.controller.js  # Módulos educacionais
+│   ├── quiz.controller.js    # Quizzes
+│   └── gamification.controller.js # Gamificação
+├── middlewares/
+│   ├── auth.js              # Middleware de autenticação
+│   └── errorHandler.js      # Tratamento de erros
+├── models/
+│   ├── User.js              # Schema do usuário
+│   ├── Module.js            # Schema dos módulos
+│   └── Quiz.js              # Schema dos quizzes
+├── routes/
+│   ├── auth.routes.js       # Rotas de autenticação
+│   ├── user.routes.js       # Rotas de usuários
+│   ├── module.routes.js     # Rotas de módulos
+│   ├── quiz.routes.js       # Rotas de quizzes
+│   └── gamification.routes.js # Rotas de gamificação
+├── services/
+│   └── gamification.service.js # Lógica de gamificação
+├── utils/
+│   ├── constants.js         # Constantes da aplicação
+│   ├── responseHelpers.js   # Helpers de resposta
+│   └── seedData.js          # Dados para seed
+├── validators/
+│   └── custom.validators.js # Validadores customizados
+└── app.js                   # Configuração do Express
 ```
 
-3. Instale as dependências:
+## 🔧 Instalação e Configuração
+
+### Pré-requisitos
+- Node.js (v14 ou superior)
+- MongoDB Atlas ou MongoDB local
+- npm ou yarn
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/Daniel-Mingoranse/NoteMusic-BackEnd.git
+cd NoteMusic-BackEnd
+```
+
+### 2. Instale as dependências
 ```bash
 npm install
 ```
 
-4. Configure as variáveis de ambiente:
-   - Copie o arquivo `.env.example` para `.env`
-   - Edite o arquivo `.env` com suas configurações
+### 3. Configure as variáveis de ambiente
+Crie um arquivo `.env` na raiz do projeto:
 
-5. Inicie o servidor:
+```env
+PORT=3333
+NODE_ENV=development
+MONGODB_URI=sua_string_de_conexao_mongodb
+JWT_SECRET=sua_chave_secreta_jwt
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:8081
+```
+
+### 4. Popule o banco de dados (opcional)
 ```bash
-# Desenvolvimento (com hot reload)
+npm run seed
+```
+
+### 5. Inicie o servidor
+```bash
+# Desenvolvimento
 npm run dev
 
 # Produção
 npm start
 ```
 
-## 🗄️ Configuração do Banco de Dados
+## 📚 API Endpoints
 
-### Opção 1: MongoDB Local
-1. Instale o MongoDB: https://www.mongodb.com/try/download/community
-2. Inicie o MongoDB
-3. Use a connection string: `mongodb://localhost:27017/notemusic`
+### 🔐 Autenticação
+- `POST /api/auth/register` - Registrar usuário
+- `POST /api/auth/login` - Login do usuário
+- `POST /api/auth/logout` - Logout do usuário
 
-### Opção 2: MongoDB Atlas (Recomendado)
-1. Crie uma conta em: https://www.mongodb.com/cloud/atlas
-2. Crie um cluster gratuito
-3. Configure um usuário do banco
-4. Pegue a connection string e coloque no `.env`
-
-## 📚 Estrutura da API
-
-### Autenticação
-- `POST /api/auth/register` - Cadastro de usuário
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Dados do usuário logado
-- `PUT /api/auth/updatepassword` - Atualizar senha
-- `POST /api/auth/forgotpassword` - Recuperar senha
-
-### Usuários
-- `GET /api/users/profile` - Perfil do usuário
+### 👤 Usuários
+- `GET /api/users/profile` - Obter perfil do usuário
 - `PUT /api/users/profile` - Atualizar perfil
+- `GET /api/users/progress` - Obter progresso do usuário
+- `GET /api/users/ranking` - Obter ranking
+- `GET /api/users/basic-info` - Informações básicas (público)
 
-### Módulos
-- `GET /api/modules` - Listar módulos
-- `GET /api/modules/:id` - Detalhes do módulo
+### 📖 Módulos
+- `GET /api/modules` - Listar módulos (público)
+- `GET /api/modules/categories` - Listar categorias (público)
+- `GET /api/modules/:id` - Obter módulo específico
+- `POST /api/modules/:id/complete` - Marcar módulo como completo
 
-### Quiz
-- `GET /api/quiz/:moduleId` - Quiz do módulo
-- `POST /api/quiz/:quizId/submit` - Enviar respostas
+### 🧩 Quizzes
+- `GET /api/quiz/:moduleId` - Obter quiz (público)
+- `POST /api/quiz/:quizId/submit` - Submeter quiz (público)
+- `GET /api/quiz/daily-challenge` - Desafio diário (público)
+- `GET /api/quiz/history` - Histórico de quizzes (protegido)
 
-## 🔐 Autenticação
+### 🏆 Gamificação
+- `GET /api/gamification/stats` - Estatísticas (público)
+- `GET /api/gamification/achievements` - Conquistas (protegido)
+- `GET /api/gamification/leaderboard` - Ranking (protegido)
+- `GET /api/gamification/level-progress` - Progresso de nível (protegido)
 
-A API usa JWT (JSON Web Tokens). Para acessar rotas protegidas:
+## 🔒 Autenticação
 
-1. Faça login para receber o token
-2. Envie o token no header:
+A API utiliza JWT (JSON Web Tokens) para autenticação. Para acessar rotas protegidas, inclua o token no header:
+
 ```
-Authorization: Bearer SEU_TOKEN_AQUI
+Authorization: Bearer <seu_jwt_token>
 ```
 
-## 📝 Exemplos de Requisições
+## 🎮 Sistema de Gamificação
 
-### Registro
+### Níveis de Usuário
+- **Aprendiz** - Nível inicial
+- **Intermediário** - Nível médio
+- **Avançado** - Nível expert
+
+### Elementos Gamificados
+- **Streak** - Dias consecutivos de estudo
+- **Progresso** - Percentual de conclusão
+- **Conquistas** - Badges por marcos alcançados
+- **Ranking** - Classificação entre usuários
+- **Pontos** - Sistema de pontuação por atividades
+
+## 🧪 Testando a API
+
+### Usuário de Teste (após seed)
+- **Email:** `teste@notemusic.com`
+- **Senha:** `senha123`
+
+### Exemplo de uso com curl:
 ```bash
-POST /api/auth/register
-Content-Type: application/json
+# Login
+curl -X POST http://localhost:3333/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"teste@notemusic.com","password":"senha123"}'
 
-{
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "password": "senha123",
-  "level": "iniciante"
-}
+# Obter módulos (público)
+curl http://localhost:3333/api/modules
+
+# Obter perfil (protegido)
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:3333/api/users/profile
 ```
 
-### Login
-```bash
-POST /api/auth/login
-Content-Type: application/json
+## 🔄 Scripts Disponíveis
 
-{
-  "email": "joao@email.com",
-  "password": "senha123"
-}
-```
+- `npm start` - Inicia o servidor em produção
+- `npm run dev` - Inicia o servidor em desenvolvimento com nodemon
+- `npm run seed` - Popula o banco com dados de teste
 
-## 🛠️ Desenvolvimento
+## 🌐 Deploy
 
-### Estrutura de Pastas
-```
-src/
-├── config/        # Configurações
-├── controllers/   # Lógica dos endpoints
-├── models/       # Modelos do MongoDB
-├── routes/       # Definição de rotas
-├── middlewares/  # Middlewares
-├── services/     # Lógica de negócio
-├── utils/        # Utilitários
-└── validators/   # Validações
-```
+### Variáveis de Ambiente para Produção
+Certifique-se de configurar todas as variáveis de ambiente necessárias:
+- `PORT` - Porta do servidor
+- `NODE_ENV=production`
+- `MONGODB_URI` - String de conexão do MongoDB
+- `JWT_SECRET` - Chave secreta para JWT
+- `FRONTEND_URL` - URL do frontend em produção
 
-### Próximos Passos
-- [ ] Implementar envio de emails
-- [ ] Adicionar upload de arquivos
-- [ ] Implementar sistema de notificações
-- [ ] Adicionar testes automatizados
-- [ ] Implementar cache com Redis
-- [ ] Adicionar documentação com Swagger
+### Plataformas Recomendadas
+- [Render](https://render.com)
+- [Railway](https://railway.app)
+- [Heroku](https://heroku.com)
+- [Vercel](https://vercel.com)
 
-## 📱 Integração com o Frontend
+## 🤝 Contribuindo
 
-O frontend React Native deve:
-1. Armazenar o token JWT no AsyncStorage
-2. Enviar o token em todas as requisições autenticadas
-3. Renovar o token quando expirar
-4. Tratar erros de autenticação
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-## 🚀 Deploy
+## 📝 Licença
 
-Para fazer deploy da API:
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-### Heroku
-1. Crie uma conta no Heroku
-2. Instale o Heroku CLI
-3. Execute:
-```bash
-heroku create nome-do-app
-heroku addons:create mongolab
-git push heroku main
-```
+## 👨‍💻 Autor
 
-### Railway
-1. Acesse railway.app
-2. Conecte seu GitHub
-3. Configure as variáveis de ambiente
-4. Deploy automático
+**Daniel Mingoranse** - [GitHub](https://github.com/Daniel-Mingoranse)
 
-### Render
-1. Acesse render.com
-2. Crie um novo Web Service
-3. Conecte o repositório
-4. Configure as variáveis
-5. Deploy
+## 🙏 Agradecimentos
 
-## 📞 Suporte
+- Comunidade Node.js
+- MongoDB pela excelente documentação
+- Todos os contribuidores de código aberto
 
-Em caso de dúvidas ou problemas:
-- Abra uma issue no GitHub
-- Entre em contato com a equipe
+---
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
+⭐ Se este projeto te ajudou, considere dar uma estrela!
