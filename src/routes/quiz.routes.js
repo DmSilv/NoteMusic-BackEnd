@@ -5,7 +5,9 @@ const { protect } = require('../middlewares/auth');
 const {
   getQuiz,
   getQuizByModule,
+  validateQuestion,
   submitQuiz,
+  submitQuizPrivate,
   getQuizHistory,
   getDailyChallenge,
   getDailyChallengePrivate
@@ -28,6 +30,7 @@ router.post('/:quizId/submit', submitQuiz);
 router.get('/history', protect, getQuizHistory);
 router.get('/daily-challenge/private', protect, getDailyChallengePrivate);
 router.get('/:moduleId/private', protect, getQuizByModule);
-router.post('/:quizId/submit/private', protect, submitQuizValidation, submitQuiz);
+router.post('/:quizId/validate-question', protect, validateQuestion);
+router.post('/:quizId/submit/private', protect, submitQuizValidation, submitQuizPrivate);
 
 module.exports = router;

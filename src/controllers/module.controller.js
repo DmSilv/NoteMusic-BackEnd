@@ -126,18 +126,113 @@ exports.completeModule = async (req, res, next) => {
     // Atualizar streak
     user.updateStreak();
 
+    // Verificar progressão de nível
+    const oldLevel = user.level;
+    const newLevel = checkLevelProgression(user);
+    let levelUpMessage = null;
+    
+    if (newLevel !== oldLevel) {
+      user.level = newLevel;
+      levelUpMessage = `🎉 Parabéns! Você avançou para o nível ${getNivelName(newLevel)}!`;
+    }
+
     await user.save();
+
+    // Calcular próximo nível e requisitos
+    const levelInfo = getLevelInfo(user);
 
     res.json({
       success: true,
       message: 'Módulo completado com sucesso!',
       pointsEarned: module.points,
       totalPoints: user.totalPoints,
-      streak: user.streak
+      streak: user.streak,
+      levelUp: levelUpMessage,
+      currentLevel: getNivelName(user.level),
+      levelInfo
     });
   } catch (error) {
     next(error);
   }
+};
+
+// Função para verificar progressão de nível
+const checkLevelProgression = (user) => {
+  const completedModules = user.completedModules.length;
+  const totalPoints = user.totalPoints;
+  
+  // Critérios para progressão:
+  // Iniciante -> Intermediário: 3 módulos OU 300 pontos
+  // Intermediário -> Avançado: 6 módulos OU 600 pontos
+  
+  if (user.level === 'iniciante') {
+    if (completedModules >= 3 || totalPoints >= 300) {
+      return 'intermediario';
+    }
+  } else if (user.level === 'intermediario') {
+    if (completedModules >= 6 || totalPoints >= 600) {
+      return 'avancado';
+    }
+  }
+  
+  return user.level; // Manter nível atual
+};
+
+// Função para obter informações do nível
+const getLevelInfo = (user) => {
+  const completedModules = user.completedModules.length;
+  const totalPoints = user.totalPoints;
+  
+  switch (user.level) {
+    case 'iniciante':
+      return {
+        currentLevel: 'Iniciante',
+        nextLevel: 'Intermediário',
+        progress: {
+          modules: { current: completedModules, required: 3, percentage: Math.min((completedModules / 3) * 100, 100) },
+          points: { current: totalPoints, required: 300, percentage: Math.min((totalPoints / 300) * 100, 100) }
+        },
+        requirements: 'Complete 3 módulos OU ganhe 300 pontos',
+        benefits: 'Acesso a módulos intermediários e novos desafios'
+      };
+    
+    case 'intermediario':
+      return {
+        currentLevel: 'Intermediário',
+        nextLevel: 'Avançado',
+        progress: {
+          modules: { current: completedModules, required: 6, percentage: Math.min((completedModules / 6) * 100, 100) },
+          points: { current: totalPoints, required: 600, percentage: Math.min((totalPoints / 600) * 100, 100) }
+        },
+        requirements: 'Complete 6 módulos OU ganhe 600 pontos',
+        benefits: 'Acesso a todos os módulos e desafios especiais'
+      };
+    
+    case 'avancado':
+      return {
+        currentLevel: 'Avançado',
+        nextLevel: 'Mestre (em breve)',
+        progress: {
+          modules: { current: completedModules, required: completedModules, percentage: 100 },
+          points: { current: totalPoints, required: totalPoints, percentage: 100 }
+        },
+        requirements: 'Você atingiu o nível máximo!',
+        benefits: 'Acesso completo a todos os recursos'
+      };
+    
+    default:
+      return null;
+  }
+};
+
+// Função para obter nome do nível em português
+const getNivelName = (level) => {
+  const names = {
+    'iniciante': 'Iniciante',
+    'intermediario': 'Intermediário', 
+    'avancado': 'Avançado'
+  };
+  return names[level] || level;
 };
 
 // @desc    Obter categorias disponíveis
@@ -295,6 +390,23 @@ exports.getNextRecommended = async (req, res, next) => {
     res.json({
       success: true,
       module: nextModule
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Obter informações de nível do usuário
+// @route   GET /api/modules/level-info
+// @access  Private
+exports.getLevelInfo = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const levelInfo = getLevelInfo(user);
+    
+    res.json({
+      success: true,
+      levelInfo
     });
   } catch (error) {
     next(error);

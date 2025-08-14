@@ -6,7 +6,8 @@ const {
   login,
   getMe,
   updatePassword,
-  forgotPassword
+  forgotPassword,
+  changeTempPassword
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth');
 
@@ -28,6 +29,11 @@ const updatePasswordValidation = [
   body('newPassword').isLength({ min: 6 }).withMessage('Nova senha deve ter no mínimo 6 caracteres')
 ];
 
+const changeTempPasswordValidation = [
+  body('currentPassword').notEmpty().withMessage('Senha atual é obrigatória'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Nova senha deve ter no mínimo 6 caracteres')
+];
+
 // Rotas públicas
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
@@ -36,5 +42,6 @@ router.post('/forgotpassword', forgotPassword);
 // Rotas privadas
 router.get('/me', protect, getMe);
 router.put('/updatepassword', protect, updatePasswordValidation, updatePassword);
+router.post('/changetemppassword', protect, changeTempPasswordValidation, changeTempPassword);
 
 module.exports = router;

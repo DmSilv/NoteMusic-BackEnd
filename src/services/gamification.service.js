@@ -1,240 +1,252 @@
-const { POINTS, USER_LEVELS } = require('../utils/constants');
+const User = require('../models/User');
 
 class GamificationService {
-  /**
-   * Calcula o nível do usuário baseado nos pontos totais
-   */
-  static calculateUserLevel(totalPoints) {
-    if (totalPoints < 1000) return USER_LEVELS.BEGINNER;
-    if (totalPoints < 5000) return USER_LEVELS.INTERMEDIATE;
-    return USER_LEVELS.ADVANCED;
-  }
-
-  /**
-   * Calcula pontos de bônus por streak
-   */
-  static calculateStreakBonus(streak) {
-    if (streak < 3) return 0;
-    if (streak < 7) return POINTS.STREAK_BONUS;
-    if (streak < 30) return POINTS.STREAK_BONUS * 2;
-    return POINTS.STREAK_BONUS * 3;
-  }
-
-  /**
-   * Verifica se deve resetar o progresso semanal
-   */
-  static shouldResetWeeklyProgress(lastActivityDate) {
-    const lastActivity = new Date(lastActivityDate);
-    const now = new Date();
-    
-    // Calcular início da semana (domingo)
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
-    weekStart.setHours(0, 0, 0, 0);
-    
-    return lastActivity < weekStart;
-  }
-
-  /**
-   * Calcula conquistas desbloqueadas
-   */
+  // Verificar conquistas do usuário
   static checkAchievements(user) {
     const achievements = [];
-
-    // Primeira aula
-    if (user.completedModules.length === 1) {
+    
+    // Conquista por primeiro módulo
+    if (user.completedModules.length >= 1) {
       achievements.push({
         id: 'first_module',
-        title: 'Primeira Aula',
-        description: 'Complete sua primeira aula',
-        icon: 'star',
-        points: 50
+        name: 'Primeiro Passo',
+        description: 'Complete seu primeiro módulo',
+        icon: '🎯',
+        points: 50,
+        unlockedAt: user.completedModules[0].completedAt
       });
     }
-
-    // Streak de 7 dias
-    if (user.streak === 7) {
+    
+    // Conquista por streak de 7 dias
+    if (user.streak >= 7) {
       achievements.push({
         id: 'week_streak',
-        title: 'Semana Perfeita',
-        description: 'Estude por 7 dias seguidos',
-        icon: 'fire',
-        points: 100
+        name: 'Consistente',
+        description: 'Mantenha um streak de 7 dias',
+        icon: '🔥',
+        points: 100,
+        unlockedAt: new Date()
       });
     }
-
-    // Streak de 30 dias
-    if (user.streak === 30) {
+    
+    // Conquista por 5 módulos
+    if (user.completedModules.length >= 5) {
       achievements.push({
-        id: 'month_streak',
-        title: 'Mês de Dedicação',
-        description: 'Estude por 30 dias seguidos',
-        icon: 'trophy',
-        points: 500
+        id: 'five_modules',
+        name: 'Aprendiz Dedicado',
+        description: 'Complete 5 módulos',
+        icon: '📚',
+        points: 200,
+        unlockedAt: new Date()
       });
     }
-
-    // 10 módulos completados
-    if (user.completedModules.length === 10) {
+    
+    // Conquista por 1000 pontos
+    if (user.totalPoints >= 1000) {
       achievements.push({
-        id: 'ten_modules',
-        title: 'Dezena Musical',
-        description: 'Complete 10 módulos',
-        icon: 'medal',
-        points: 200
+        id: 'thousand_points',
+        name: 'Pontuador',
+        description: 'Alcance 1000 pontos',
+        icon: '⭐',
+        points: 300,
+        unlockedAt: new Date()
       });
     }
-
-    // Primeiro quiz perfeito
-    const perfectQuiz = user.completedQuizzes.find(q => q.score === 100);
-    if (perfectQuiz && user.completedQuizzes.filter(q => q.score === 100).length === 1) {
-      achievements.push({
-        id: 'perfect_quiz',
-        title: 'Perfeição',
-        description: 'Acerte 100% em um quiz',
-        icon: 'check-circle',
-        points: 150
-      });
-    }
-
-    // Meta semanal cumprida
-    if (user.weeklyProgress >= user.weeklyGoal) {
-      achievements.push({
-        id: 'weekly_goal',
-        title: 'Meta Semanal',
-        description: 'Cumpra sua meta semanal',
-        icon: 'target',
-        points: 75
-      });
-    }
-
+    
     return achievements;
   }
-
-  /**
-   * Calcula o progresso para o próximo nível
-   */
-  static calculateLevelProgress(totalPoints) {
-    const levels = [
-      { name: USER_LEVELS.BEGINNER, minPoints: 0, maxPoints: 1000 },
-      { name: USER_LEVELS.INTERMEDIATE, minPoints: 1000, maxPoints: 5000 },
-      { name: USER_LEVELS.ADVANCED, minPoints: 5000, maxPoints: Infinity }
-    ];
-
-    const currentLevel = this.calculateUserLevel(totalPoints);
-    const levelData = levels.find(l => l.name === currentLevel);
-    
-    if (currentLevel === USER_LEVELS.ADVANCED) {
-      return {
-        currentLevel,
-        nextLevel: null,
-        progress: 100,
-        pointsToNext: 0
-      };
-    }
-
-    const nextLevelData = levels[levels.indexOf(levelData) + 1];
-    const pointsInLevel = totalPoints - levelData.minPoints;
-    const pointsNeeded = nextLevelData.minPoints - levelData.minPoints;
-    const progress = (pointsInLevel / pointsNeeded) * 100;
-
-    return {
-      currentLevel,
-      nextLevel: nextLevelData.name,
-      progress: Math.min(progress, 100),
-      pointsToNext: nextLevelData.minPoints - totalPoints
-    };
-  }
-
-  /**
-   * Gera desafios personalizados baseados no progresso
-   */
+  
+  // Gerar desafios personalizados
   static generatePersonalizedChallenges(user) {
     const challenges = [];
-
-    // Desafio de streak
-    if (user.streak < 7) {
-      challenges.push({
-        id: 'streak_challenge',
-        title: 'Mantenha o Ritmo',
-        description: `Estude por ${7 - user.streak} dias seguidos para completar uma semana`,
-        reward: 100,
-        progress: (user.streak / 7) * 100,
-        type: 'streak'
-      });
-    }
-
-    // Desafio de módulos
-    const modulesThisWeek = user.completedModules.filter(m => {
-      const completedDate = new Date(m.completedAt);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return completedDate > weekAgo;
-    }).length;
-
-    if (modulesThisWeek < 5) {
-      challenges.push({
-        id: 'modules_challenge',
-        title: 'Explorador Musical',
-        description: `Complete ${5 - modulesThisWeek} módulos esta semana`,
-        reward: 150,
-        progress: (modulesThisWeek / 5) * 100,
-        type: 'modules'
-      });
-    }
-
-    // Desafio de quiz perfeito
-    const recentQuizzes = user.completedQuizzes.slice(-5);
-    const perfectQuizzes = recentQuizzes.filter(q => q.score === 100).length;
     
-    if (perfectQuizzes < 3) {
-      challenges.push({
-        id: 'perfect_quiz_challenge',
-        title: 'Mestre dos Quizzes',
-        description: `Acerte 100% em ${3 - perfectQuizzes} quizzes`,
-        reward: 200,
-        progress: (perfectQuizzes / 3) * 100,
-        type: 'quiz'
-      });
-    }
-
+    // Desafio de módulos
+    const moduleChallenge = {
+      id: 'weekly_modules',
+      title: 'Módulos da Semana',
+      description: 'Complete 3 módulos esta semana',
+      type: 'modules',
+      target: 3,
+      progress: user.completedModules.filter(m => {
+        const date = new Date(m.completedAt);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date > weekAgo;
+      }).length,
+      reward: 150,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    };
+    
+    // Desafio de quizzes
+    const quizChallenge = {
+      id: 'weekly_quizzes',
+      title: 'Quizzes da Semana',
+      description: 'Complete 5 quizzes esta semana',
+      type: 'quizzes',
+      target: 5,
+      progress: user.completedQuizzes.filter(q => {
+        const date = new Date(q.completedAt);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date > weekAgo;
+      }).length,
+      reward: 100,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    };
+    
+    // Desafio de streak
+    const streakChallenge = {
+      id: 'maintain_streak',
+      title: 'Mantenha o Streak',
+      description: 'Mantenha um streak de 10 dias',
+      type: 'streak',
+      target: 10,
+      progress: user.streak,
+      reward: 200,
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    };
+    
+    challenges.push(moduleChallenge, quizChallenge, streakChallenge);
+    
     return challenges;
   }
-
-  /**
-   * Calcula estatísticas detalhadas do usuário
-   */
+  
+  // Calcular estatísticas do usuário
   static calculateUserStats(user) {
-    const now = new Date();
-    const accountAge = Math.floor((now - new Date(user.createdAt)) / (1000 * 60 * 60 * 24));
+    const totalModules = user.completedModules.length;
+    const totalQuizzes = user.completedQuizzes.length;
     
-    // Calcular média de pontos por dia
-    const averagePointsPerDay = accountAge > 0 ? user.totalPoints / accountAge : 0;
+    // Calcular progresso geral
+    const progress = totalModules > 0 ? (totalModules / 12) * 100 : 0; // 12 módulos totais
     
-    // Calcular taxa de conclusão de quizzes
-    const totalQuizAttempts = user.completedQuizzes.length;
-    const passedQuizzes = user.completedQuizzes.filter(q => q.score >= 70).length;
-    const quizPassRate = totalQuizAttempts > 0 ? (passedQuizzes / totalQuizAttempts) * 100 : 0;
+    // Calcular nível baseado nos pontos
+    const level = this.calculateLevel(user.totalPoints);
     
-    // Calcular melhor categoria
-    const categoryProgress = {};
-    user.completedModules.forEach(cm => {
-      if (cm.moduleId && cm.moduleId.category) {
-        categoryProgress[cm.moduleId.category] = (categoryProgress[cm.moduleId.category] || 0) + 1;
-      }
-    });
-    
-    const bestCategory = Object.entries(categoryProgress).sort((a, b) => b[1] - a[1])[0];
+    // Calcular média de pontuação dos quizzes
+    const quizScores = user.completedQuizzes.map(q => q.score || 0);
+    const averageScore = quizScores.length > 0 
+      ? quizScores.reduce((sum, score) => sum + score, 0) / quizScores.length 
+      : 0;
     
     return {
-      accountAgeDays: accountAge,
-      averagePointsPerDay: Math.round(averagePointsPerDay),
-      quizPassRate: Math.round(quizPassRate),
-      bestCategory: bestCategory ? bestCategory[0] : null,
-      totalStudyDays: user.streak,
-      longestStreak: user.longestStreak || user.streak,
-      levelProgress: this.calculateLevelProgress(user.totalPoints)
+      level,
+      progress: Math.round(progress),
+      totalModules,
+      completedModules: totalModules,
+      totalQuizzes,
+      averageScore: Math.round(averageScore),
+      streak: user.streak,
+      totalPoints: user.totalPoints
     };
+  }
+  
+  // Calcular progresso de nível
+  static calculateLevelProgress(totalPoints) {
+    const levels = {
+      aprendiz: { min: 0, max: 999 },
+      intermediario: { min: 1000, max: 2999 },
+      avancado: { min: 3000, max: Infinity }
+    };
+    
+    let currentLevel = 'aprendiz';
+    let nextLevel = 'intermediario';
+    
+    // Determinar nível atual
+    if (totalPoints >= levels.intermediario.min) {
+      currentLevel = 'intermediario';
+      nextLevel = 'avancado';
+    }
+    if (totalPoints >= levels.avancado.min) {
+      currentLevel = 'avancado';
+      nextLevel = null;
+    }
+    
+    // Calcular progresso para o próximo nível
+    const currentLevelInfo = levels[currentLevel];
+    const nextLevelInfo = nextLevel ? levels[nextLevel] : null;
+    
+    let percentage = 0;
+    if (nextLevelInfo) {
+      const range = nextLevelInfo.min - currentLevelInfo.min;
+      const progress = totalPoints - currentLevelInfo.min;
+      percentage = Math.min(Math.round((progress / range) * 100), 100);
+    } else {
+      percentage = 100; // Nível máximo
+    }
+    
+    return {
+      currentLevel,
+      nextLevel,
+      percentage,
+      pointsToNext: nextLevelInfo ? nextLevelInfo.min - totalPoints : 0
+    };
+  }
+  
+  // Calcular nível baseado nos pontos
+  static calculateLevel(totalPoints) {
+    if (totalPoints < 1000) return 'Iniciante';
+    if (totalPoints < 3000) return 'Intermediário';
+    return 'Avançado';
+  }
+  
+  // Atualizar progresso semanal
+  static async updateWeeklyProgress(userId) {
+    const user = await User.findById(userId);
+    if (!user) return;
+    
+    const now = new Date();
+    const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    // Contar módulos completados na semana
+    const weeklyModules = user.completedModules.filter(m => 
+      new Date(m.completedAt) > lastWeek
+    ).length;
+    
+    // Contar quizzes completados na semana
+    const weeklyQuizzes = user.completedQuizzes.filter(q => 
+      new Date(q.completedAt) > lastWeek
+    ).length;
+    
+    // Atualizar progresso semanal
+    user.weeklyProgress = weeklyModules + weeklyQuizzes;
+    user.lastActivityDate = now;
+    
+    await user.save();
+    
+    return {
+      weeklyProgress: user.weeklyProgress,
+      weeklyGoal: user.weeklyGoal,
+      percentage: Math.round((user.weeklyProgress / user.weeklyGoal) * 100)
+    };
+  }
+  
+  // Atualizar streak do usuário
+  static async updateStreak(userId) {
+    const user = await User.findById(userId);
+    if (!user) return;
+    
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    // Se o usuário já tem atividade hoje, não precisa atualizar
+    if (user.lastActivityDate && 
+        user.lastActivityDate.toDateString() === now.toDateString()) {
+      return user.streak;
+    }
+    
+    // Se a última atividade foi ontem, incrementar streak
+    if (user.lastActivityDate && 
+        user.lastActivityDate.toDateString() === yesterday.toDateString()) {
+      user.streak += 1;
+    } else {
+      // Se passou mais de um dia, resetar streak
+      user.streak = 1;
+    }
+    
+    user.lastActivityDate = now;
+    await user.save();
+    
+    return user.streak;
   }
 }
 

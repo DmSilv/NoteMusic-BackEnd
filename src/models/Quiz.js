@@ -55,6 +55,11 @@ const quizSchema = new mongoose.Schema({
     enum: ['iniciante', 'intermediario', 'avancado'],
     required: true
   },
+  type: {
+    type: String,
+    enum: ['module', 'daily-challenge', 'practice', 'assessment'],
+    default: 'module'
+  },
   isActive: {
     type: Boolean,
     default: true

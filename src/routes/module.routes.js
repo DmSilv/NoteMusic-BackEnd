@@ -6,7 +6,8 @@ const {
   getModule,
   completeModule,
   getCategories,
-  getNextRecommended
+  getNextRecommended,
+  getLevelInfo
 } = require('../controllers/module.controller');
 
 // Rotas públicas
@@ -15,6 +16,7 @@ router.get('/categories', getCategories);
 
 // Rotas protegidas
 router.get('/next-recommended', protect, getNextRecommended);
+router.get('/level-info', protect, getLevelInfo);
 router.get('/:id', protect, getModule);
 router.post('/:id/complete', protect, completeModule);
 

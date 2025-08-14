@@ -1,10 +1,10 @@
 # NoteMusic Backend API
 
-Backend completo para o aplicativo NoteMusic - Uma aplicação educacional de música gamificada.
+Backend completo para o aplicativo NoteMusic - Uma aplicação educacional de música gamificada com foco em música de orquestra e teoria musical avançada.
 
 ## 🎵 Sobre o Projeto
 
-O NoteMusic Backend é uma API REST desenvolvida em Node.js que fornece toda a infraestrutura necessária para um aplicativo de ensino musical gamificado. A API gerencia autenticação de usuários, módulos educacionais, quizzes, sistema de gamificação e progresso do usuário.
+O NoteMusic Backend é uma API REST desenvolvida em Node.js que fornece toda a infraestrutura necessária para um aplicativo de ensino musical gamificado. A API gerencia autenticação de usuários, módulos educacionais, quizzes, sistema de gamificação e progresso do usuário, com ênfase especial em música de orquestra e teoria musical.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -27,10 +27,10 @@ src/
 ├── config/
 │   └── database.js           # Configuração do MongoDB
 ├── controllers/
-│   ├── auth.controller.js    # Autenticação
+│   ├── auth.controller.js    # Autenticação e redefinição de senha
 │   ├── user.controller.js    # Usuários
 │   ├── module.controller.js  # Módulos educacionais
-│   ├── quiz.controller.js    # Quizzes
+│   ├── quiz.controller.js    # Quizzes e desafios diários
 │   └── gamification.controller.js # Gamificação
 ├── middlewares/
 │   ├── auth.js              # Middleware de autenticação
@@ -50,7 +50,7 @@ src/
 ├── utils/
 │   ├── constants.js         # Constantes da aplicação
 │   ├── responseHelpers.js   # Helpers de resposta
-│   └── seedData.js          # Dados para seed
+│   └── seedData.js          # Dados para seed (expandido)
 ├── validators/
 │   └── custom.validators.js # Validadores customizados
 └── app.js                   # Configuração do Express
@@ -86,7 +86,7 @@ JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:8081
 ```
 
-### 4. Popule o banco de dados (opcional)
+### 4. Popule o banco de dados
 ```bash
 npm run seed
 ```
@@ -105,7 +105,10 @@ npm start
 ### 🔐 Autenticação
 - `POST /api/auth/register` - Registrar usuário
 - `POST /api/auth/login` - Login do usuário
-- `POST /api/auth/logout` - Logout do usuário
+- `POST /api/auth/forgotpassword` - Solicitar redefinição de senha
+- `POST /api/auth/changetemppassword` - Alterar senha temporária
+- `GET /api/auth/me` - Obter usuário atual
+- `PUT /api/auth/updatepassword` - Atualizar senha
 
 ### 👤 Usuários
 - `GET /api/users/profile` - Obter perfil do usuário
@@ -119,16 +122,22 @@ npm start
 - `GET /api/modules/categories` - Listar categorias (público)
 - `GET /api/modules/:id` - Obter módulo específico
 - `POST /api/modules/:id/complete` - Marcar módulo como completo
+- `GET /api/modules/next-recommended` - Próximo módulo recomendado
 
 ### 🧩 Quizzes
 - `GET /api/quiz/:moduleId` - Obter quiz (público)
+- `GET /api/quiz/:moduleId/private` - Obter quiz (protegido)
 - `POST /api/quiz/:quizId/submit` - Submeter quiz (público)
+- `POST /api/quiz/:quizId/submit/private` - Submeter quiz (protegido)
 - `GET /api/quiz/daily-challenge` - Desafio diário (público)
+- `GET /api/quiz/daily-challenge/private` - Desafio diário (protegido)
 - `GET /api/quiz/history` - Histórico de quizzes (protegido)
 
 ### 🏆 Gamificação
 - `GET /api/gamification/stats` - Estatísticas (público)
+- `GET /api/gamification/stats/detailed` - Estatísticas detalhadas (protegido)
 - `GET /api/gamification/achievements` - Conquistas (protegido)
+- `GET /api/gamification/challenges` - Desafios personalizados (protegido)
 - `GET /api/gamification/leaderboard` - Ranking (protegido)
 - `GET /api/gamification/level-progress` - Progresso de nível (protegido)
 
@@ -140,12 +149,23 @@ A API utiliza JWT (JSON Web Tokens) para autenticação. Para acessar rotas prot
 Authorization: Bearer <seu_jwt_token>
 ```
 
+### 🔑 Sistema de Redefinição de Senha
+
+O sistema implementa um método seguro de redefinição de senha:
+
+1. **Solicitar redefinição**: `POST /api/auth/forgotpassword`
+2. **Senha temporária**: Uma senha aleatória é gerada e enviada (em desenvolvimento, retornada na resposta)
+3. **Login com senha temporária**: Usuário faz login com a senha temporária
+4. **Alterar senha**: `POST /api/auth/changetemppassword` para definir nova senha permanente
+
+**Nota**: Em produção, a senha temporária deve ser enviada por email.
+
 ## 🎮 Sistema de Gamificação
 
 ### Níveis de Usuário
-- **Aprendiz** - Nível inicial
-- **Intermediário** - Nível médio
-- **Avançado** - Nível expert
+- **Aprendiz** - Nível inicial (0-999 pontos)
+- **Intermediário** - Nível médio (1000-2999 pontos)
+- **Avançado** - Nível expert (3000+ pontos)
 
 ### Elementos Gamificados
 - **Streak** - Dias consecutivos de estudo
@@ -153,12 +173,52 @@ Authorization: Bearer <seu_jwt_token>
 - **Conquistas** - Badges por marcos alcançados
 - **Ranking** - Classificação entre usuários
 - **Pontos** - Sistema de pontuação por atividades
+- **Desafios Diários** - Quizzes especiais com bônus de pontos
+
+### 🎯 Desafios Diários
+
+Os desafios diários são quizzes especiais que:
+- Podem ser feitos apenas **uma vez por dia**
+- Oferecem **bônus de 50 pontos** extras
+- São **únicos para cada usuário** baseado em seu nível
+- **Renovam automaticamente** a cada 24 horas
+- **Bloqueiam tentativas múltiplas** no mesmo dia
+
+## 🎵 Conteúdo Musical
+
+### Categorias Disponíveis
+1. **Propriedades do Som** - Frequência, timbre, intensidade, duração
+2. **Escalas Maiores** - Estrutura, formação e aplicação
+3. **Figuras Musicais** - Notas, valores e leitura musical
+4. **Ritmos Ternários** - Compassos e divisões ternárias
+5. **Compasso Simples** - Métrica e acentuação
+6. **Andamento e Dinâmica** - Velocidade e intensidade
+7. **Solfejo Básico** - Leitura e entoação musical
+8. **Articulação Musical** - Técnicas de execução
+9. **Intervalos Musicais** - Distâncias entre notas
+10. **Expressão Musical** - Interpretação e sentimento
+11. **Síncopa e Contratempo** - Ritmos sincopados
+12. **Compasso Composto** - Compassos compostos
+
+### 🎼 Foco em Música de Orquestra
+
+O sistema inclui módulos específicos sobre:
+- **Instrumentos de Cordas** - Violino, viola, violoncelo, contrabaixo
+- **Instrumentos de Sopro** - Madeiras e metais
+- **Orquestração** - Técnicas de arranjo orquestral
+- **Análise Musical** - Forma, harmonia e estrutura
+- **Harmonia Funcional** - Progressões e cadências
 
 ## 🧪 Testando a API
 
 ### Usuário de Teste (após seed)
 - **Email:** `teste@notemusic.com`
 - **Senha:** `senha123`
+
+### Executar testes automatizados
+```bash
+node test-api.js
+```
 
 ### Exemplo de uso com curl:
 ```bash
@@ -170,9 +230,17 @@ curl -X POST http://localhost:3333/api/auth/login \
 # Obter módulos (público)
 curl http://localhost:3333/api/modules
 
+# Obter desafio diário (público)
+curl http://localhost:3333/api/quiz/daily-challenge
+
 # Obter perfil (protegido)
 curl -H "Authorization: Bearer <token>" \
   http://localhost:3333/api/users/profile
+
+# Solicitar redefinição de senha
+curl -X POST http://localhost:3333/api/auth/forgotpassword \
+  -H "Content-Type: application/json" \
+  -d '{"email":"teste@notemusic.com"}'
 ```
 
 ## 🔄 Scripts Disponíveis
@@ -180,6 +248,7 @@ curl -H "Authorization: Bearer <token>" \
 - `npm start` - Inicia o servidor em produção
 - `npm run dev` - Inicia o servidor em desenvolvimento com nodemon
 - `npm run seed` - Popula o banco com dados de teste
+- `node test-api.js` - Executa testes automatizados da API
 
 ## 🌐 Deploy
 
@@ -218,6 +287,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - Comunidade Node.js
 - MongoDB pela excelente documentação
 - Todos os contribuidores de código aberto
+- Músicos e educadores musicais que inspiraram este projeto
 
 ---
 
