@@ -39,22 +39,39 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
+// Rate limiting otimizado para produção
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 200, // limite de 200 requisições (aumentado de 100)
-  message: 'Muitas requisições, tente novamente mais tarde'
+  max: 1000, // limite aumentado para 1000 requisições (5x mais)
+  message: 'Muitas requisições, tente novamente mais tarde',
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Permitir mais requests para usuários autenticados
+  skip: (req) => {
+    // Pular rate limiting para usuários autenticados em algumas rotas
+    return req.user && req.path.includes('/stats');
+  }
 });
 app.use('/api', limiter);
 
-// Rate limiting mais restrito para auth
+// Rate limiting mais restrito para auth (mas ainda aumentado)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // limite de 100 requisições (aumentado para desenvolvimento)
-  message: 'Muitas tentativas, tente novamente mais tarde'
+  max: 300, // limite aumentado para 300 requisições (3x mais)
+  message: 'Muitas tentativas, tente novamente mais tarde',
+  standardHeaders: true,
+  legacyHeaders: false
 });
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+
+// Rate limiting específico para stats (mais permissivo)
+const statsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 500, // limite específico para stats
+  message: 'Muitas requisições de estatísticas, tente novamente mais tarde'
+});
+app.use('/api/users/stats', statsLimiter);
 
 // Parsers
 app.use(express.json());
