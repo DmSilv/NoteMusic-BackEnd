@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const emailConfig = require('../config/email.config');
 
 class EmailService {
@@ -8,21 +9,31 @@ class EmailService {
 
   setupTransporter() {
     try {
-      // ✅ Usar variáveis de ambiente
+      console.log('🔧 Configurando Email Service...');
+      
+      // ✅ PRIORIZAR SENDGRID (API HTTPS - sempre funciona!)
+      if (process.env.SENDGRID_API_KEY) {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        this.useSendGrid = true;
+        console.log('✅ Email Service configurado para SendGrid (API HTTPS)');
+        console.log('📧 Emails serão enviados via SendGrid');
+        return;
+      }
+      
+      // Fallback para Gmail (desenvolvimento local apenas)
       const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
       const emailPass = process.env.EMAIL_PASS || 'bdkh durt qter agpa';
       
-      console.log('🔧 Configurando Email Service...');
+      this.useSendGrid = false;
+      console.log('⚠️  SendGrid não configurado, usando Gmail (pode não funcionar em produção)');
       console.log('📧 Usuário:', emailUser);
-      console.log('🔑 Senha App:', emailPass.substring(0, 4) + ' **** **** ****'); // Ocultar senha nos logs
       console.log('🌐 Host:', 'smtp.gmail.com');
       console.log('🔌 Porta:', 465);
       
-      // ✅ Configuração usando porta 465 (SSL) para melhor compatibilidade com Railway
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
-        secure: true, // SSL na porta 465
+        secure: true,
         auth: {
           user: emailUser,
           pass: emailPass
@@ -30,13 +41,12 @@ class EmailService {
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 10000, // 10 segundos de timeout
+        connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 10000
       });
       
-      console.log('✅ Transporter criado com sucesso');
-      console.log('📧 Email Service configurado para:', emailUser);
+      console.log('✅ Gmail Transporter criado (fallback)');
     } catch (error) {
       console.error('❌ Erro ao configurar Email Service:', error);
       throw error;
@@ -59,33 +69,56 @@ class EmailService {
       
       const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
       
-      const mailOptions = {
-        from: `"NoteMusic App" <${emailUser}>`,
-        to: email,
-        subject: '🎵 NoteMusic - Recuperação de Senha',
-        html: this.generatePasswordResetEmailTemplate(tempPassword, userName)
-      };
+      if (this.useSendGrid) {
+        // ✅ USAR SENDGRID (API HTTPS)
+        const msg = {
+          to: email,
+          from: emailUser, // Deve ser verificado no SendGrid
+          subject: '🎵 NoteMusic - Recuperação de Senha',
+          html: this.generatePasswordResetEmailTemplate(tempPassword, userName)
+        };
+        
+        console.log('📧 Enviando via SendGrid API...');
+        await sgMail.send(msg);
+        
+        console.log('✅ Email enviado com sucesso via SendGrid!');
+        console.log('📬 Para:', email);
+        console.log('📧 De:', emailUser);
+        
+        return {
+          success: true,
+          messageId: 'sendgrid-success',
+          previewUrl: null
+        };
+      } else {
+        // Gmail (fallback)
+        const mailOptions = {
+          from: `"NoteMusic App" <${emailUser}>`,
+          to: email,
+          subject: '🎵 NoteMusic - Recuperação de Senha',
+          html: this.generatePasswordResetEmailTemplate(tempPassword, userName)
+        };
 
-      console.log('📧 Opções de email configuradas');
-      console.log('🔍 Verificando conexão com Gmail...');
-      
-      // Verificar conexão antes de enviar
-      await this.transporter.verify();
-      console.log('✅ Conexão com Gmail verificada com sucesso');
-      
-      console.log('📤 Enviando email...');
-      const info = await this.transporter.sendMail(mailOptions);
-      
-      console.log('✅ Email enviado com sucesso!');
-      console.log('📧 Message ID:', info.messageId);
-      console.log('📬 Para:', email);
-      console.log('📧 De: notemusic.oficial@gmail.com');
+        console.log('📧 Opções de email configuradas');
+        console.log('🔍 Verificando conexão com Gmail...');
+        
+        // Verificar conexão antes de enviar
+        await this.transporter.verify();
+        console.log('✅ Conexão com Gmail verificada com sucesso');
+        
+        console.log('📤 Enviando email...');
+        const info = await this.transporter.sendMail(mailOptions);
+        
+        console.log('✅ Email enviado com sucesso via Gmail!');
+        console.log('📧 Message ID:', info.messageId);
+        console.log('📬 Para:', email);
 
-      return {
-        success: true,
-        messageId: info.messageId,
-        previewUrl: null
-      };
+        return {
+          success: true,
+          messageId: info.messageId,
+          previewUrl: null
+        };
+      }
     } catch (error) {
       console.error('❌ Erro detalhado ao enviar email:');
       console.error('🔍 Tipo de erro:', error.constructor.name);
@@ -251,6 +284,11 @@ class EmailService {
    */
   async verifyConnection() {
     try {
+      if (this.useSendGrid) {
+        console.log('✅ SendGrid configurado e pronto para usar');
+        return true;
+      }
+      
       await this.transporter.verify();
       console.log('✅ Serviço de email está funcionando');
       return true;
