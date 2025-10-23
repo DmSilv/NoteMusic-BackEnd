@@ -3,6 +3,7 @@ const Quiz = require('../models/Quiz');
 const User = require('../models/User');
 const Module = require('../models/Module');
 const { USER_LEVELS, POINTS, LIMITS } = require('../utils/constants');
+const { calculateRebalancedPoints, GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 
 // @desc    Verificar se um quiz foi concluído pelo usuário
 // @route   GET /api/quiz/:quizId/completion-status
@@ -1030,45 +1031,17 @@ exports.submitQuizPrivate = async (req, res, next) => {
     
     user.completedQuizzes.push(quizCompletionData);
 
-    // Sistema de pontuação detalhado
-    // Pontos base pelas respostas corretas
-    const pointsEarned = (score || 0) * (POINTS.QUIZ_QUESTION || 10);
+    // Sistema de pontuação REBALANCEADO (baseado em módulos)
+    const pointsBreakdown = calculateRebalancedPoints(
+      score, 
+      totalQuestions, 
+      isDailyChallenge, 
+      user.streak || 0
+    );
     
-    // Bônus por completar o quiz (independente do score)
-    const quizCompletionBonus = POINTS.QUIZ_COMPLETION || 50;
-    console.log(`✅ Bônus por completar quiz: ${quizCompletionBonus} pontos`);
+    const totalPointsEarned = pointsBreakdown.totalPoints;
     
-    // Bônus por desempenho
-    let performanceBonus = 0;
-    if (percentage >= 90) {
-      // Bônus por pontuação excelente (acima de 90%)
-      performanceBonus = Math.round(pointsEarned * (POINTS.PERFECT_SCORE_BONUS || 0.5));
-      console.log(`🌟 Bônus por desempenho excelente: ${performanceBonus} pontos`);
-    }
-    
-    // Bônus por streaks (dias consecutivos)
-    let streakBonus = 0;
-    if (user.streak >= 3) {
-      streakBonus = Math.floor(user.streak / 3) * (POINTS.STREAK_BONUS || 10);
-      console.log(`🔥 Bônus por streak de ${user.streak} dias: ${streakBonus} pontos`);
-    }
-    
-    // Bônus para desafio diário
-    let dailyChallengeBonus = 0;
-    if (isDailyChallenge) {
-      dailyChallengeBonus = POINTS.DAILY_CHALLENGE_BONUS || 100;
-      console.log(`📅 Bônus por completar o desafio diário: ${dailyChallengeBonus} pontos`);
-    }
-    
-    // Total de pontos e bônus - garantir que são números válidos
-    const totalBonusPoints = (quizCompletionBonus || 0) + (performanceBonus || 0) + (streakBonus || 0) + (dailyChallengeBonus || 0);
-    const totalPointsEarned = (pointsEarned || 0) + totalBonusPoints;
-    
-    // Registrar log detalhado
-    console.log('📊 Resumo de pontos obtidos:');
-    console.log(`   Pontos base: ${pointsEarned}`);
-    console.log(`   Bônus total: ${totalBonusPoints}`);
-    console.log(`   Total: ${totalPointsEarned}`);
+    console.log('📊 Pontos rebalanceados:', pointsBreakdown);
     
     // Adicionar ao total do usuário - garantir que totalPoints existe e é número
     if (typeof user.totalPoints !== 'number' || isNaN(user.totalPoints)) {
@@ -1116,14 +1089,7 @@ exports.submitQuizPrivate = async (req, res, next) => {
       pointsEarned: totalPointsEarned,
       totalPoints: user.totalPoints,
       isDailyChallenge,
-      bonusBreakdown: {
-        basePoints: pointsEarned,
-        quizCompletionBonus,
-        performanceBonus,
-        streakBonus,
-        dailyChallengeBonus,
-        totalBonus: totalBonusPoints
-      },
+      bonusBreakdown: pointsBreakdown,
       passed: isQuizPassed,
       attempts: {
         current: quizAttempt.attempts,

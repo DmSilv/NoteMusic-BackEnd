@@ -164,18 +164,16 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, salt);
   }
   
-  // Atualizar nível automaticamente baseado em pontos
-  if (this.isModified('totalPoints')) {
+  // Atualizar nível automaticamente baseado em MÓDULOS COMPLETOS (não pontos)
+  if (this.isModified('completedModules')) {
     const previousLevel = this.level;
     
-    // Calcular novo nível baseado em pontos
-    // Requisitos alinhados com o frontend (gamification.controller.js):
-    // Aprendiz: 0-149 pontos
-    // Virtuoso: 150-299 pontos
-    // Maestro: 300+ pontos
-    if (this.totalPoints >= 300) {
+    // Calcular novo nível baseado APENAS em módulos completos
+    const completedModulesCount = this.completedModules?.length || 0;
+    
+    if (completedModulesCount >= 6) {
       this.level = 'maestro';
-    } else if (this.totalPoints >= 150) {
+    } else if (completedModulesCount >= 2) {
       this.level = 'virtuoso';
     } else {
       this.level = 'aprendiz';
@@ -183,7 +181,7 @@ userSchema.pre('save', async function(next) {
     
     // Log se houve mudança de nível
     if (previousLevel !== this.level) {
-      console.log(`🎉 Usuário ${this.email} avançou de ${previousLevel} para ${this.level}! (${this.totalPoints} pontos)`);
+      console.log(`🎉 Usuário ${this.email} avançou de ${previousLevel} para ${this.level}! (${completedModulesCount} módulos completos)`);
     }
   }
   

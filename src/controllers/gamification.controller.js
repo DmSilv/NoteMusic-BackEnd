@@ -1,5 +1,10 @@
 const User = require('../models/User');
 const GamificationService = require('../services/gamification.service');
+const { 
+  calculateModuleBasedProgress, 
+  calculateRebalancedPoints,
+  GAMIFICATION_CONSTANTS 
+} = require('../utils/gamificationRebalanced');
 
 // @desc    Obter estatísticas básicas (público/mock)
 // @route   GET /api/gamification/stats
@@ -189,67 +194,9 @@ const calculateUserStats = (user) => {
   };
 };
 
-// Função auxiliar para calcular progresso de nível
+// Função auxiliar para calcular progresso de nível (BASEADO EM MÓDULOS)
 const calculateLevelProgress = (user) => {
-  const completedModules = user.completedModules.length;
-  const totalPoints = user.totalPoints || 0;
-  
-  console.log('🔍 Calculando progresso para usuário:', {
-    level: user.level,
-    completedModules,
-    totalPoints
-  });
-  
-  switch (user.level) {
-    case 'aprendiz':
-      const progressModules = Math.min((completedModules / 2) * 100, 100);
-      const progressPoints = Math.min((totalPoints / 150) * 100, 100);
-      const maxProgress = Math.max(progressModules, progressPoints);
-      
-      return {
-        current: 'Aprendiz',
-        next: 'Virtuoso',
-        percentage: Math.round(maxProgress),
-        requirements: 'Complete 2 módulos OU ganhe 150 pontos',
-        modulesProgress: { current: completedModules, required: 2, percentage: Math.round(progressModules) },
-        pointsProgress: { current: totalPoints, required: 150, percentage: Math.round(progressPoints) }
-      };
-    
-    case 'virtuoso':
-      const progressModulesInt = Math.min((completedModules / 4) * 100, 100);
-      const progressPointsInt = Math.min((totalPoints / 300) * 100, 100);
-      const maxProgressInt = Math.max(progressModulesInt, progressPointsInt);
-      
-      return {
-        current: 'Virtuoso',
-        next: 'Maestro',
-        percentage: Math.round(maxProgressInt),
-        requirements: 'Complete 4 módulos OU ganhe 300 pontos',
-        modulesProgress: { current: completedModules, required: 4, percentage: Math.round(progressModulesInt) },
-        pointsProgress: { current: totalPoints, required: 300, percentage: Math.round(progressPointsInt) }
-      };
-    
-    case 'maestro':
-      return {
-        current: 'Maestro',
-        next: 'Nível Máximo',
-        percentage: 100,
-        requirements: 'Nível máximo atingido! Parabéns!',
-        modulesProgress: { current: completedModules, required: completedModules || 1, percentage: 100 },
-        pointsProgress: { current: totalPoints, required: totalPoints || 1, percentage: 100 }
-      };
-    
-    default:
-      console.log('⚠️ Nível não reconhecido:', user.level);
-      return {
-        current: 'Aprendiz',
-        next: 'Virtuoso',
-        percentage: 0,
-        requirements: 'Complete 3 módulos OU ganhe 300 pontos',
-        modulesProgress: { current: completedModules, required: 3, percentage: 0 },
-        pointsProgress: { current: totalPoints, required: 300, percentage: 0 }
-      };
-  }
+  return calculateModuleBasedProgress(user);
 };
 
 // Função auxiliar para obter próxima conquista

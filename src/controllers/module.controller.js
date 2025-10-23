@@ -1,5 +1,6 @@
 const Module = require('../models/Module');
 const User = require('../models/User');
+const { GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 
 // @desc    Listar todos os módulos
 // @route   GET /api/modules
@@ -110,7 +111,7 @@ exports.getModule = async (req, res, next) => {
   }
 };
 
-// @desc    Marcar módulo como completo
+// @desc    Marcar módulo como completo (COM VALIDAÇÃO RIGOROSA)
 // @route   POST /api/modules/:id/complete
 // @access  Private
 exports.completeModule = async (req, res, next) => {
@@ -119,7 +120,7 @@ exports.completeModule = async (req, res, next) => {
     console.log(`🔍 Marcando módulo como completo: ${moduleId}`);
     
     // Verificar se o módulo existe
-    const module = await Module.findById(moduleId);
+    const module = await Module.findById(moduleId).populate('quizzes');
     if (!module) {
       console.log(`❌ Módulo não encontrado: ${moduleId}`);
       return res.status(404).json({
@@ -128,8 +129,16 @@ exports.completeModule = async (req, res, next) => {
       });
     }
 
-    // Verificar se o usuário já completou este módulo
+    // Buscar usuário
     const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+
+    // Verificar se o usuário já completou este módulo
     const alreadyCompleted = user.completedModules.some(
       cm => cm.moduleId.toString() === moduleId
     );
@@ -142,23 +151,70 @@ exports.completeModule = async (req, res, next) => {
       });
     }
 
-    // Adicionar à lista de módulos completados
+    // ✅ VALIDAÇÃO RIGOROSA: Verificar se TODOS os quizzes do módulo foram completados
+    const moduleQuizIds = module.quizzes.map(quiz => quiz._id.toString());
+    const completedQuizIds = user.completedQuizzes
+      .filter(cq => cq.passed) // Apenas quizzes aprovados
+      .map(cq => cq.quizId.toString());
+
+    const completedQuizzesInModule = moduleQuizIds.filter(quizId => 
+      completedQuizIds.includes(quizId)
+    );
+
+    console.log(`🔍 Validação de conclusão do módulo "${module.title}":`);
+    console.log(`   Quizzes no módulo: ${moduleQuizIds.length}`);
+    console.log(`   Quizzes completados pelo usuário: ${completedQuizzesInModule.length}`);
+    console.log(`   IDs dos quizzes: ${moduleQuizIds}`);
+    console.log(`   IDs completados: ${completedQuizzesInModule}`);
+
+    // Verificar se TODOS os quizzes foram completados
+    if (moduleQuizIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Este módulo não possui quizzes para completar'
+      });
+    }
+
+    if (completedQuizzesInModule.length !== moduleQuizIds.length) {
+      const missingQuizzes = moduleQuizIds.filter(quizId => 
+        !completedQuizzesInModule.includes(quizId)
+      );
+      
+      console.log(`❌ Módulo não pode ser completado. Quizzes faltando: ${missingQuizzes.length}`);
+      
+      return res.status(400).json({
+        success: false,
+        message: `Você precisa completar todos os quizzes deste módulo primeiro. Faltam ${missingQuizzes.length} quiz(es).`,
+        missingQuizzes: missingQuizzes.length,
+        totalQuizzes: moduleQuizIds.length,
+        completedQuizzes: completedQuizzesInModule.length
+      });
+    }
+
+    // ✅ MÓDULO PODE SER COMPLETADO - Adicionar à lista de módulos completados
     user.completedModules.push({
       moduleId,
       completedAt: new Date()
     });
 
-    // Adicionar pontos ao usuário
-    user.points += module.points || 0;
+    // Adicionar pontos por completar módulo (sistema rebalanceado)
+    const moduleCompletionPoints = GAMIFICATION_CONSTANTS.POINTS.MODULE_COMPLETION;
+    user.totalPoints = (user.totalPoints || 0) + moduleCompletionPoints;
     
+    console.log(`✅ Módulo "${module.title}" marcado como completo!`);
+    console.log(`   Pontos ganhos: ${moduleCompletionPoints}`);
+    console.log(`   Total de pontos: ${user.totalPoints}`);
+    console.log(`   Módulos completados: ${user.completedModules.length}`);
+
     await user.save();
-    console.log(`✅ Módulo marcado como completo: ${module.title}`);
 
     res.status(200).json({
       success: true,
-      message: 'Módulo marcado como completo',
-      points: module.points,
-      totalPoints: user.points
+      message: 'Módulo marcado como completo com sucesso!',
+      pointsEarned: moduleCompletionPoints,
+      totalPoints: user.totalPoints,
+      completedModules: user.completedModules.length,
+      level: user.level
     });
   } catch (error) {
     console.error('❌ Erro ao completar módulo:', error);
