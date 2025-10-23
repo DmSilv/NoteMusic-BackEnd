@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-10-20T20:41:11.973Z",
+  "totalUsuarios": 4,
+  "usuarios": [
+    {
+      "notifications": {
+        "email": true,
+        "push": true
+      },
+      "_id": "68b84a0b942baa3796be865c",
+      "name": "Daniel",
+      "email": "danielmingoranse84@gmail.com",
+      "tempPassword": false,
+      "level": "maestro",
+      "streak": 5,
+      "totalPoints": 3000,
+      "points": 0,
+      "weeklyGoal": 10,
+      "weeklyProgress": 0,
+      "completedModules": [],
+      "completedQuizzes": [],
+      "isActive": true,
+      "lastActivityDate": "2025-10-20T20:16:40.649Z",
+      "quizAttempts": [],
+      "createdAt": "2025-09-03T14:00:43.448Z",
+      "updatedAt": "2025-10-20T20:16:40.649Z",
+      "__v": 0
+    },
+    {
+      "notifications": {
+        "email": true,
+        "push": true
+      },
+      "_id": "68e8392287a2c5b5973bdc05",
+      "name": "usuario",
+      "email": "usuario@usuario.com",
+      "tempPassword": false,
+      "level": "maestro",
+      "streak": 4,
+      "totalPoints": 412,
+      "points": 0,
+      "weeklyGoal": 5,
+      "weeklyProgress": 0,
+      "isActive": true,
+      "lastActivityDate": "2025-10-20T20:33:27.854Z",
+      "completedModules": [],
+      "completedQuizzes": [
+        {
+          "quizId": "68e84ae6ef726eb6954dfa2a",
+          "score": 3,
+          "percentage": 60,
+          "passed": false,
+          "completedAt": "2025-10-17T17:25:20.425Z",
+          "_id": "68f27c00fcdeba2fc409bec9"
+        },
+        {
+          "quizId": "68f271821b486df1d7040f0b",
+          "score": 3,
+          "percentage": 100,
+          "passed": true,
+          "completedAt": "2025-10-17T17:31:25.949Z",
+          "_id": "68f27d6d629e2204146c2efb"
+        },
+        {
+          "quizId": "68f271821b486df1d7040f59",
+          "score": 1,
+          "percentage": 33,
+          "passed": false,
+          "completedAt": "2025-10-17T17:32:39.887Z",
+          "_id": "68f27db7629e2204146c2fee"
+        },
+        {
+          "quizId": "68e84ae6ef726eb6954dfa4e",
+          "score": 3,
+          "percentage": 100,
+          "passed": true,
+          "completedAt": "2025-10-17T17:34:14.667Z",
+          "_id": "68f27e16629e2204146c31c3"
+        }
+      ],
+      "quizAttempts": [
+        {
+          "quizId": "68e84ae6ef726eb6954dfa2a",
+          "attempts": 1,
+          "lastAttempt": "2025-10-17T17:25:20.423Z",
+          "isBlocked": false,
+          "blockedAt": null,
+          "_id": "68f27c00fcdeba2fc409bec8"
+        },
+        {
+          "quizId": "68f271821b486df1d7040f0b",
+          "attempts": 1,
+          "lastAttempt": "2025-10-17T17:31:25.948Z",
+          "isBlocked": true,
+          "blockedAt": "2025-10-17T17:31:25.948Z",
+          "_id": "68f27d6d629e2204146c2efa"
+        },
+        {
+          "quizId": "68f271821b486df1d7040f59",
+          "attempts": 1,
+          "lastAttempt": "2025-10-17T17:32:39.887Z",
+          "isBlocked": false,
+          "blockedAt": null,
+          "_id": "68f27db7629e2204146c2fed"
+        },
+        {
+          "quizId": "68e84ae6ef726eb6954dfa4e",
+          "attempts": 1,
+          "lastAttempt": "2025-10-17T17:34:14.667Z",
+          "isBlocked": true,
+          "blockedAt": "2025-10-17T17:34:14.667Z",
+          "_id": "68f27e16629e2204146c31c2"
+        }
+      ],
+      "createdAt": "2025-10-09T22:37:22.328Z",
+      "updatedAt": "2025-10-20T20:33:27.855Z",
+      "__v": 4
+    },
+    {
+      "notifications": {
+        "email": true,
+        "push": true
+      },
+      "_id": "68e8392e87a2c5b5973bdc09",
+      "name": "usuario",
+      "email": "usuario@usuario2.com",
+      "tempPassword": false,
+      "level": "aprendiz",
+      "streak": 0,
+      "totalPoints": 0,
+      "points": 0,
+      "weeklyGoal": 5,
+      "weeklyProgress": 0,
+      "isActive": true,
+      "lastActivityDate": "2025-10-09T22:37:34.649Z",
+      "completedModules": [],
+      "completedQuizzes": [],
+      "quizAttempts": [],
+      "createdAt": "2025-10-09T22:37:34.649Z",
+      "updatedAt": "2025-10-09T23:53:10.310Z",
+      "__v": 0
+    },
+    {
+      "notifications": {
+        "email": true,
+        "push": true
+      },
+      "_id": "68e83f83ee461830e220d59b",
+      "name": "master",
+      "email": "mastrer@master.com",
+      "tempPassword": false,
+      "level": "aprendiz",
+      "streak": 0,
+      "totalPoints": 0,
+      "points": 0,
+      "weeklyGoal": 5,
+      "weeklyProgress": 0,
+      "isActive": true,
+      "lastActivityDate": "2025-10-09T23:04:35.072Z",
+      "completedModules": [],
+      "completedQuizzes": [],
+      "quizAttempts": [],
+      "createdAt": "2025-10-09T23:04:35.073Z",
+      "updatedAt": "2025-10-09T23:53:10.310Z",
+      "__v": 0
+    }
+  ]
+}

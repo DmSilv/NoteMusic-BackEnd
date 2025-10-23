@@ -1,0 +1,1645 @@
+[
+  {
+    "_id": "68e84ae6ef726eb6954df9ff",
+    "title": "Propriedades do Som",
+    "description": "Compreenda as quatro propriedades fundamentais que caracterizam cada som musical",
+    "category": "propriedades-som",
+    "level": "aprendiz",
+    "order": 1,
+    "content": {
+      "theory": "Todo som musical possui quatro propriedades essenciais que determinam suas características:\n\n1. Altura: determina se um som é grave ou agudo, relacionada à frequência das ondas sonoras\n2. Timbre: qualidade sonora que diferencia instrumentos mesmo tocando a mesma nota\n3. Intensidade: volume do som (forte ou fraco)\n4. Duração: tempo que o som permanece audível",
+      "examples": [
+        {
+          "title": "Altura",
+          "description": "Notas graves (como Dó2) têm frequências mais baixas, enquanto notas agudas (como Dó5) têm frequências mais altas",
+          "_id": "68e84ae6ef726eb6954dfa00"
+        },
+        {
+          "title": "Timbre",
+          "description": "É possível distinguir um violino de um piano mesmo tocando a mesma nota devido ao timbre característico",
+          "_id": "68e84ae6ef726eb6954dfa01"
+        },
+        {
+          "title": "Intensidade",
+          "description": "Na partitura, indicações como pp (pianíssimo) ou ff (fortíssimo) indicam a intensidade",
+          "_id": "68e84ae6ef726eb6954dfa02"
+        },
+        {
+          "title": "Duração",
+          "description": "Representada por figuras musicais como semibreve (4 tempos), mínima (2 tempos), semínima (1 tempo)",
+          "_id": "68e84ae6ef726eb6954dfa03"
+        }
+      ],
+      "exercises": []
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68fa335e438fc4fa057cc4f2"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-09T23:53:10.319Z",
+    "updatedAt": "2025-10-23T13:53:34.941Z",
+    "__v": 2
+  },
+  {
+    "_id": "68e84ae6ef726eb6954dfa25",
+    "title": "Notação Musical Básica",
+    "description": "Aprenda a ler e escrever os símbolos básicos utilizados na música ocidental",
+    "category": "figuras-musicais",
+    "level": "aprendiz",
+    "order": 2,
+    "content": {
+      "theory": "A notação musical é o sistema de escrita que representa graficamente os sons musicais. Os elementos básicos incluem o pentagrama (pauta musical), as notas musicais, as claves, as figuras de duração e os compassos.",
+      "examples": [
+        {
+          "title": "Pentagrama",
+          "description": "Conjunto de cinco linhas e quatro espaços onde as notas são escritas",
+          "_id": "68e84ae6ef726eb6954dfa26"
+        },
+        {
+          "title": "Clave de Sol",
+          "description": "Determina que a nota Sol está localizada na segunda linha do pentagrama",
+          "_id": "68e84ae6ef726eb6954dfa27"
+        },
+        {
+          "title": "Figuras de duração",
+          "description": "Semibreve (4 tempos), mínima (2 tempos), semínima (1 tempo), colcheia (1/2 tempo)",
+          "_id": "68e84ae6ef726eb6954dfa28"
+        }
+      ],
+      "exercises": []
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77852d9"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-09T23:53:10.339Z",
+    "updatedAt": "2025-10-20T20:41:12.080Z",
+    "__v": 2
+  },
+  {
+    "_id": "68e84ae6ef726eb6954dfa49",
+    "title": "Intervalos Musicais",
+    "description": "Compreenda as distâncias entre as notas e como elas afetam a melodia e harmonia",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 1,
+    "content": {
+      "theory": "Um intervalo musical é a distância entre duas notas. Os intervalos são classificados pela sua distância (2ª, 3ª, 4ª, etc.) e pela sua qualidade (maior, menor, justo, aumentado, diminuto).",
+      "examples": [
+        {
+          "title": "Intervalo de 2ª",
+          "description": "Dó-Ré (2ª maior), Mi-Fá (2ª menor)",
+          "_id": "68e84ae6ef726eb6954dfa4a"
+        },
+        {
+          "title": "Intervalo de 3ª",
+          "description": "Dó-Mi (3ª maior), Ré-Fá (3ª menor)",
+          "_id": "68e84ae6ef726eb6954dfa4b"
+        },
+        {
+          "title": "Intervalo de 5ª",
+          "description": "Dó-Sol (5ª justa), Si-Fá (5ª diminuta)",
+          "_id": "68e84ae6ef726eb6954dfa4c"
+        }
+      ],
+      "exercises": []
+    },
+    "duration": 30,
+    "points": 75,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785321"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-09T23:53:10.348Z",
+    "updatedAt": "2025-10-20T20:41:12.095Z",
+    "__v": 2
+  },
+  {
+    "_id": "68e84ae6ef726eb6954dfa6d",
+    "title": "Harmonia Avançada",
+    "description": "Explore progressões harmônicas complexas e técnicas de modulação",
+    "category": "expressao-musical",
+    "level": "maestro",
+    "order": 1,
+    "content": {
+      "theory": "A harmonia avançada estuda as relações entre acordes, progressões não-diatônicas, empréstimos modais, modulações e técnicas de rearmonização que expandem as possibilidades expressivas da música.",
+      "examples": [
+        {
+          "title": "Acordes de empréstimo modal",
+          "description": "Uso de acordes de tonalidades paralelas, como um acorde menor IV em uma tonalidade maior",
+          "_id": "68e84ae6ef726eb6954dfa6e"
+        },
+        {
+          "title": "Modulação por acorde pivô",
+          "description": "Um acorde comum a duas tonalidades que serve como ponte para a modulação",
+          "_id": "68e84ae6ef726eb6954dfa6f"
+        },
+        {
+          "title": "Progressões com substituição tritônica",
+          "description": "Substituição de um acorde dominante pelo acorde localizado um trítono acima",
+          "_id": "68e84ae6ef726eb6954dfa70"
+        }
+      ],
+      "exercises": []
+    },
+    "duration": 30,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785333"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-09T23:53:10.356Z",
+    "updatedAt": "2025-10-20T20:41:12.097Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d13f6d799d574d4ae52",
+    "title": "ALTURA - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre altura no nível virtuoso",
+    "category": "propriedades-som",
+    "level": "virtuoso",
+    "order": 1,
+    "content": {
+      "theory": "Conteúdo avançado sobre altura para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de altura",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d13f6d799d574d4ae53"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de altura",
+          "type": "pratica",
+          "_id": "68f26d13f6d799d574d4ae54"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785357"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:39.977Z",
+    "updatedAt": "2025-10-20T20:41:12.108Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4ae6c",
+    "title": "INTENSIDADE - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre intensidade no nível virtuoso",
+    "category": "propriedades-som",
+    "level": "virtuoso",
+    "order": 2,
+    "content": {
+      "theory": "Conteúdo avançado sobre intensidade para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de intensidade",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4ae6d"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de intensidade",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4ae6e"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785365"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.073Z",
+    "updatedAt": "2025-10-20T20:41:12.112Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4ae86",
+    "title": "TIMBRE - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre timbre no nível virtuoso",
+    "category": "propriedades-som",
+    "level": "virtuoso",
+    "order": 3,
+    "content": {
+      "theory": "Conteúdo avançado sobre timbre para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de timbre",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4ae87"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de timbre",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4ae88"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785373"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.081Z",
+    "updatedAt": "2025-10-20T20:41:12.115Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4aea0",
+    "title": "DURAÇÃO - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre duração no nível virtuoso",
+    "category": "propriedades-som",
+    "level": "virtuoso",
+    "order": 4,
+    "content": {
+      "theory": "Conteúdo avançado sobre duração para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de duração",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4aea1"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de duração",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4aea2"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785381"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.088Z",
+    "updatedAt": "2025-10-20T20:41:12.118Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4aeba",
+    "title": "PAUTA OU PENTAGRAMA - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre pauta ou pentagrama no nível virtuoso",
+    "category": "figuras-musicais",
+    "level": "virtuoso",
+    "order": 5,
+    "content": {
+      "theory": "Conteúdo avançado sobre pauta ou pentagrama para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de pauta ou pentagrama",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4aebb"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de pauta ou pentagrama",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4aebc"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778538f"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.094Z",
+    "updatedAt": "2025-10-20T20:41:12.121Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4aed4",
+    "title": "CLAVES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre claves no nível virtuoso",
+    "category": "figuras-musicais",
+    "level": "virtuoso",
+    "order": 6,
+    "content": {
+      "theory": "Conteúdo avançado sobre claves para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de claves",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4aed5"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de claves",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4aed6"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778539d"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.099Z",
+    "updatedAt": "2025-10-20T20:41:12.124Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4aeee",
+    "title": "NOTAS MUSICAIS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre notas musicais no nível virtuoso",
+    "category": "figuras-musicais",
+    "level": "virtuoso",
+    "order": 7,
+    "content": {
+      "theory": "Conteúdo avançado sobre notas musicais para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de notas musicais",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4aeef"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de notas musicais",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4aef0"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853ab"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.104Z",
+    "updatedAt": "2025-10-20T20:41:12.128Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af08",
+    "title": "FIGURAS MUSICAIS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre figuras musicais no nível virtuoso",
+    "category": "figuras-musicais",
+    "level": "virtuoso",
+    "order": 8,
+    "content": {
+      "theory": "Conteúdo avançado sobre figuras musicais para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de figuras musicais",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af09"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de figuras musicais",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af0a"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853b9"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.109Z",
+    "updatedAt": "2025-10-20T20:41:12.131Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af22",
+    "title": "PULSAÇÃO E TEMPO - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre pulsação e tempo no nível virtuoso",
+    "category": "ritmo-ternarios",
+    "level": "virtuoso",
+    "order": 9,
+    "content": {
+      "theory": "Conteúdo avançado sobre pulsação e tempo para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de pulsação e tempo",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af23"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de pulsação e tempo",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af24"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853c7"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.116Z",
+    "updatedAt": "2025-10-20T20:41:12.134Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af3c",
+    "title": "FÓRMULAS DE COMPASSO - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre fórmulas de compasso no nível virtuoso",
+    "category": "compasso-simples",
+    "level": "virtuoso",
+    "order": 10,
+    "content": {
+      "theory": "Conteúdo avançado sobre fórmulas de compasso para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de fórmulas de compasso",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af3d"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de fórmulas de compasso",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af3e"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853d5"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.122Z",
+    "updatedAt": "2025-10-20T20:41:12.137Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af56",
+    "title": "COMPASSOS SIMPLES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre compassos simples no nível virtuoso",
+    "category": "compasso-simples",
+    "level": "virtuoso",
+    "order": 11,
+    "content": {
+      "theory": "Conteúdo avançado sobre compassos simples para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de compassos simples",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af57"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de compassos simples",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af58"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853e3"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.127Z",
+    "updatedAt": "2025-10-20T20:41:12.140Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af70",
+    "title": "COMPASSOS COMPOSTOS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre compassos compostos no nível virtuoso",
+    "category": "compasso-composto",
+    "level": "virtuoso",
+    "order": 12,
+    "content": {
+      "theory": "Conteúdo avançado sobre compassos compostos para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de compassos compostos",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af71"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de compassos compostos",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af72"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853f1"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.131Z",
+    "updatedAt": "2025-10-20T20:41:12.143Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4af8a",
+    "title": "TONS E SEMITONS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre tons e semitons no nível virtuoso",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 13,
+    "content": {
+      "theory": "Conteúdo avançado sobre tons e semitons para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de tons e semitons",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4af8b"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de tons e semitons",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4af8c"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77853ff"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.134Z",
+    "updatedAt": "2025-10-20T20:41:12.146Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4afeb",
+    "title": "ESCALAS MAIORES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre escalas maiores no nível virtuoso",
+    "category": "escalas-maiores",
+    "level": "virtuoso",
+    "order": 15,
+    "content": {
+      "theory": "Conteúdo avançado sobre escalas maiores para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de escalas maiores",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4afec"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de escalas maiores",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4afed"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778530f"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.143Z",
+    "updatedAt": "2025-10-20T20:41:12.092Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4b005",
+    "title": "ESCALAS MENORES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre escalas menores no nível virtuoso",
+    "category": "escalas-maiores",
+    "level": "virtuoso",
+    "order": 16,
+    "content": {
+      "theory": "Conteúdo avançado sobre escalas menores para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de escalas menores",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4b006"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de escalas menores",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4b007"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778540e"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.148Z",
+    "updatedAt": "2025-10-20T20:41:12.149Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4b01f",
+    "title": "FORMAÇÃO DE ACORDES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre formação de acordes no nível virtuoso",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 17,
+    "content": {
+      "theory": "Conteúdo avançado sobre formação de acordes para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de formação de acordes",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4b020"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de formação de acordes",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4b021"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778541c"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.152Z",
+    "updatedAt": "2025-10-20T20:41:12.152Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4b039",
+    "title": "TRÍADES - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre tríades no nível virtuoso",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 18,
+    "content": {
+      "theory": "Conteúdo avançado sobre tríades para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de tríades",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4b03a"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de tríades",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4b03b"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778542a"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.156Z",
+    "updatedAt": "2025-10-20T20:41:12.155Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4b053",
+    "title": "FUNÇÕES HARMÔNICAS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre funções harmônicas no nível virtuoso",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 19,
+    "content": {
+      "theory": "Conteúdo avançado sobre funções harmônicas para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de funções harmônicas",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4b054"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de funções harmônicas",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4b055"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785438"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.160Z",
+    "updatedAt": "2025-10-20T20:41:12.158Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f26d14f6d799d574d4b06d",
+    "title": "CADÊNCIAS - Nível Virtuoso",
+    "description": "Aprofunde seus conhecimentos sobre cadências no nível virtuoso",
+    "category": "intervalos-musicais",
+    "level": "virtuoso",
+    "order": 20,
+    "content": {
+      "theory": "Conteúdo avançado sobre cadências para músicos virtuosos.",
+      "examples": [
+        {
+          "title": "Exemplo Prático",
+          "description": "Aplicação prática de cadências",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f26d14f6d799d574d4b06e"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Avançado",
+          "description": "Prática avançada de cadências",
+          "type": "pratica",
+          "_id": "68f26d14f6d799d574d4b06f"
+        }
+      ]
+    },
+    "duration": 45,
+    "points": 100,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785446"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:21:40.164Z",
+    "updatedAt": "2025-10-20T20:41:12.161Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040e36",
+    "title": "ALTURA - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de altura no nível aprendiz",
+    "category": "propriedades-som",
+    "level": "aprendiz",
+    "order": 1,
+    "content": {
+      "theory": "Conteúdo introdutório sobre altura para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de altura",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040e37"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de altura",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040e38"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785454"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.749Z",
+    "updatedAt": "2025-10-20T20:41:12.164Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040e50",
+    "title": "INTENSIDADE - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de intensidade no nível aprendiz",
+    "category": "propriedades-som",
+    "level": "aprendiz",
+    "order": 2,
+    "content": {
+      "theory": "Conteúdo introdutório sobre intensidade para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de intensidade",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040e51"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de intensidade",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040e52"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785462"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.765Z",
+    "updatedAt": "2025-10-20T20:41:12.166Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040e6a",
+    "title": "TIMBRE - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de timbre no nível aprendiz",
+    "category": "propriedades-som",
+    "level": "aprendiz",
+    "order": 3,
+    "content": {
+      "theory": "Conteúdo introdutório sobre timbre para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de timbre",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040e6b"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de timbre",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040e6c"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785470"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.773Z",
+    "updatedAt": "2025-10-20T20:41:12.170Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040e84",
+    "title": "DURAÇÃO - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de duração no nível aprendiz",
+    "category": "propriedades-som",
+    "level": "aprendiz",
+    "order": 4,
+    "content": {
+      "theory": "Conteúdo introdutório sobre duração para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de duração",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040e85"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de duração",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040e86"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778547e"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.781Z",
+    "updatedAt": "2025-10-20T20:41:12.173Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040e9e",
+    "title": "PAUTA OU PENTAGRAMA - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de pauta ou pentagrama no nível aprendiz",
+    "category": "figuras-musicais",
+    "level": "aprendiz",
+    "order": 5,
+    "content": {
+      "theory": "Conteúdo introdutório sobre pauta ou pentagrama para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de pauta ou pentagrama",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040e9f"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de pauta ou pentagrama",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040ea0"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77852eb"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.788Z",
+    "updatedAt": "2025-10-20T20:41:12.085Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040eb8",
+    "title": "CLAVES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de claves no nível aprendiz",
+    "category": "figuras-musicais",
+    "level": "aprendiz",
+    "order": 6,
+    "content": {
+      "theory": "Conteúdo introdutório sobre claves para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de claves",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040eb9"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de claves",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040eba"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778548d"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.796Z",
+    "updatedAt": "2025-10-20T20:41:12.177Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040ed2",
+    "title": "NOTAS MUSICAIS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de notas musicais no nível aprendiz",
+    "category": "figuras-musicais",
+    "level": "aprendiz",
+    "order": 7,
+    "content": {
+      "theory": "Conteúdo introdutório sobre notas musicais para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de notas musicais",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040ed3"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de notas musicais",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040ed4"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778549b"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.803Z",
+    "updatedAt": "2025-10-20T20:41:12.181Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040eec",
+    "title": "FIGURAS MUSICAIS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de figuras musicais no nível aprendiz",
+    "category": "figuras-musicais",
+    "level": "aprendiz",
+    "order": 8,
+    "content": {
+      "theory": "Conteúdo introdutório sobre figuras musicais para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de figuras musicais",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040eed"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de figuras musicais",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040eee"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854a9"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.809Z",
+    "updatedAt": "2025-10-20T20:41:12.185Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f06",
+    "title": "PULSAÇÃO E TEMPO - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de pulsação e tempo no nível aprendiz",
+    "category": "ritmo-ternarios",
+    "level": "aprendiz",
+    "order": 9,
+    "content": {
+      "theory": "Conteúdo introdutório sobre pulsação e tempo para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de pulsação e tempo",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f07"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de pulsação e tempo",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f08"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854b7"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.816Z",
+    "updatedAt": "2025-10-20T20:41:12.188Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f20",
+    "title": "FÓRMULAS DE COMPASSO - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de fórmulas de compasso no nível aprendiz",
+    "category": "compasso-simples",
+    "level": "aprendiz",
+    "order": 10,
+    "content": {
+      "theory": "Conteúdo introdutório sobre fórmulas de compasso para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de fórmulas de compasso",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f21"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de fórmulas de compasso",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f22"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77852fd"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.823Z",
+    "updatedAt": "2025-10-20T20:41:12.089Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f3a",
+    "title": "COMPASSOS SIMPLES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de compassos simples no nível aprendiz",
+    "category": "compasso-simples",
+    "level": "aprendiz",
+    "order": 11,
+    "content": {
+      "theory": "Conteúdo introdutório sobre compassos simples para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de compassos simples",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f3b"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de compassos simples",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f3c"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854c6"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.829Z",
+    "updatedAt": "2025-10-20T20:41:12.192Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f54",
+    "title": "COMPASSOS COMPOSTOS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de compassos compostos no nível aprendiz",
+    "category": "compasso-composto",
+    "level": "aprendiz",
+    "order": 12,
+    "content": {
+      "theory": "Conteúdo introdutório sobre compassos compostos para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de compassos compostos",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f55"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de compassos compostos",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f56"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854d4"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.833Z",
+    "updatedAt": "2025-10-20T20:41:12.195Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f6e",
+    "title": "TONS E SEMITONS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de tons e semitons no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 13,
+    "content": {
+      "theory": "Conteúdo introdutório sobre tons e semitons para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de tons e semitons",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f6f"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de tons e semitons",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f70"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854e2"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.838Z",
+    "updatedAt": "2025-10-20T20:41:12.198Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040f88",
+    "title": "INTERVALOS MUSICAIS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de intervalos musicais no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 14,
+    "content": {
+      "theory": "Conteúdo introdutório sobre intervalos musicais para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de intervalos musicais",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040f89"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de intervalos musicais",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040f8a"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854f0"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.843Z",
+    "updatedAt": "2025-10-20T20:41:12.201Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040fa2",
+    "title": "ESCALAS MAIORES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de escalas maiores no nível aprendiz",
+    "category": "escalas-maiores",
+    "level": "aprendiz",
+    "order": 15,
+    "content": {
+      "theory": "Conteúdo introdutório sobre escalas maiores para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de escalas maiores",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040fa3"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de escalas maiores",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040fa4"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf77854fe"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.848Z",
+    "updatedAt": "2025-10-20T20:41:12.203Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040fbc",
+    "title": "ESCALAS MENORES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de escalas menores no nível aprendiz",
+    "category": "escalas-maiores",
+    "level": "aprendiz",
+    "order": 16,
+    "content": {
+      "theory": "Conteúdo introdutório sobre escalas menores para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de escalas menores",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040fbd"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de escalas menores",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040fbe"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778550c"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.852Z",
+    "updatedAt": "2025-10-20T20:41:12.206Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040fd6",
+    "title": "FORMAÇÃO DE ACORDES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de formação de acordes no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 17,
+    "content": {
+      "theory": "Conteúdo introdutório sobre formação de acordes para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de formação de acordes",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040fd7"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de formação de acordes",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040fd8"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf778551a"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.857Z",
+    "updatedAt": "2025-10-20T20:41:12.209Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7040ff0",
+    "title": "TRÍADES - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de tríades no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 18,
+    "content": {
+      "theory": "Conteúdo introdutório sobre tríades para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de tríades",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7040ff1"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de tríades",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7040ff2"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785528"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.861Z",
+    "updatedAt": "2025-10-20T20:41:12.212Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d704100a",
+    "title": "FUNÇÕES HARMÔNICAS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de funções harmônicas no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 19,
+    "content": {
+      "theory": "Conteúdo introdutório sobre funções harmônicas para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de funções harmônicas",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d704100b"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de funções harmônicas",
+          "type": "pratica",
+          "_id": "68f271821b486df1d704100c"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785536"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.866Z",
+    "updatedAt": "2025-10-20T20:41:12.215Z",
+    "__v": 2
+  },
+  {
+    "_id": "68f271821b486df1d7041024",
+    "title": "CADÊNCIAS - Nível Aprendiz",
+    "description": "Aprenda os fundamentos de cadências no nível aprendiz",
+    "category": "intervalos-musicais",
+    "level": "aprendiz",
+    "order": 20,
+    "content": {
+      "theory": "Conteúdo introdutório sobre cadências para iniciantes.",
+      "examples": [
+        {
+          "title": "Exemplo Básico",
+          "description": "Exemplo prático de cadências",
+          "imageUrl": "",
+          "audioUrl": "",
+          "_id": "68f271821b486df1d7041025"
+        }
+      ],
+      "exercises": [
+        {
+          "title": "Exercício Inicial",
+          "description": "Prática básica de cadências",
+          "type": "pratica",
+          "_id": "68f271821b486df1d7041026"
+        }
+      ]
+    },
+    "duration": 30,
+    "points": 50,
+    "prerequisites": [],
+    "quizzes": [
+      "68f69e68806f9b6cf7785544"
+    ],
+    "isActive": true,
+    "createdAt": "2025-10-17T16:40:34.874Z",
+    "updatedAt": "2025-10-20T20:41:12.217Z",
+    "__v": 2
+  }
+]
