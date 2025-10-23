@@ -207,6 +207,17 @@ exports.forgotPassword = async (req, res, next) => {
       });
     }
 
+    // ✅ VALIDAÇÃO: Verificar se a conta está desativada/marcada para exclusão
+    if (user.deletionRequested) {
+      return res.status(403).json({
+        success: false,
+        message: 'Esta conta foi desativada e está marcada para exclusão. Não é possível recuperar a senha. Entre em contato com o suporte para mais informações.',
+        accountStatus: 'deactivated',
+        deletionScheduledFor: user.deletionScheduledFor,
+        daysRemaining: user.daysRemaining
+      });
+    }
+
     // Gerar senha temporária segura (12 caracteres com números, letras e símbolos)
     const generateSecurePassword = () => {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
