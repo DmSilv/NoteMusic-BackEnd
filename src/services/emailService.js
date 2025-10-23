@@ -8,21 +8,25 @@ class EmailService {
 
   setupTransporter() {
     try {
+      // ✅ Usar variáveis de ambiente
+      const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
+      const emailPass = process.env.EMAIL_PASS || 'bdkh durt qter agpa';
+      
       console.log('🔧 Configurando Email Service...');
-      console.log('📧 Usuário:', 'notemusic.oficial@gmail.com');
-      console.log('🔑 Senha App:', 'bdkh durt qter agpa');
+      console.log('📧 Usuário:', emailUser);
+      console.log('🔑 Senha App:', emailPass.substring(0, 4) + ' **** **** ****'); // Ocultar senha nos logs
       console.log('🌐 Host:', 'smtp.gmail.com');
       console.log('🔌 Porta:', 587);
       
-      // Configuração direta para Gmail oficial do NoteMusic
-      this.transporter = nodemailer.createTransport({
+      // Configuração usando variáveis de ambiente
+      this.transporter = nodemailer.createTransporter({
         host: 'smtp.gmail.com',
         port: 587,
         secure: false,
         requireTLS: true,
         auth: {
-          user: 'suporte.notemusic@gmail.com',
-          pass: 'bdkh durt qter agpa'
+          user: emailUser,
+          pass: emailPass
         },
         tls: {
           ciphers: 'SSLv3',
@@ -31,7 +35,7 @@ class EmailService {
       });
       
       console.log('✅ Transporter criado com sucesso');
-      console.log('📧 Email Service configurado para Gmail oficial: notemusic.oficial@gmail.com');
+      console.log('📧 Email Service configurado para:', emailUser);
     } catch (error) {
       console.error('❌ Erro ao configurar Email Service:', error);
       throw error;
@@ -52,8 +56,10 @@ class EmailService {
       console.log('📬 Destinatário:', email);
       console.log('👤 Nome do usuário:', userName);
       
+      const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
+      
       const mailOptions = {
-        from: '"NoteMusic App" <notemusic.oficial@gmail.com>',
+        from: `"NoteMusic App" <${emailUser}>`,
         to: email,
         subject: '🎵 NoteMusic - Recuperação de Senha',
         html: this.generatePasswordResetEmailTemplate(tempPassword, userName)
