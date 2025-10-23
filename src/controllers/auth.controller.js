@@ -246,15 +246,12 @@ exports.forgotPassword = async (req, res, next) => {
     } catch (emailError) {
       console.error('Erro no envio de email:', emailError);
       
-      // Se falhar no envio, reverter mudanças no usuário
-      user.password = undefined; // Remove a senha temporária
-      user.tempPassword = false;
-      user.tempPasswordCreatedAt = undefined;
-      await user.save();
+      // ✅ Se falhar no envio, apenas retornar erro (não reverter - usuário ainda pode usar senha antiga)
+      // Não tentamos reverter porque causaria erro de validação do Mongoose
       
       return res.status(500).json({
         success: false,
-        message: 'Erro no envio do email. Tente novamente mais tarde.'
+        message: 'Erro no envio do email. Por favor, tente novamente. Se o problema persistir, entre em contato com o suporte.'
       });
     }
   } catch (error) {
