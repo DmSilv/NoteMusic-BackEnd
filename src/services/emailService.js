@@ -16,22 +16,23 @@ class EmailService {
       console.log('📧 Usuário:', emailUser);
       console.log('🔑 Senha App:', emailPass.substring(0, 4) + ' **** **** ****'); // Ocultar senha nos logs
       console.log('🌐 Host:', 'smtp.gmail.com');
-      console.log('🔌 Porta:', 587);
+      console.log('🔌 Porta:', 465);
       
-      // Configuração usando variáveis de ambiente
-      this.transporter = nodemailer.createTransporter({
+      // ✅ Configuração usando porta 465 (SSL) para melhor compatibilidade com Railway
+      this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        requireTLS: true,
+        port: 465,
+        secure: true, // SSL na porta 465
         auth: {
           user: emailUser,
           pass: emailPass
         },
         tls: {
-          ciphers: 'SSLv3',
           rejectUnauthorized: false
-        }
+        },
+        connectionTimeout: 10000, // 10 segundos de timeout
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       });
       
       console.log('✅ Transporter criado com sucesso');
