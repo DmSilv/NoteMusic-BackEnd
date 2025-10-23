@@ -126,6 +126,21 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  // Sistema de exclusão de conta
+  deletionRequested: {
+    type: Boolean,
+    default: false
+  },
+  deletionRequestedAt: {
+    type: Date
+  },
+  deletionScheduledFor: {
+    type: Date
+  },
+  deletionReason: {
+    type: String,
+    maxlength: [500, 'Motivo deve ter no máximo 500 caracteres']
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -177,6 +192,36 @@ userSchema.pre('save', async function(next) {
 
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Método para solicitar exclusão de conta
+userSchema.methods.requestAccountDeletion = function(reason = '') {
+  this.deletionRequested = true;
+  this.deletionRequestedAt = new Date();
+  this.deletionScheduledFor = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+  this.deletionReason = reason;
+  this.isActive = false; // Desativar conta imediatamente
+  return this.save();
+};
+
+// Método para cancelar exclusão de conta
+userSchema.methods.cancelAccountDeletion = function() {
+  this.deletionRequested = false;
+  this.deletionRequestedAt = null;
+  this.deletionScheduledFor = null;
+  this.deletionReason = '';
+  this.isActive = true; // Reativar conta
+  return this.save();
+};
+
+// Método para verificar se conta está marcada para exclusão
+userSchema.methods.isMarkedForDeletion = function() {
+  return this.deletionRequested && this.deletionScheduledFor && new Date() < this.deletionScheduledFor;
+};
+
+// Método para verificar se conta deve ser excluída (período expirado)
+userSchema.methods.shouldBeDeleted = function() {
+  return this.deletionRequested && this.deletionScheduledFor && new Date() >= this.deletionScheduledFor;
 };
 
 userSchema.methods.updateStreak = function() {

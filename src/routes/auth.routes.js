@@ -9,6 +9,13 @@ const {
   forgotPassword,
   changeTempPassword
 } = require('../controllers/auth.controller');
+const {
+  requestAccountDeletion,
+  cancelAccountDeletion,
+  getDeletionStatus,
+  permanentlyDeleteAccount,
+  getPendingDeletions
+} = require('../controllers/accountDeletion.controller');
 const { protect } = require('../middlewares/auth');
 const { checkTempPassword, requireTempPassword } = require('../middlewares/tempPasswordCheck');
 
@@ -100,6 +107,12 @@ const changeTempPasswordValidation = [
   body('newPassword').isLength({ min: 6 }).withMessage('Nova senha deve ter no mínimo 6 caracteres')
 ];
 
+const accountDeletionValidation = [
+  body('password').notEmpty().withMessage('Senha é obrigatória para excluir a conta'),
+  body('confirmation').equals('EXCLUIR CONTA').withMessage('Confirmação obrigatória. Digite "EXCLUIR CONTA" para confirmar'),
+  body('reason').optional().isLength({ max: 500 }).withMessage('Motivo deve ter no máximo 500 caracteres')
+];
+
 // Rotas públicas
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
@@ -109,5 +122,14 @@ router.post('/forgotpassword', forgotPassword);
 router.get('/me', protect, getMe);
 router.put('/updatepassword', protect, checkTempPassword, updatePasswordValidation, updatePassword);
 router.post('/changetemppassword', protect, requireTempPassword, changeTempPasswordValidation, changeTempPassword);
+
+// Rotas de exclusão de conta
+router.post('/delete-account', protect, accountDeletionValidation, requestAccountDeletion);
+router.post('/cancel-deletion', protect, cancelAccountDeletion);
+router.get('/deletion-status', protect, getDeletionStatus);
+
+// Rotas administrativas (para futuro)
+// router.delete('/delete-account/:userId', protect, permanentlyDeleteAccount);
+// router.get('/pending-deletions', protect, getPendingDeletions);
 
 module.exports = router;
