@@ -184,6 +184,33 @@ exports.updatePassword = async (req, res, next) => {
   }
 };
 
+// @desc    Logout do usuário (limpar sessão)
+// @route   POST /api/auth/logout
+// @access  Private
+exports.logout = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+
+    // Log de logout para auditoria
+    console.log(`👋 Usuário ${user.email} fez logout`);
+
+    res.json({
+      success: true,
+      message: 'Logout realizado com sucesso'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Esqueci minha senha
 // @route   POST /api/auth/forgotpassword
 // @access  Public

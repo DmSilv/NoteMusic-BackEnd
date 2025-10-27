@@ -10,6 +10,7 @@ const {
   submitQuizPrivate,
   getQuizHistory,
   getDailyChallenge,
+  getDailyChallengeInfo,
   getQuizCompletionStatus,
   getQuizAttemptsStatus,
   getQuizStats,
@@ -26,6 +27,7 @@ const submitQuizValidation = [
 
 // Rotas públicas (para teste)
 router.get('/daily-challenge', getDailyChallenge);
+router.get('/daily-challenge-info', getDailyChallengeInfo);
 router.get('/:moduleId', getQuiz);
 router.get('/module/:moduleId', getQuizByModule);
 router.post('/:quizId/submit', submitQuiz);

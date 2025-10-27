@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Module = require('../models/Module');
 const { USER_LEVELS, POINTS, LIMITS } = require('../utils/constants');
 const { calculateRebalancedPoints, GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
+const { generateDailyChallengeConfig, getTodayChallengeInfo } = require('../utils/dailyChallengeGenerator');
 
 // @desc    Verificar se um quiz foi concluído pelo usuário
 // @route   GET /api/quiz/:quizId/completion-status
@@ -272,11 +273,36 @@ exports.getQuizByModule = async (req, res, next) => {
   }
 };
 
+// @desc    Obter informações do desafio diário de hoje
+// @route   GET /api/quiz/daily-challenge-info
+// @access  Public
+exports.getDailyChallengeInfo = async (req, res, next) => {
+  try {
+    const config = getTodayChallengeInfo();
+    
+    res.json({
+      success: true,
+      config: {
+        questions: config.questions,
+        timeMinutes: config.timeMinutes,
+        difficulty: config.difficulty
+      },
+      date: config.date
+    });
+  } catch (error) {
+    console.error('❌ Erro ao obter info do desafio diário:', error);
+    next(error);
+  }
+};
+
 // @desc    Obter desafio diário
 // @route   GET /api/quiz/daily-challenge
 // @access  Public
 exports.getDailyChallenge = async (req, res, next) => {
   try {
+    // Obter configuração do dia
+    const config = generateDailyChallengeConfig();
+    
     // Buscar quiz marcado como desafio diário
     const dailyQuiz = await Quiz.findOne({ 
       type: 'daily-challenge',
@@ -306,7 +332,7 @@ exports.getDailyChallenge = async (req, res, next) => {
         description: 'Teste seus conhecimentos musicais com perguntas selecionadas especialmente para hoje!',
         category: quiz.category,
         questions: quiz.questions
-          .slice(0, 5)
+          .slice(0, config.questions)
           .map((question, questionIndex) => {
             // Preservar a pergunta original
             const enhancedQuestion = {
@@ -334,7 +360,7 @@ exports.getDailyChallenge = async (req, res, next) => {
             
             return enhancedQuestion;
           }),
-        timeLimit: 600, // 10 minutos
+        timeLimit: config.timeLimit, // Tempo dinâmico baseado no dia
         level: quiz.level,
         type: 'daily-challenge'
       };
@@ -817,13 +843,14 @@ exports.submitQuizPrivate = async (req, res, next) => {
       // Atualizar pontos do usuário
       user.totalPoints = (user.totalPoints || 0) + totalPoints;
       
-      // Marcar como completado
+      // Marcar como completado (sem quizId para evitar erro de ObjectId)
       user.completedQuizzes.push({
-        quizId: 'daily-challenge-mock',
+        quizId: null, // Não usar ID mock para evitar erro de ObjectId
         score,
         percentage,
         passed,
-        completedAt: new Date()
+        completedAt: new Date(),
+        isDailyChallenge: true // Marcar como desafio diário
       });
       
       await user.save();
@@ -1031,25 +1058,12 @@ exports.submitQuizPrivate = async (req, res, next) => {
     
     user.completedQuizzes.push(quizCompletionData);
 
-    // Sistema de pontuação REBALANCEADO (baseado em módulos)
-    const pointsBreakdown = calculateRebalancedPoints(
-      score, 
-      totalQuestions, 
-      isDailyChallenge, 
-      user.streak || 0
-    );
+    // ❌ NOVO SISTEMA: Quiz NÃO dá pontos
+    // Pontos são dados APENAS ao completar módulos inteiros
+    const totalPointsEarned = 0;
     
-    const totalPointsEarned = pointsBreakdown.totalPoints;
-    
-    console.log('📊 Pontos rebalanceados:', pointsBreakdown);
-    
-    // Adicionar ao total do usuário - garantir que totalPoints existe e é número
-    if (typeof user.totalPoints !== 'number' || isNaN(user.totalPoints)) {
-      console.log(`⚠️ totalPoints inválido (${user.totalPoints}), resetando para 0`);
-      user.totalPoints = 0;
-    }
-    user.totalPoints += totalPointsEarned;
-    console.log(`📊 Pontos do usuário: ${user.totalPoints} (+ ${totalPointsEarned})`);
+    console.log('📊 Quiz completado mas SEM pontos (sistema baseado em módulos)');
+    console.log('📊 Pontos serão dados ao completar o módulo completo');
 
     // O nível do usuário é atualizado automaticamente pelo hook pre('save') no modelo User
     // Não precisa chamar função separada
@@ -1089,7 +1103,6 @@ exports.submitQuizPrivate = async (req, res, next) => {
       pointsEarned: totalPointsEarned,
       totalPoints: user.totalPoints,
       isDailyChallenge,
-      bonusBreakdown: pointsBreakdown,
       passed: isQuizPassed,
       attempts: {
         current: quizAttempt.attempts,

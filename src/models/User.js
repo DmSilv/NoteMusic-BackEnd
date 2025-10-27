@@ -74,7 +74,8 @@ const userSchema = new mongoose.Schema({
   completedQuizzes: [{
     quizId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Quiz'
+      ref: 'Quiz',
+      required: false // Permitir null para desafios diários
     },
     score: Number,
     percentage: Number,
@@ -85,6 +86,10 @@ const userSchema = new mongoose.Schema({
     completedAt: {
       type: Date,
       default: Date.now
+    },
+    isDailyChallenge: {
+      type: Boolean,
+      default: false
     }
   }],
   quizAttempts: [{
@@ -169,15 +174,21 @@ userSchema.pre('save', async function(next) {
     const previousLevel = this.level;
     
     // Calcular novo nível baseado APENAS em módulos completos
+    // PROGRESSÃO DINÂMICA POR MÓDULOS (75% do total):
+    // - Aprendiz: 0-15 módulos
+    // - Virtuoso: 16-31 módulos  
+    // - Maestro: 32+ módulos
     const completedModulesCount = this.completedModules?.length || 0;
     
-    if (completedModulesCount >= 6) {
+    if (completedModulesCount >= 32) {
       this.level = 'maestro';
-    } else if (completedModulesCount >= 2) {
+    } else if (completedModulesCount >= 16) {
       this.level = 'virtuoso';
     } else {
       this.level = 'aprendiz';
     }
+    
+    console.log(`📊 Progressão de nível: ${completedModulesCount} módulos completos → Nível: ${this.level}`);
     
     // Log se houve mudança de nível
     if (previousLevel !== this.level) {
@@ -225,13 +236,35 @@ userSchema.methods.shouldBeDeleted = function() {
 userSchema.methods.updateStreak = function() {
   const today = new Date();
   const lastActivity = new Date(this.lastActivityDate);
-  const diffTime = Math.abs(today - lastActivity);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
+  // Garantir que estamos comparando apenas as DATAS (sem hora)
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const lastActivityDate = new Date(lastActivity.getFullYear(), lastActivity.getMonth(), lastActivity.getDate());
+  
+  // Calcular diferença em DIAS (não em horas)
+  const diffDays = Math.floor((todayDate - lastActivityDate) / (1000 * 60 * 60 * 24));
+  
+  console.log(`📅 Calculando streak: hoje=${todayDate.toISOString()}, última=${lastActivityDate.toISOString()}, diff=${diffDays} dias`);
+  
+  // Se é o mesmo dia, não incrementar streak nem atualizar lastActivityDate (evita acumular)
+  if (diffDays === 0) {
+    console.log('📅 Mesmo dia - streak mantido:', this.streak);
+    return this.streak;
+  }
+  
+  // Se passou 1 dia (consecutivo), incrementar streak
   if (diffDays === 1) {
     this.streak += 1;
-  } else if (diffDays > 1) {
+    this.lastActivityDate = todayDate; // Registrar que entrou HOJE
+    console.log('✅ Dia consecutivo - streak incrementado para:', this.streak);
+    console.log('✅ Registrado que usuário entrou hoje:', todayDate.toISOString());
+  } 
+  // Se passou mais de 1 dia, resetar streak para 1
+  else if (diffDays > 1) {
     this.streak = 1;
+    this.lastActivityDate = todayDate; // Registrar que entrou HOJE
+    console.log('⚠️ Quebrou sequência - streak resetado para 1');
+    console.log('✅ Registrado que usuário entrou hoje:', todayDate.toISOString());
   }
   
   // Verificar se é uma nova semana para resetar o progresso semanal
@@ -242,7 +275,6 @@ userSchema.methods.updateStreak = function() {
     this.weeklyProgress = 0; // Resetar progresso semanal
   }
   
-  this.lastActivityDate = today;
   return this.streak;
 };
 

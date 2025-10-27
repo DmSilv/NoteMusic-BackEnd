@@ -1,5 +1,6 @@
 const Module = require('../models/Module');
 const User = require('../models/User');
+const Quiz = require('../models/Quiz');
 const { GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 
 // @desc    Listar todos os módulos
@@ -20,6 +21,7 @@ exports.getModules = async (req, res, next) => {
     const modules = await Module.find(filter)
       .sort({ order: 1 })
       .select('-content.exercises') // Não enviar exercícios na listagem
+      .populate('quizzes', 'timeLimit questions') // Popular quizzes com timeLimit
       .lean(); // Usar lean() para melhor performance
 
     console.log(`📊 Módulos encontrados: ${modules.length}`);
@@ -39,11 +41,34 @@ exports.getModules = async (req, res, next) => {
     });
 
     // Para endpoints públicos, não verificar progresso do usuário
-    const modulesWithProgress = modules.map(module => ({
-      ...module,
-      isCompleted: false,
-      isLocked: false
-    }));
+    const modulesWithProgress = modules.map(module => {
+      // Adicionar quizTimeLimit baseado no quiz associado
+      let quizTimeLimit = null;
+      if (module.quizzes && module.quizzes.length > 0) {
+        const quiz = module.quizzes[0];
+        // Se tem timeLimit definido, usar; senão calcular baseado no número de questões
+        if (quiz.timeLimit && quiz.timeLimit > 0) {
+          quizTimeLimit = quiz.timeLimit;
+        } else if (quiz.questions && quiz.questions.length > 0) {
+          quizTimeLimit = quiz.questions.length * 2 * 60; // 2 minutos por questão
+        }
+      } else if (module.quizzes && module.quizzes._id) {
+        // Formato popula
+        const quiz = module.quizzes;
+        if (quiz.timeLimit && quiz.timeLimit > 0) {
+          quizTimeLimit = quiz.timeLimit;
+        } else if (quiz.questions && quiz.questions.length > 0) {
+          quizTimeLimit = quiz.questions.length * 2 * 60;
+        }
+      }
+      
+      return {
+        ...module,
+        quizTimeLimit,
+        isCompleted: false,
+        isLocked: false
+      };
+    });
 
     res.json({
       success: true,
@@ -197,12 +222,20 @@ exports.completeModule = async (req, res, next) => {
       completedAt: new Date()
     });
 
-    // Adicionar pontos por completar módulo (sistema rebalanceado)
-    const moduleCompletionPoints = GAMIFICATION_CONSTANTS.POINTS.MODULE_COMPLETION;
+    // Adicionar pontos por completar módulo BASEADO NO NÍVEL DO MÓDULO
+    let moduleCompletionPoints = 0;
+    if (module.level === 'aprendiz') {
+      moduleCompletionPoints = GAMIFICATION_CONSTANTS.POINTS.MODULE_COMPLETION_APRENDIZ; // 50
+    } else if (module.level === 'virtuoso') {
+      moduleCompletionPoints = GAMIFICATION_CONSTANTS.POINTS.MODULE_COMPLETION_VIRTUOSO; // 100
+    } else if (module.level === 'maestro') {
+      moduleCompletionPoints = GAMIFICATION_CONSTANTS.POINTS.MODULE_COMPLETION_MAESTRO; // 150
+    }
+    
     user.totalPoints = (user.totalPoints || 0) + moduleCompletionPoints;
     
-    console.log(`✅ Módulo "${module.title}" marcado como completo!`);
-    console.log(`   Pontos ganhos: ${moduleCompletionPoints}`);
+    console.log(`✅ Módulo "${module.title}" (${module.level}) marcado como completo!`);
+    console.log(`   Pontos ganhos: ${moduleCompletionPoints} (nível: ${module.level})`);
     console.log(`   Total de pontos: ${user.totalPoints}`);
     console.log(`   Módulos completados: ${user.completedModules.length}`);
 

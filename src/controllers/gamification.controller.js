@@ -116,7 +116,8 @@ const calculateUserStats = (user) => {
   const totalQuizzes = user.completedQuizzes.length;
   
   // Calcular progresso geral baseado nos módulos completados
-  const totalModules = 9; // Total de módulos disponíveis
+  // Usar valor fixo temporário (43 módulos) para evitar erro de sintaxe
+  const totalModules = 43;
   const progress = completedModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
   
   // Calcular streak atual e máximo
@@ -196,7 +197,21 @@ const calculateUserStats = (user) => {
 
 // Função auxiliar para calcular progresso de nível (BASEADO EM MÓDULOS)
 const calculateLevelProgress = (user) => {
-  return calculateModuleBasedProgress(user);
+  // Usar função que calcula progresso baseado em módulos
+  const progress = calculateModuleBasedProgress(user);
+  
+  // Remover informações de pontos (sistema agora baseado apenas em módulos)
+  if (progress.pointsProgress) {
+    // Configurar para mostrar apenas progresso de módulos
+    progress.pointsProgress = {
+      current: 0,
+      required: 0,
+      percentage: 0,
+      note: 'Progresso baseado apenas em módulos completos'
+    };
+  }
+  
+  return progress;
 };
 
 // Função auxiliar para obter próxima conquista

@@ -4,6 +4,7 @@ const { body } = require('express-validator');
 const {
   register,
   login,
+  logout,
   getMe,
   updatePassword,
   forgotPassword,
@@ -120,6 +121,7 @@ router.post('/forgotpassword', forgotPassword);
 
 // Rotas privadas
 router.get('/me', protect, getMe);
+router.post('/logout', protect, logout);
 router.put('/updatepassword', protect, checkTempPassword, updatePasswordValidation, updatePassword);
 router.post('/changetemppassword', protect, requireTempPassword, changeTempPasswordValidation, changeTempPassword);
 
