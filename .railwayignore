@@ -7,7 +7,7 @@ check-user.js
 deploy.sh
 env.example
 env.production.example
-scripts/
+# scripts/ - Removido para permitir scripts de seed no Railway
 
 
 
