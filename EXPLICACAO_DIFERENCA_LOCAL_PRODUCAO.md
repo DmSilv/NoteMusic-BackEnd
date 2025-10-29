@@ -157,3 +157,5 @@ if (process.env.NODE_ENV === 'production') {
 **Resumo**: Railway tem menos conteúdo porque o banco de dados é separado. Precisa sincronizar manualmente os dados!
 
 
+
+

@@ -22,12 +22,33 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
       });
     }
 
-    // Verificar se o quiz foi completado
-    const completedQuiz = user.completedQuizzes.find(cq => 
-      cq.quizId.toString() === quizId
-    );
+    // ✅ NOVO: Tentar primeiro buscar pelo moduleId (caso seja um moduleId)
+    // Se não encontrar, buscar pelo quizId diretamente
+    let completedQuiz = null;
+    
+    // Buscar quiz pelo moduleId primeiro
+    const quizByModule = await Quiz.findOne({ moduleId: quizId });
+    if (quizByModule) {
+      // Se encontrou quiz pelo moduleId, verificar usando o _id do quiz
+      completedQuiz = user.completedQuizzes.find(cq => 
+        cq.quizId && cq.quizId.toString() === quizByModule._id.toString()
+      );
+      console.log(`🔍 Quiz encontrado por moduleId ${quizId}, quiz._id: ${quizByModule._id}`);
+    }
+    
+    // Se não encontrou pelo moduleId, tentar buscar diretamente pelo quizId
+    if (!completedQuiz) {
+      completedQuiz = user.completedQuizzes.find(cq => 
+        cq.quizId && cq.quizId.toString() === quizId
+      );
+      if (completedQuiz) {
+        console.log(`🔍 Quiz encontrado diretamente pelo quizId: ${quizId}`);
+      }
+    }
 
     const isCompleted = completedQuiz && completedQuiz.passed;
+
+    console.log(`📊 Status de conclusão para ${quizId}: ${isCompleted ? 'COMPLETO' : 'NÃO COMPLETO'}`);
 
     res.json({
       success: true,
@@ -35,6 +56,7 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
       completionData: completedQuiz || null
     });
   } catch (error) {
+    console.error('❌ Erro ao verificar status de conclusão:', error);
     next(error);
   }
 };
@@ -980,6 +1002,20 @@ exports.submitQuizPrivate = async (req, res, next) => {
 
     const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     
+    // ✅ AJUSTE PARA QUIZZES PEQUENOS: Mais justo para quizzes com poucas perguntas
+    // Se o quiz tem 3-4 perguntas e已达 usuário está muito perto da nota (diferença < 5%),
+    // considerar aprovado para evitar frustração
+    let adjustedRequiredScore = quiz.passingScore || 70;
+    const exactPercentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+    
+    if (totalQuestions <= 4 && exactPercentage > 0) {
+        // Se está entre 65% e 70% (margem de tolerância), aprovar
+        if (exactPercentage >= 65 && exactPercentage < adjustedRequiredScore && adjustedRequiredScore === 70) {
+            adjustedRequiredScore = 65; // Aprovar com 65% em quizzes de 3-4 perguntas
+            console.log(`✅ Ajuste aplicado: Quiz pequeno (${totalQuestions} perguntas), aprovando com ${exactPercentage.toFixed(1)}% (margem de tolerância)`);
+        }
+    }
+    
     // Debug: mostrar informações para desenvolvimento
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 Debug Quiz Private Submission:');
@@ -989,6 +1025,7 @@ exports.submitQuizPrivate = async (req, res, next) => {
       console.log('  Correct Answers:', correctAnswers);
       console.log('  Score:', score);
       console.log('  Percentage:', percentage);
+      console.log('  Required Score:', adjustedRequiredScore);
     }
 
     // Gerar feedback
@@ -997,6 +1034,8 @@ exports.submitQuizPrivate = async (req, res, next) => {
       feedback = 'Excelente! Você demonstrou um conhecimento excepcional!';
     } else if (percentage >= 70) {
       feedback = 'Muito bom! Continue praticando para melhorar ainda mais!';
+    } else if (percentage >= 65) {
+      feedback = 'Bom trabalho! Você está no caminho certo!';
     } else if (percentage >= 50) {
       feedback = 'Bom trabalho! Revise o conteúdo para melhorar seu desempenho.';
     } else {
@@ -1006,10 +1045,9 @@ exports.submitQuizPrivate = async (req, res, next) => {
     // Salvar resultado no banco de dados
     const user = await User.findById(userId);
     
-    // ✅ USAR O PASSING SCORE DO QUIZ (flexível por nível)
-    const requiredScore = quiz.passingScore || 70; // fallback para 70%
-    const isQuizPassed = percentage >= requiredScore;
-    console.log(`📊 Nota necessária: ${requiredScore}% | Obtida: ${percentage}% | Passou: ${isQuizPassed}`);
+    // ✅ USAR O SCORE AJUSTADO PARA QUIZZES PEQUENOS
+    const isQuizPassed = percentage >= adjustedRequiredScore;
+    console.log(`📊 Nota necessária: ${adjustedRequiredScore}% | Obtida: ${percentage}% | Passou: ${isQuizPassed}`);
     
     // LÓGICA DE BLOQUEIO: Se desempenho excelente (90%+), bloquear o quiz
     const isExcellentPerformance = percentage >= 90;
