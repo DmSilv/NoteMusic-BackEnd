@@ -78,15 +78,20 @@ app.use('/api/users/stats', statsLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rota de health check
+// Rota de health check (importante para Railway/Render)
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.status(200).json({ 
     status: 'OK', 
     message: 'API NoteMusic funcionando!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    environment: process.env.NODE_ENV || 'development',
     version: '1.0.0'
   });
+});
+
+// Health check na raiz também (alguns serviços verificam aqui)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
 });
 
 // Rotas da API
