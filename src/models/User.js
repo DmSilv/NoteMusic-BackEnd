@@ -160,7 +160,7 @@ const userSchema = new mongoose.Schema({
 
 // Índices para otimização de performance
 userSchema.index({ createdAt: -1 });
-userSchema.index({ email: 1 }); // Índice único já existe, mas garantindo
+// email já tem unique: true, então o índice já existe automaticamente - não precisa criar manualmente
 userSchema.index({ isActive: 1, totalPoints: -1 }); // Para leaderboards
 userSchema.index({ isActive: 1, streak: -1 }); // Para leaderboards de streak
 userSchema.index({ lastActivityDate: -1 }); // Para queries de atividade recente
