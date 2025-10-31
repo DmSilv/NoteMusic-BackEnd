@@ -322,7 +322,7 @@ const getNivelName = (level) => {
   return names[level] || level;
 };
 
-// @desc    Obter categorias disponíveis
+// @desc    Obter categorias disponíveis (OTIMIZADO - apenas contagem)
 // @route   GET /api/modules/categories
 // @access  Public
 exports.getCategories = async (req, res, next) => {
@@ -404,7 +404,7 @@ exports.getCategories = async (req, res, next) => {
       }
     ];
 
-    // Contar módulos por categoria
+    // Contar módulos por categoria (otimizado - apenas agregação)
     console.log('🔍 Contando módulos por categoria');
     const moduleCounts = await Module.aggregate([
       { $match: { isActive: true } },
@@ -427,6 +427,103 @@ exports.getCategories = async (req, res, next) => {
     });
   } catch (error) {
     console.error('❌ Erro ao buscar categorias:', error);
+    next(error);
+  }
+};
+
+// @desc    Obter categorias COM módulos agrupados (OTIMIZADO - UMA única requisição)
+// @route   GET /api/modules/categories-with-modules
+// @access  Public
+exports.getCategoriesWithModules = async (req, res, next) => {
+  try {
+    console.log('🚀 [OTIMIZADO] Buscando categorias COM módulos em UMA única query...');
+    const startTime = Date.now();
+    
+    // Query OTIMIZADA: buscar todos os módulos COM quizzes populados em uma única query
+    const modules = await Module.find({ isActive: true })
+      .sort({ order: 1 })
+      .select('-content.exercises -content.examples -content.theory') // Não enviar conteúdo pesado
+      .populate({
+        path: 'quizzes',
+        select: 'timeLimit questions.length', // Apenas campos necessários
+        options: { lean: true }
+      })
+      .lean();
+
+    console.log(`📊 Módulos carregados: ${modules.length} (tempo: ${Date.now() - startTime}ms)`);
+
+    // Agrupar módulos por categoria e adicionar quizTimeLimit
+    const categoriesMap = {
+      'propriedades-som': { id: 'propriedades-som', name: 'Propriedades do Som', description: 'Aprenda sobre frequência, timbre, intensidade e duração', icon: 'sound-wave', modules: [] },
+      'escalas-maiores': { id: 'escalas-maiores', name: 'Escalas Maiores', description: 'Domine as escalas maiores e seus padrões', icon: 'piano', modules: [] },
+      'figuras-musicais': { id: 'figuras-musicais', name: 'Figuras Musicais', description: 'Entenda as notas e seus valores', icon: 'music-note', modules: [] },
+      'ritmo-ternarios': { id: 'ritmo-ternarios', name: 'Ritmos Ternários', description: 'Explore os compassos ternários', icon: 'metronome', modules: [] },
+      'compasso-simples': { id: 'compasso-simples', name: 'Compasso Simples', description: 'Compreenda os compassos simples', icon: 'drum', modules: [] },
+      'andamento-dinamica': { id: 'andamento-dinamica', name: 'Andamento e Dinâmica', description: 'Velocidade e intensidade na música', icon: 'speedometer', modules: [] },
+      'solfegio-basico': { id: 'solfegio-basico', name: 'Solfejo Básico', description: 'Desenvolva a leitura musical', icon: 'microphone', modules: [] },
+      'articulacao-musical': { id: 'articulacao-musical', name: 'Articulação Musical', description: 'Técnicas de execução e expressão', icon: 'hand', modules: [] },
+      'intervalos-musicais': { id: 'intervalos-musicais', name: 'Intervalos Musicais', description: 'Distâncias entre as notas', icon: 'ruler', modules: [] },
+      'expressao-musical': { id: 'expressao-musical', name: 'Expressão Musical', description: 'Interpretação e sentimento', icon: 'heart', modules: [] },
+      'sincopa-contratempo': { id: 'sincopa-contratempo', name: 'Síncopa e Contratempo', description: 'Ritmos sincopados e contratempos', icon: 'shuffle', modules: [] },
+      'compasso-composto': { id: 'compasso-composto', name: 'Compasso Composto', description: 'Compassos compostos e suas divisões', icon: 'layers', modules: [] }
+    };
+
+    // Processar módulos e calcular quizTimeLimit
+    modules.forEach(module => {
+      let quizTimeLimit = null;
+      
+      // Calcular quizTimeLimit a partir dos quizzes populados
+      if (module.quizzes && module.quizzes.length > 0) {
+        const quiz = Array.isArray(module.quizzes) ? module.quizzes[0] : module.quizzes;
+        if (quiz.timeLimit && quiz.timeLimit > 0) {
+          quizTimeLimit = quiz.timeLimit;
+        } else if (quiz.questions && quiz.questions.length) {
+          quizTimeLimit = quiz.questions.length * 2 * 60; // 2 minutos por questão
+        }
+      }
+      
+      const moduleData = {
+        id: module._id.toString(),
+        _id: module._id.toString(),
+        title: module.title,
+        description: module.description,
+        category: module.category,
+        level: module.level,
+        order: module.order,
+        quizTimeLimit, // ✅ JÁ INCLUÍDO!
+        isCompleted: false,
+        isLocked: false
+      };
+
+      if (categoriesMap[module.category]) {
+        categoriesMap[module.category].modules.push(moduleData);
+      }
+    });
+
+    // Converter para array e ordenar módulos por ordem dentro de cada categoria
+    const result = Object.values(categoriesMap)
+      .filter(cat => cat.modules.length > 0) // Apenas categorias com módulos
+      .map(cat => ({
+        ...cat,
+        modules: cat.modules.sort((a, b) => a.order - b.order),
+        moduleCount: cat.modules.length
+      }));
+
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ Categorias agrupadas: ${result.length} (tempo total: ${totalTime}ms)`);
+    console.log(`📊 Total de módulos processados: ${modules.length}`);
+
+    res.json({
+      success: true,
+      categories: result,
+      meta: {
+        totalCategories: result.length,
+        totalModules: modules.length,
+        queryTime: totalTime
+      }
+    });
+  } catch (error) {
+    console.error('❌ Erro ao buscar categorias com módulos:', error);
     next(error);
   }
 };
