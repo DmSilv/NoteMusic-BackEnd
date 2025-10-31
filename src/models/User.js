@@ -158,8 +158,14 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índices
+// Índices para otimização de performance
 userSchema.index({ createdAt: -1 });
+userSchema.index({ email: 1 }); // Índice único já existe, mas garantindo
+userSchema.index({ isActive: 1, totalPoints: -1 }); // Para leaderboards
+userSchema.index({ isActive: 1, streak: -1 }); // Para leaderboards de streak
+userSchema.index({ lastActivityDate: -1 }); // Para queries de atividade recente
+userSchema.index({ 'completedModules.moduleId': 1 }); // Para queries de módulos completados
+userSchema.index({ 'completedQuizzes.quizId': 1 }); // Para queries de quizzes completados
 
 // Métodos
 userSchema.pre('save', async function(next) {

@@ -13,8 +13,9 @@ const quizRoutes = require('./routes/quiz.routes');
 const gamificationRoutes = require('./routes/gamification.routes');
 const quizAttemptRoutes = require('./routes/quizAttempt.routes');
 
-// Importar middleware de erro
+// Importar middlewares
 const errorHandler = require('./middlewares/errorHandler');
+const { cacheMiddleware } = require('./middlewares/cache');
 
 const app = express();
 

@@ -2,6 +2,7 @@ const Module = require('../models/Module');
 const User = require('../models/User');
 const Quiz = require('../models/Quiz');
 const { GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
+const { invalidateCache } = require('../middlewares/cache');
 
 // @desc    Listar todos os módulos
 // @route   GET /api/modules
@@ -17,12 +18,16 @@ exports.getModules = async (req, res, next) => {
 
     console.log(`🔍 Executando query de módulos com filtro:`, filter);
 
-    // Forçar consulta fresca ao banco de dados
+    // Query otimizada com índices compostos e lean() para melhor performance
     const modules = await Module.find(filter)
       .sort({ order: 1 })
-      .select('-content.exercises') // Não enviar exercícios na listagem
-      .populate('quizzes', 'timeLimit questions') // Popular quizzes com timeLimit
-      .lean(); // Usar lean() para melhor performance
+      .select('-content.exercises -content.examples') // Não enviar conteúdo pesado na listagem
+      .populate({
+        path: 'quizzes',
+        select: 'timeLimit questions.length', // Apenas campos necessários
+        options: { lean: true } // Usar lean no populate também
+      })
+      .lean(); // Usar lean() para melhor performance (sem Mongoose documents)
 
     console.log(`📊 Módulos encontrados: ${modules.length}`);
     
@@ -102,9 +107,11 @@ exports.getModule = async (req, res, next) => {
 
     console.log(`✅ Módulo encontrado: ${module.title}`);
 
-    // Verificar se usuário completou os pré-requisitos
-    const user = await User.findById(req.user.id);
-    const completedModuleIds = user.completedModules.map(cm => cm.moduleId.toString());
+    // Query otimizada: buscar apenas completedModules (não todo o documento)
+    const user = await User.findById(req.user.id)
+      .select('completedModules')
+      .lean();
+    const completedModuleIds = (user?.completedModules || []).map(cm => cm.moduleId?.toString()).filter(Boolean);
     
     const hasPrerequisites = module.prerequisites.every(prereq => 
       completedModuleIds.includes(prereq._id.toString())
@@ -240,6 +247,10 @@ exports.completeModule = async (req, res, next) => {
     console.log(`   Módulos completados: ${user.completedModules.length}`);
 
     await user.save();
+
+    // Invalidar cache de gamificação após completar módulo
+    invalidateCache('/api/gamification');
+    invalidateCache('/api/modules');
 
     res.status(200).json({
       success: true,

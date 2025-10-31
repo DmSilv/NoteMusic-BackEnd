@@ -24,9 +24,20 @@ exports.getStats = async (req, res, next) => {
         level: req.user.level
       });
       
+      // Query otimizada: usar lean() e selecionar apenas campos necessários
       const user = await User.findById(req.user.id)
-        .populate('completedModules.moduleId', 'title category points')
-        .populate('completedQuizzes.quizId', 'title');
+        .select('completedModules completedQuizzes streak totalPoints level weeklyProgress weeklyGoal lastActivityDate longestStreak')
+        .populate({
+          path: 'completedModules.moduleId',
+          select: 'title category points level',
+          options: { lean: true }
+        })
+        .populate({
+          path: 'completedQuizzes.quizId',
+          select: 'title',
+          options: { lean: true }
+        })
+        .lean(); // Usar lean() para melhor performance
 
       if (!user) {
         console.log('❌ Usuário não encontrado no banco');
@@ -367,29 +378,38 @@ exports.getLeaderboard = async (req, res, next) => {
       // 'all' não precisa de filtro
     }
 
-    // Top usuários por pontos
-    const topByPoints = await User.find({ isActive: true, ...dateFilter })
-      .select('name totalPoints level')
-      .sort({ totalPoints: -1 })
-      .limit(parseInt(limit));
+    // Queries otimizadas com índices compostos e lean()
+    const [topByPoints, topByStreak, userPointsCount, userStreakCount] = await Promise.all([
+      // Top usuários por pontos (usando índice composto)
+      User.find({ isActive: true, ...dateFilter })
+        .select('name totalPoints level')
+        .sort({ totalPoints: -1 })
+        .limit(parseInt(limit))
+        .lean(),
+      
+      // Top usuários por streak (usando índice composto)
+      User.find({ isActive: true, streak: { $gt: 0 } })
+        .select('name streak level')
+        .sort({ streak: -1 })
+        .limit(parseInt(limit))
+        .lean(),
+      
+      // Contagem otimizada para posição do usuário (usando índice)
+      User.countDocuments({
+        isActive: true,
+        totalPoints: { $gt: req.user.totalPoints || 0 },
+        ...dateFilter
+      }),
+      
+      // Contagem otimizada para streak (usando índice)
+      User.countDocuments({
+        isActive: true,
+        streak: { $gt: req.user.streak || 0 }
+      })
+    ]);
 
-    // Top usuários por streak
-    const topByStreak = await User.find({ isActive: true, streak: { $gt: 0 } })
-      .select('name streak level')
-      .sort({ streak: -1 })
-      .limit(parseInt(limit));
-
-    // Posição do usuário atual
-    const userPointsRank = await User.countDocuments({
-      isActive: true,
-      totalPoints: { $gt: req.user.totalPoints },
-      ...dateFilter
-    }) + 1;
-
-    const userStreakRank = await User.countDocuments({
-      isActive: true,
-      streak: { $gt: req.user.streak }
-    }) + 1;
+    const userPointsRank = userPointsCount + 1;
+    const userStreakRank = userStreakCount + 1;
 
     res.json({
       success: true,
