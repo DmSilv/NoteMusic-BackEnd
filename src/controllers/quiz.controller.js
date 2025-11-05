@@ -22,33 +22,60 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
       });
     }
 
-    // ✅ NOVO: Tentar primeiro buscar pelo moduleId (caso seja um moduleId)
-    // Se não encontrar, buscar pelo quizId diretamente
+    // ✅ VALIDAÇÃO ROBUSTA: Tentar múltiplas estratégias para encontrar o quiz
     let completedQuiz = null;
+    let quizFound = false;
     
-    // Buscar quiz pelo moduleId primeiro
+    // Estratégia 1: Buscar quiz pelo moduleId (caso o ID fornecido seja um moduleId)
     const quizByModule = await Quiz.findOne({ moduleId: quizId });
     if (quizByModule) {
+      quizFound = true;
       // Se encontrou quiz pelo moduleId, verificar usando o _id do quiz
       completedQuiz = user.completedQuizzes.find(cq => 
         cq.quizId && cq.quizId.toString() === quizByModule._id.toString()
       );
-      console.log(`🔍 Quiz encontrado por moduleId ${quizId}, quiz._id: ${quizByModule._id}`);
+      if (completedQuiz) {
+        console.log(`✅ Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → COMPLETO`);
+      } else {
+        console.log(`🔍 Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → NÃO COMPLETO`);
+      }
     }
     
-    // Se não encontrou pelo moduleId, tentar buscar diretamente pelo quizId
+    // Estratégia 2: Se não encontrou pelo moduleId, tentar buscar diretamente pelo quizId
     if (!completedQuiz) {
-      completedQuiz = user.completedQuizzes.find(cq => 
-        cq.quizId && cq.quizId.toString() === quizId
-      );
+      completedQuiz = user.completedQuizzes.find(cq => {
+        if (!cq.quizId) return false;
+        const quizIdStr = cq.quizId.toString();
+        return quizIdStr === quizId;
+      });
+      
       if (completedQuiz) {
-        console.log(`🔍 Quiz encontrado diretamente pelo quizId: ${quizId}`);
+        console.log(`✅ Quiz encontrado diretamente pelo quizId: ${quizId} → COMPLETO`);
+        quizFound = true;
+      } else {
+        // Se não encontrou, tentar buscar o quiz no banco para confirmar que existe
+        const quizExists = await Quiz.findById(quizId);
+        if (quizExists) {
+          console.log(`🔍 Quiz existe no banco (${quizId}) mas não foi completado pelo usuário`);
+          quizFound = true;
+        } else {
+          console.log(`⚠️ Quiz não encontrado no banco: ${quizId}`);
+        }
       }
     }
 
-    const isCompleted = completedQuiz && completedQuiz.passed;
-
-    console.log(`📊 Status de conclusão para ${quizId}: ${isCompleted ? 'COMPLETO' : 'NÃO COMPLETO'}`);
+    // ✅ VALIDAÇÃO EXPLÍCITA: Verificar se passou no quiz (apenas quizzes aprovados contam)
+    const isCompleted = completedQuiz && completedQuiz.passed === true;
+    
+    // ✅ LOG DETALHADO para debug
+    if (quizFound) {
+      console.log(`📊 Status de conclusão para ${quizId}: ${isCompleted ? '✅ COMPLETO' : '❌ NÃO COMPLETO'}`);
+      if (completedQuiz && !completedQuiz.passed) {
+        console.log(`   ⚠️ Quiz foi feito mas NÃO passou (score: ${completedQuiz.percentage || 'N/A'}%)`);
+      }
+    } else {
+      console.log(`⚠️ Quiz ${quizId} não encontrado - retornando como não completo por segurança`);
+    }
 
     res.json({
       success: true,
@@ -463,6 +490,17 @@ exports.validateQuestion = async (req, res, next) => {
 
     // Tratar desafio diário mock
     if (quizId === 'daily-challenge-mock') {
+      // ✅ VALIDAÇÃO: Converter questionIndex para número e validar
+      const questionIdx = parseInt(questionIndex);
+      
+      if (isNaN(questionIdx) || questionIdx < 0) {
+        console.error(`❌ Índice de questão inválido: ${questionIndex} (convertido: ${questionIdx})`);
+        return res.status(400).json({
+          success: false,
+          message: `Índice de questão inválido: ${questionIndex}`
+        });
+      }
+      
       // Para o mock, usar dados simulados com 5 questões para evitar erro de índice inválido
       const mockQuestions = [
         {
@@ -517,11 +555,21 @@ exports.validateQuestion = async (req, res, next) => {
         }
       ];
 
-      const question = mockQuestions[questionIndex];
-      if (!question) {
+      // ✅ VALIDAÇÃO ROBUSTA: Verificar se o índice está dentro do array
+      if (questionIdx >= mockQuestions.length) {
+        console.error(`❌ Índice de questão ${questionIdx} inválido para desafio diário (max: ${mockQuestions.length - 1})`);
         return res.status(400).json({
           success: false,
-          message: 'Índice de questão inválido'
+          message: `Índice de questão ${questionIdx} inválido para desafio diário (max: ${mockQuestions.length - 1})`
+        });
+      }
+
+      const question = mockQuestions[questionIdx];
+      if (!question) {
+        console.error(`❌ Questão não encontrada no índice ${questionIdx}`);
+        return res.status(400).json({
+          success: false,
+          message: `Questão não encontrada no índice ${questionIdx}`
         });
       }
 
