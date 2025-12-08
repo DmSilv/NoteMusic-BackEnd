@@ -169,6 +169,35 @@ userSchema.index({ 'completedQuizzes.quizId': 1 }); // Para queries de quizzes c
 
 // Métodos
 userSchema.pre('save', async function(next) {
+  // ✅ VALIDAÇÃO CRÍTICA: Garantir que novos usuários sempre começam com arrays vazios
+  if (this.isNew) {
+    // Se é um novo documento, garantir arrays vazios
+    if (!Array.isArray(this.completedModules) || this.completedModules.length > 0) {
+      console.log(`⚠️ [USER MODEL] Novo usuário com completedModules não vazio - corrigindo...`);
+      this.completedModules = [];
+    }
+    if (!Array.isArray(this.completedQuizzes) || this.completedQuizzes.length > 0) {
+      console.log(`⚠️ [USER MODEL] Novo usuário com completedQuizzes não vazio - corrigindo...`);
+      this.completedQuizzes = [];
+    }
+    if (!Array.isArray(this.quizAttempts) || this.quizAttempts.length > 0) {
+      console.log(`⚠️ [USER MODEL] Novo usuário com quizAttempts não vazio - corrigindo...`);
+      this.quizAttempts = [];
+    }
+    // Garantir valores iniciais zerados
+    if (this.totalPoints > 0) {
+      console.log(`⚠️ [USER MODEL] Novo usuário com totalPoints > 0 - corrigindo...`);
+      this.totalPoints = 0;
+    }
+    if (this.points > 0) {
+      this.points = 0;
+    }
+    if (this.streak > 0) {
+      this.streak = 0;
+    }
+    console.log(`✅ [USER MODEL] Novo usuário ${this.email} validado com arrays vazios`);
+  }
+  
   // Hash password se foi modificada e não está já hasheada
   if (this.isModified('password') && !this.password.startsWith('$2a$')) {
     const salt = await bcrypt.genSalt(10);
@@ -241,16 +270,35 @@ userSchema.methods.shouldBeDeleted = function() {
 
 userSchema.methods.updateStreak = function() {
   const today = new Date();
-  const lastActivity = new Date(this.lastActivityDate);
+  
+  // ✅ VALIDAÇÃO CRÍTICA: Verificar se lastActivityDate é válido
+  // Se for null, undefined, ou inválido, usar data atual como padrão
+  let lastActivity = this.lastActivityDate;
+  
+  if (!lastActivity || !(lastActivity instanceof Date) || isNaN(lastActivity.getTime())) {
+    // Se lastActivityDate é inválido, tratar como primeiro acesso
+    console.log(`⚠️ [UPDATE-STREAK] lastActivityDate inválido para usuário ${this.email || this._id} - usando data atual`);
+    lastActivity = new Date(); // Usar data atual como padrão
+  } else {
+    lastActivity = new Date(this.lastActivityDate);
+  }
   
   // Garantir que estamos comparando apenas as DATAS (sem hora)
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const lastActivityDate = new Date(lastActivity.getFullYear(), lastActivity.getMonth(), lastActivity.getDate());
   
+  // ✅ VALIDAÇÃO: Verificar se as datas são válidas antes de usar toISOString()
+  if (isNaN(todayDate.getTime()) || isNaN(lastActivityDate.getTime())) {
+    console.error(`❌ [UPDATE-STREAK] Erro: Datas inválidas calculadas para usuário ${this.email || this._id}`);
+    // Se houver erro, usar data atual e retornar streak atual
+    this.lastActivityDate = new Date();
+    return this.streak || 0;
+  }
+  
   // Calcular diferença em DIAS (não em horas)
   const diffDays = Math.floor((todayDate - lastActivityDate) / (1000 * 60 * 60 * 24));
   
-  console.log(`📅 Calculando streak: hoje=${todayDate.toISOString()}, última=${lastActivityDate.toISOString()}, diff=${diffDays} dias`);
+  console.log(`📅 [UPDATE-STREAK] Calculando streak: hoje=${todayDate.toISOString()}, última=${lastActivityDate.toISOString()}, diff=${diffDays} dias`);
   
   // Se é o mesmo dia, não incrementar streak nem atualizar lastActivityDate (evita acumular)
   if (diffDays === 0) {
@@ -260,28 +308,48 @@ userSchema.methods.updateStreak = function() {
   
   // Se passou 1 dia (consecutivo), incrementar streak
   if (diffDays === 1) {
-    this.streak += 1;
-    this.lastActivityDate = todayDate; // Registrar que entrou HOJE
-    console.log('✅ Dia consecutivo - streak incrementado para:', this.streak);
-    console.log('✅ Registrado que usuário entrou hoje:', todayDate.toISOString());
+    this.streak = (this.streak || 0) + 1;
+    this.lastActivityDate = new Date(); // Usar Date completo para salvar no banco
+    console.log('✅ [UPDATE-STREAK] Dia consecutivo - streak incrementado para:', this.streak);
   } 
   // Se passou mais de 1 dia, resetar streak para 1
   else if (diffDays > 1) {
     this.streak = 1;
-    this.lastActivityDate = todayDate; // Registrar que entrou HOJE
-    console.log('⚠️ Quebrou sequência - streak resetado para 1');
-    console.log('✅ Registrado que usuário entrou hoje:', todayDate.toISOString());
+    this.lastActivityDate = new Date(); // Usar Date completo para salvar no banco
+    console.log('⚠️ [UPDATE-STREAK] Quebrou sequência - streak resetado para 1');
+  }
+  // Se diffDays < 0 (data futura ou erro), tratar como primeiro acesso
+  else if (diffDays < 0) {
+    console.log(`⚠️ [UPDATE-STREAK] Data futura detectada (diffDays=${diffDays}) - resetando streak`);
+    this.streak = 1;
+    this.lastActivityDate = new Date();
   }
   
   // Verificar se é uma nova semana para resetar o progresso semanal
-  const currentWeek = Math.floor(today.getTime() / (7 * 24 * 60 * 60 * 1000));
-  const lastWeek = Math.floor(lastActivity.getTime() / (7 * 24 * 60 * 60 * 1000));
-  
-  if (currentWeek > lastWeek) {
-    this.weeklyProgress = 0; // Resetar progresso semanal
+  // ✅ VALIDAÇÃO: Verificar se lastActivity é válido antes de usar
+  if (lastActivity && !isNaN(lastActivity.getTime())) {
+    const currentWeek = Math.floor(today.getTime() / (7 * 24 * 60 * 60 * 1000));
+    const lastWeek = Math.floor(lastActivity.getTime() / (7 * 24 * 60 * 60 * 1000));
+    
+    if (currentWeek > lastWeek) {
+      this.weeklyProgress = 0; // Resetar progresso semanal
+      console.log('📅 [UPDATE-STREAK] Nova semana detectada - progresso semanal resetado');
+    }
   }
   
-  return this.streak;
+  // ✅ GARANTIR: Se streak não foi inicializado, inicializar com 1
+  if (!this.streak && this.streak !== 0) {
+    this.streak = 1;
+    console.log('📅 [UPDATE-STREAK] Streak inicializado para 1 (primeiro acesso)');
+  }
+  
+  // ✅ GARANTIR: lastActivityDate sempre tem um valor válido
+  if (!this.lastActivityDate || isNaN(new Date(this.lastActivityDate).getTime())) {
+    this.lastActivityDate = new Date();
+    console.log('📅 [UPDATE-STREAK] lastActivityDate inicializado com data atual');
+  }
+  
+  return this.streak || 0;
 };
 
 userSchema.methods.toJSON = function() {

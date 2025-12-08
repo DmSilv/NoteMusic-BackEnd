@@ -94,7 +94,9 @@ moduleSchema.index({ category: 1, level: 1 });
 moduleSchema.index({ order: 1 });
 moduleSchema.index({ isActive: 1, level: 1 }); // Para queries filtradas por nível e status
 moduleSchema.index({ isActive: 1, category: 1 }); // Para queries filtradas por categoria
-moduleSchema.index({ isActive: 1, order: 1 }); // Para listagem ordenada
+moduleSchema.index({ isActive: 1, order: 1 }); // ✅ Para listagem ordenada (USADO em categories-with-modules)
 moduleSchema.index({ prerequisites: 1 }); // Para verificação de pré-requisitos
+// ✅ ÍNDICE COMPOSTO OTIMIZADO para categories-with-modules (isActive + order)
+moduleSchema.index({ isActive: 1, order: 1, category: 1 }); // Para agrupamento por categoria
 
 module.exports = mongoose.model('Module', moduleSchema);

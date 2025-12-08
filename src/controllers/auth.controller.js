@@ -35,13 +35,46 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Criar usuário
+    // ✅ VALIDAÇÃO CRÍTICA: Garantir que novo usuário começa com arrays vazios
+    // Criar usuário explicitamente com arrays vazios para evitar herança de dados
     const user = await User.create({
       name,
       email,
       password,
-      level: level || 'aprendiz'
+      level: level || 'aprendiz',
+      completedModules: [], // ✅ Garantir array vazio
+      completedQuizzes: [], // ✅ Garantir array vazio
+      quizAttempts: [], // ✅ Garantir array vazio
+      totalPoints: 0, // ✅ Garantir pontos zerados
+      points: 0,
+      streak: 0,
+      weeklyProgress: 0
     });
+
+    // ✅ VALIDAÇÃO PÓS-CRIAÇÃO: Verificar se o usuário foi criado corretamente
+    const createdUser = await User.findById(user._id).select('completedModules completedQuizzes quizAttempts totalPoints');
+    if (createdUser.completedModules.length > 0 || createdUser.completedQuizzes.length > 0 || createdUser.quizAttempts.length > 0 || createdUser.totalPoints > 0) {
+      console.error(`❌ [REGISTER] ERRO CRÍTICO: Novo usuário ${user.email} foi criado com dados existentes!`);
+      console.error(`   completedModules: ${createdUser.completedModules.length}`);
+      console.error(`   completedQuizzes: ${createdUser.completedQuizzes.length}`);
+      console.error(`   quizAttempts: ${createdUser.quizAttempts.length}`);
+      console.error(`   totalPoints: ${createdUser.totalPoints}`);
+      
+      // Corrigir forçando arrays vazios
+      createdUser.completedModules = [];
+      createdUser.completedQuizzes = [];
+      createdUser.quizAttempts = [];
+      createdUser.totalPoints = 0;
+      createdUser.points = 0;
+      await createdUser.save();
+      console.log(`✅ [REGISTER] Dados corrigidos para novo usuário ${user.email}`);
+    } else {
+      console.log(`✅ [REGISTER] Novo usuário ${user.email} criado corretamente com arrays vazios`);
+      console.log(`   ✅ completedModules: ${createdUser.completedModules.length}`);
+      console.log(`   ✅ completedQuizzes: ${createdUser.completedQuizzes.length}`);
+      console.log(`   ✅ quizAttempts: ${createdUser.quizAttempts.length}`);
+      console.log(`   ✅ totalPoints: ${createdUser.totalPoints}`);
+    }
 
     // Gerar token
     const token = generateToken(user._id);
@@ -103,24 +136,65 @@ exports.login = async (req, res, next) => {
       });
     }
 
+    // ✅ VALIDAÇÃO CRÍTICA: Verificar se o usuário tem dados inconsistentes
+    // Buscar usuário novamente para garantir dados atualizados
+    const freshUser = await User.findById(user._id).select('completedModules completedQuizzes quizAttempts totalPoints email name createdAt');
+    
+    // ✅ LOG: Verificar dados do usuário antes do login
+    console.log(`🔍 [LOGIN] Verificando dados do usuário ${freshUser.email} (${freshUser._id}):`);
+    console.log(`   completedModules: ${freshUser.completedModules?.length || 0}`);
+    console.log(`   completedQuizzes: ${freshUser.completedQuizzes?.length || 0}`);
+    console.log(`   quizAttempts: ${freshUser.quizAttempts?.length || 0}`);
+    console.log(`   totalPoints: ${freshUser.totalPoints || 0}`);
+    
+    // Se o usuário foi criado recentemente (menos de 1 minuto) e tem dados, pode ser um problema
+    const userAge = Date.now() - new Date(freshUser.createdAt).getTime();
+    const isNewUser = userAge < 60000; // Menos de 1 minuto
+    
+    if (isNewUser && (freshUser.completedModules?.length > 0 || freshUser.completedQuizzes?.length > 0 || freshUser.quizAttempts?.length > 0)) {
+      console.error(`❌ [LOGIN] ERRO CRÍTICO: Usuário novo ${freshUser.email} tem dados existentes!`);
+      console.error(`   Idade da conta: ${Math.round(userAge / 1000)}s`);
+      console.error(`   completedModules: ${freshUser.completedModules.length}`);
+      console.error(`   completedQuizzes: ${freshUser.completedQuizzes.length}`);
+      console.error(`   quizAttempts: ${freshUser.quizAttempts.length}`);
+      
+      // Corrigir forçando arrays vazios para novos usuários
+      freshUser.completedModules = [];
+      freshUser.completedQuizzes = [];
+      freshUser.quizAttempts = [];
+      freshUser.totalPoints = 0;
+      freshUser.points = 0;
+      await freshUser.save();
+      console.log(`✅ [LOGIN] Dados corrigidos para usuário ${freshUser.email}`);
+      console.log(`   ✅ completedModules: ${freshUser.completedModules.length}`);
+      console.log(`   ✅ completedQuizzes: ${freshUser.completedQuizzes.length}`);
+      console.log(`   ✅ quizAttempts: ${freshUser.quizAttempts.length}`);
+      console.log(`   ✅ totalPoints: ${freshUser.totalPoints}`);
+    }
+
     // Atualizar streak
-    user.updateStreak();
-    await user.save();
+    freshUser.updateStreak();
+    await freshUser.save();
+    
+    // ✅ Limpar cache relacionado a este usuário após login
+    const { invalidateCache } = require('../middlewares/cache');
+    invalidateCache(`.*${freshUser._id}.*`);
+    console.log(`🗑️ [LOGIN] Cache limpo para usuário ${freshUser._id}`);
 
     // Gerar token
-    const token = generateToken(user._id);
+    const token = generateToken(freshUser._id);
 
     // Verificar se está usando senha temporária
     const responseData = {
       success: true,
       token,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        level: user.level,
-        streak: user.streak,
-        tempPassword: user.tempPassword || false
+        id: freshUser._id,
+        name: freshUser.name,
+        email: freshUser.email,
+        level: freshUser.level,
+        streak: freshUser.streak,
+        tempPassword: freshUser.tempPassword || false
       }
     };
 

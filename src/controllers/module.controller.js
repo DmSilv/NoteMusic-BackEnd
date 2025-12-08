@@ -16,18 +16,18 @@ exports.getModules = async (req, res, next) => {
     if (category) filter.category = category;
     if (level) filter.level = level;
 
-    console.log(`🔍 Executando query de módulos com filtro:`, filter);
+    console.log(`🔍 [GET-MODULES] Executando query com filtro:`, filter);
 
-    // Query otimizada com índices compostos e lean() para melhor performance
+    // ✅ QUERY OTIMIZADA: Buscar apenas campos essenciais
     const modules = await Module.find(filter)
       .sort({ order: 1 })
-      .select('-content.exercises -content.examples') // Não enviar conteúdo pesado na listagem
+      .select('_id title description category level order quizzes') // ✅ Apenas campos essenciais
       .populate({
         path: 'quizzes',
-        select: 'timeLimit questions.length', // Apenas campos necessários
-        options: { lean: true } // Usar lean no populate também
+        select: 'timeLimit', // ✅ Apenas timeLimit
+        options: { lean: true }
       })
-      .lean(); // Usar lean() para melhor performance (sem Mongoose documents)
+      .lean(); // ✅ Usar lean() para melhor performance
 
     console.log(`📊 Módulos encontrados: ${modules.length}`);
     
@@ -248,9 +248,12 @@ exports.completeModule = async (req, res, next) => {
 
     await user.save();
 
-    // Invalidar cache de gamificação após completar módulo
+    // ✅ Invalidar cache de gamificação e módulos após completar módulo
     invalidateCache('/api/gamification');
     invalidateCache('/api/modules');
+    invalidateCache('/api/modules/categories-with-modules'); // ✅ Invalidar endpoint otimizado também
+    
+    console.log(`🗑️ [COMPLETE-MODULE] Cache invalidado após completar módulo ${moduleId}`);
 
     res.status(200).json({
       success: true,
@@ -439,18 +442,21 @@ exports.getCategoriesWithModules = async (req, res, next) => {
     console.log('🚀 [OTIMIZADO] Buscando categorias COM módulos em UMA única query...');
     const startTime = Date.now();
     
-    // Query OTIMIZADA: buscar todos os módulos COM quizzes populados em uma única query
+    // ✅ QUERY ULTRA-OTIMIZADA: Buscar apenas campos essenciais
+    // Usar índices compostos para melhor performance
     const modules = await Module.find({ isActive: true })
       .sort({ order: 1 })
-      .select('-content.exercises -content.examples -content.theory') // Não enviar conteúdo pesado
+      .select('_id title description category level order quizzes') // ✅ Apenas campos essenciais
       .populate({
         path: 'quizzes',
-        select: 'timeLimit questions.length', // Apenas campos necessários
+        select: 'timeLimit', // ✅ Apenas timeLimit (não precisa de questions.length)
         options: { lean: true }
       })
-      .lean();
+      .lean()
+      .hint({ isActive: 1, order: 1 }); // ✅ Forçar uso de índice composto
 
-    console.log(`📊 Módulos carregados: ${modules.length} (tempo: ${Date.now() - startTime}ms)`);
+    const queryTime = Date.now() - startTime;
+    console.log(`📊 Módulos carregados: ${modules.length} (query: ${queryTime}ms)`);
 
     // Agrupar módulos por categoria e adicionar quizTimeLimit
     const categoriesMap = {
@@ -468,58 +474,80 @@ exports.getCategoriesWithModules = async (req, res, next) => {
       'compasso-composto': { id: 'compasso-composto', name: 'Compasso Composto', description: 'Compassos compostos e suas divisões', icon: 'layers', modules: [] }
     };
 
-    // Processar módulos e calcular quizTimeLimit
-    modules.forEach(module => {
+    // ✅ PROCESSAMENTO OTIMIZADO: Processar módulos de forma eficiente
+    const processStartTime = Date.now();
+    
+    for (const module of modules) {
+      // ✅ Calcular quizTimeLimit de forma otimizada
       let quizTimeLimit = null;
       
-      // Calcular quizTimeLimit a partir dos quizzes populados
       if (module.quizzes && module.quizzes.length > 0) {
         const quiz = Array.isArray(module.quizzes) ? module.quizzes[0] : module.quizzes;
-        if (quiz.timeLimit && quiz.timeLimit > 0) {
+        if (quiz && quiz.timeLimit && quiz.timeLimit > 0) {
           quizTimeLimit = quiz.timeLimit;
-        } else if (quiz.questions && quiz.questions.length) {
-          quizTimeLimit = quiz.questions.length * 2 * 60; // 2 minutos por questão
         }
+        // ✅ Removido cálculo baseado em questions.length (não temos mais esse campo)
       }
       
+      // ✅ Criar objeto mínimo necessário
       const moduleData = {
         id: module._id.toString(),
-        _id: module._id.toString(),
         title: module.title,
         description: module.description,
         category: module.category,
         level: module.level,
         order: module.order,
-        quizTimeLimit, // ✅ JÁ INCLUÍDO!
+        quizTimeLimit: quizTimeLimit || 300, // ✅ Default de 5 minutos se não tiver
         isCompleted: false,
         isLocked: false
       };
 
-      if (categoriesMap[module.category]) {
-        categoriesMap[module.category].modules.push(moduleData);
+      // ✅ Adicionar à categoria correspondente
+      const category = categoriesMap[module.category];
+      if (category) {
+        category.modules.push(moduleData);
       }
-    });
+    }
+    
+    const processTime = Date.now() - processStartTime;
+    console.log(`⚡ Processamento: ${processTime}ms`);
 
-    // Converter para array e ordenar módulos por ordem dentro de cada categoria
-    const result = Object.values(categoriesMap)
-      .filter(cat => cat.modules.length > 0) // Apenas categorias com módulos
-      .map(cat => ({
-        ...cat,
-        modules: cat.modules.sort((a, b) => a.order - b.order),
-        moduleCount: cat.modules.length
-      }));
-
+    // ✅ OTIMIZAÇÃO: Ordenar apenas categorias com módulos e ordenar módulos
+    const sortStartTime = Date.now();
+    const result = [];
+    
+    for (const category of Object.values(categoriesMap)) {
+      if (category.modules.length > 0) {
+        // ✅ Ordenar módulos por ordem (já está ordenado pela query, mas garantir)
+        category.modules.sort((a, b) => a.order - b.order);
+        result.push({
+          id: category.id,
+          name: category.name,
+          description: category.description,
+          icon: category.icon,
+          modules: category.modules, // ✅ Já ordenado
+          moduleCount: category.modules.length
+        });
+      }
+    }
+    
+    const sortTime = Date.now() - sortStartTime;
     const totalTime = Date.now() - startTime;
-    console.log(`✅ Categorias agrupadas: ${result.length} (tempo total: ${totalTime}ms)`);
-    console.log(`📊 Total de módulos processados: ${modules.length}`);
+    
+    console.log(`✅ Categorias agrupadas: ${result.length} (ordenação: ${sortTime}ms, total: ${totalTime}ms)`);
+    console.log(`📊 Performance: Query=${queryTime}ms, Process=${processTime}ms, Sort=${sortTime}ms, Total=${totalTime}ms`);
 
+    // ✅ Resposta otimizada com apenas dados necessários
     res.json({
       success: true,
       categories: result,
       meta: {
         totalCategories: result.length,
         totalModules: modules.length,
-        queryTime: totalTime
+        queryTime: queryTime,
+        processTime: processTime,
+        sortTime: sortTime,
+        totalTime: totalTime
       }
     });
   } catch (error) {

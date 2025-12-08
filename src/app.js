@@ -89,9 +89,125 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ✅ Rota para gerenciar cache (útil para limpar cache em produção)
+const { clearCache, getCacheStats, getCacheVersion, invalidateCache } = require('./middlewares/cache');
+
+app.get('/api/cache/stats', (req, res) => {
+  const stats = getCacheStats();
+  res.json({
+    success: true,
+    cache: {
+      ...stats,
+      version: getCacheVersion(),
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// ✅ Rota para limpar cache (protegida por token secreto ou desabilitada em produção)
+app.post('/api/cache/clear', (req, res) => {
+  // ✅ SEGURANÇA: Verificar token secreto ou desabilitar em produção
+  const secretToken = req.headers['x-cache-secret'] || req.body.secret;
+  const expectedToken = process.env.CACHE_CLEAR_SECRET || 'dev-only-secret';
+  
+  if (process.env.NODE_ENV === 'production' && secretToken !== expectedToken) {
+    return res.status(403).json({
+      success: false,
+      message: 'Acesso negado. Token secreto necessário para limpar cache em produção.'
+    });
+  }
+  
+  const cleared = clearCache();
+  res.json({
+    success: true,
+    message: 'Cache limpo com sucesso',
+    keysCleared: cleared,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ✅ Rota para invalidar cache por padrão
+app.post('/api/cache/invalidate', (req, res) => {
+  const { pattern } = req.body;
+  
+  if (!pattern) {
+    return res.status(400).json({
+      success: false,
+      message: 'Padrão de invalidação é obrigatório'
+    });
+  }
+  
+  const invalidated = invalidateCache(pattern);
+  res.json({
+    success: true,
+    message: 'Cache invalidado com sucesso',
+    keysInvalidated: invalidated,
+    pattern,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check na raiz também (alguns serviços verificam aqui)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
+});
+
+// ✅ Rotas para gerenciar cache (DEVEM vir ANTES das rotas da API)
+const { clearCache, getCacheStats, getCacheVersion, invalidateCache } = require('./middlewares/cache');
+
+app.get('/api/cache/stats', (req, res) => {
+  const stats = getCacheStats();
+  res.json({
+    success: true,
+    cache: {
+      ...stats,
+      version: getCacheVersion(),
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// ✅ Rota para limpar cache (protegida por token secreto ou desabilitada em produção)
+app.post('/api/cache/clear', (req, res) => {
+  // ✅ SEGURANÇA: Verificar token secreto ou desabilitar em produção
+  const secretToken = req.headers['x-cache-secret'] || req.body.secret;
+  const expectedToken = process.env.CACHE_CLEAR_SECRET || 'dev-only-secret';
+  
+  if (process.env.NODE_ENV === 'production' && secretToken !== expectedToken) {
+    return res.status(403).json({
+      success: false,
+      message: 'Acesso negado. Token secreto necessário para limpar cache em produção.'
+    });
+  }
+  
+  const cleared = clearCache();
+  res.json({
+    success: true,
+    message: 'Cache limpo com sucesso',
+    keysCleared: cleared,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ✅ Rota para invalidar cache por padrão
+app.post('/api/cache/invalidate', (req, res) => {
+  const { pattern } = req.body;
+  
+  if (!pattern) {
+    return res.status(400).json({
+      success: false,
+      message: 'Padrão de invalidação é obrigatório'
+    });
+  }
+  
+  const invalidated = invalidateCache(pattern);
+  res.json({
+    success: true,
+    message: 'Cache invalidado com sucesso',
+    keysInvalidated: invalidated,
+    pattern,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Rotas da API

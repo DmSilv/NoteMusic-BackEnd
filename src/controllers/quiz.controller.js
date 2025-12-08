@@ -14,11 +14,39 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
     const { quizId } = req.params;
     const userId = req.user.id;
 
-    const user = await User.findById(userId);
+    // ✅ VALIDAÇÃO CRÍTICA: Garantir que estamos buscando o usuário correto
+    console.log(`🔍 [COMPLETION-STATUS] Verificando quiz ${quizId} para usuário ${userId}`);
+    
+    // Buscar usuário SEM cache e garantindo que buscamos pelo ID correto
+    const user = await User.findById(userId).select('completedQuizzes email name');
     if (!user) {
+      console.error(`❌ [COMPLETION-STATUS] Usuário ${userId} não encontrado no banco`);
       return res.status(404).json({
         success: false,
         message: 'Usuário não encontrado'
+      });
+    }
+
+    // ✅ VALIDAÇÃO DE SEGURANÇA: Verificar se o usuário da requisição corresponde ao usuário do banco
+    if (user._id.toString() !== userId.toString()) {
+      console.error(`❌ [COMPLETION-STATUS] ERRO CRÍTICO: ID do usuário não corresponde! req.user.id: ${userId}, user._id: ${user._id}`);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro interno: inconsistência de dados do usuário'
+      });
+    }
+
+    // ✅ LOG: Verificar quantos quizzes completados o usuário tem
+    const totalCompletedQuizzes = user.completedQuizzes?.length || 0;
+    console.log(`📊 [COMPLETION-STATUS] Usuário ${user.email} (${userId}) tem ${totalCompletedQuizzes} quiz(es) completado(s)`);
+    
+    // Se o usuário não tem quizzes completados, retornar imediatamente
+    if (totalCompletedQuizzes === 0) {
+      console.log(`✅ [COMPLETION-STATUS] Usuário novo ou sem quizzes completados - retornando NÃO COMPLETO`);
+      return res.json({
+        success: true,
+        isCompleted: false,
+        completionData: null
       });
     }
 
@@ -31,13 +59,15 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
     if (quizByModule) {
       quizFound = true;
       // Se encontrou quiz pelo moduleId, verificar usando o _id do quiz
-      completedQuiz = user.completedQuizzes.find(cq => 
-        cq.quizId && cq.quizId.toString() === quizByModule._id.toString()
-      );
+      completedQuiz = user.completedQuizzes.find(cq => {
+        if (!cq.quizId) return false;
+        return cq.quizId.toString() === quizByModule._id.toString();
+      });
       if (completedQuiz) {
-        console.log(`✅ Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → COMPLETO`);
+        console.log(`✅ [COMPLETION-STATUS] Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → COMPLETO`);
+        console.log(`   📝 Detalhes: passed=${completedQuiz.passed}, percentage=${completedQuiz.percentage || 'N/A'}%`);
       } else {
-        console.log(`🔍 Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → NÃO COMPLETO`);
+        console.log(`🔍 [COMPLETION-STATUS] Quiz encontrado por moduleId ${quizId} → quiz._id: ${quizByModule._id} → NÃO COMPLETO`);
       }
     }
     
@@ -50,16 +80,17 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
       });
       
       if (completedQuiz) {
-        console.log(`✅ Quiz encontrado diretamente pelo quizId: ${quizId} → COMPLETO`);
+        console.log(`✅ [COMPLETION-STATUS] Quiz encontrado diretamente pelo quizId: ${quizId} → COMPLETO`);
+        console.log(`   📝 Detalhes: passed=${completedQuiz.passed}, percentage=${completedQuiz.percentage || 'N/A'}%`);
         quizFound = true;
       } else {
         // Se não encontrou, tentar buscar o quiz no banco para confirmar que existe
         const quizExists = await Quiz.findById(quizId);
         if (quizExists) {
-          console.log(`🔍 Quiz existe no banco (${quizId}) mas não foi completado pelo usuário`);
+          console.log(`🔍 [COMPLETION-STATUS] Quiz existe no banco (${quizId}) mas não foi completado pelo usuário ${userId}`);
           quizFound = true;
         } else {
-          console.log(`⚠️ Quiz não encontrado no banco: ${quizId}`);
+          console.log(`⚠️ [COMPLETION-STATUS] Quiz não encontrado no banco: ${quizId}`);
         }
       }
     }
@@ -69,12 +100,17 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
     
     // ✅ LOG DETALHADO para debug
     if (quizFound) {
-      console.log(`📊 Status de conclusão para ${quizId}: ${isCompleted ? '✅ COMPLETO' : '❌ NÃO COMPLETO'}`);
+      console.log(`📊 [COMPLETION-STATUS] Status final para quiz ${quizId} (usuário ${userId}): ${isCompleted ? '✅ COMPLETO' : '❌ NÃO COMPLETO'}`);
       if (completedQuiz && !completedQuiz.passed) {
         console.log(`   ⚠️ Quiz foi feito mas NÃO passou (score: ${completedQuiz.percentage || 'N/A'}%)`);
       }
     } else {
-      console.log(`⚠️ Quiz ${quizId} não encontrado - retornando como não completo por segurança`);
+      console.log(`⚠️ [COMPLETION-STATUS] Quiz ${quizId} não encontrado - retornando como não completo por segurança`);
+    }
+
+    // ✅ VALIDAÇÃO FINAL: Garantir que não estamos retornando dados de outro usuário
+    if (completedQuiz && isCompleted) {
+      console.log(`✅ [COMPLETION-STATUS] Validação final: Quiz ${quizId} está COMPLETO para usuário ${userId} (${user.email})`);
     }
 
     res.json({
@@ -83,7 +119,7 @@ exports.getQuizCompletionStatus = async (req, res, next) => {
       completionData: completedQuiz || null
     });
   } catch (error) {
-    console.error('❌ Erro ao verificar status de conclusão:', error);
+    console.error('❌ [COMPLETION-STATUS] Erro ao verificar status de conclusão:', error);
     next(error);
   }
 };
@@ -96,18 +132,64 @@ exports.getQuizAttemptsStatus = async (req, res, next) => {
     const { quizId } = req.params;
     const userId = req.user.id;
 
-    const user = await User.findById(userId);
+    // ✅ VALIDAÇÃO CRÍTICA: Garantir que estamos buscando o usuário correto
+    console.log(`🔍 [ATTEMPTS-STATUS] Verificando tentativas do quiz ${quizId} para usuário ${userId}`);
+    
+    // Buscar usuário SEM cache e garantindo que buscamos pelo ID correto
+    const user = await User.findById(userId).select('quizAttempts completedQuizzes email name');
     if (!user) {
+      console.error(`❌ [ATTEMPTS-STATUS] Usuário ${userId} não encontrado no banco`);
       return res.status(404).json({
         success: false,
         message: 'Usuário não encontrado'
       });
     }
 
+    // ✅ VALIDAÇÃO DE SEGURANÇA: Verificar se o usuário da requisição corresponde ao usuário do banco
+    if (user._id.toString() !== userId.toString()) {
+      console.error(`❌ [ATTEMPTS-STATUS] ERRO CRÍTICO: ID do usuário não corresponde! req.user.id: ${userId}, user._id: ${user._id}`);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro interno: inconsistência de dados do usuário'
+      });
+    }
+
+    // ✅ LOG: Verificar quantas tentativas o usuário tem
+    const totalQuizAttempts = user.quizAttempts?.length || 0;
+    console.log(`📊 [ATTEMPTS-STATUS] Usuário ${user.email} (${userId}) tem ${totalQuizAttempts} registro(s) de tentativas`);
+    
+    // Se o usuário não tem tentativas, retornar imediatamente com valores zerados
+    if (totalQuizAttempts === 0) {
+      console.log(`✅ [ATTEMPTS-STATUS] Usuário novo ou sem tentativas - retornando valores zerados`);
+      const maxAttempts = LIMITS.MAX_QUIZ_ATTEMPTS || 3;
+      return res.json({
+        success: true,
+        canAttempt: true,
+        attemptsUsed: 0,
+        attemptsRemaining: maxAttempts,
+        maxAttempts,
+        isInCooldown: false,
+        cooldownUntil: null,
+        hasPassed: false,
+        lastAttempt: null
+      });
+    }
+
     // Buscar tentativas para este quiz
-    const quizAttempt = user.quizAttempts.find(qa => 
-      qa.quizId.toString() === quizId
-    );
+    const quizAttempt = user.quizAttempts.find(qa => {
+      if (!qa.quizId) return false;
+      return qa.quizId.toString() === quizId;
+    });
+
+    // ✅ LOG: Verificar se encontrou tentativa para este quiz
+    if (quizAttempt) {
+      console.log(`📊 [ATTEMPTS-STATUS] Tentativa encontrada para quiz ${quizId}:`);
+      console.log(`   attempts: ${quizAttempt.attempts}`);
+      console.log(`   isBlocked: ${quizAttempt.isBlocked || false}`);
+      console.log(`   cooldownUntil: ${quizAttempt.cooldownUntil || 'null'}`);
+    } else {
+      console.log(`✅ [ATTEMPTS-STATUS] Nenhuma tentativa encontrada para quiz ${quizId} - usuário pode tentar`);
+    }
 
     const maxAttempts = LIMITS.MAX_QUIZ_ATTEMPTS || 3;
     const attemptsUsed = quizAttempt ? quizAttempt.attempts : 0;
@@ -119,10 +201,16 @@ exports.getQuizAttemptsStatus = async (req, res, next) => {
     const cooldownUntil = isInCooldown ? quizAttempt.cooldownUntil : null;
 
     // Verificar se já passou no quiz
-    const completedQuiz = user.completedQuizzes.find(cq => 
-      cq.quizId.toString() === quizId && cq.passed
-    );
+    const completedQuiz = user.completedQuizzes.find(cq => {
+      if (!cq.quizId) return false;
+      return cq.quizId.toString() === quizId && cq.passed === true;
+    });
     const hasPassed = !!completedQuiz;
+
+    // ✅ VALIDAÇÃO FINAL: Garantir que não estamos retornando dados de outro usuário
+    if (quizAttempt && attemptsUsed > 0) {
+      console.log(`✅ [ATTEMPTS-STATUS] Validação final: Quiz ${quizId} tem ${attemptsUsed} tentativa(s) para usuário ${userId} (${user.email})`);
+    }
 
     res.json({
       success: true,
@@ -136,6 +224,7 @@ exports.getQuizAttemptsStatus = async (req, res, next) => {
       lastAttempt: quizAttempt ? quizAttempt.lastAttempt : null
     });
   } catch (error) {
+    console.error('❌ [ATTEMPTS-STATUS] Erro ao verificar status de tentativas:', error);
     next(error);
   }
 };
