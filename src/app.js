@@ -17,22 +17,33 @@ const quizAttemptRoutes = require('./routes/quizAttempt.routes');
 const errorHandler = require('./middlewares/errorHandler');
 const { cacheMiddleware } = require('./middlewares/cache');
 
+// Importar funções de cache (APENAS UMA VEZ)
+const { 
+  clearCache,
+  getCacheStats,
+  getCacheVersion,
+  invalidateCache 
+} = require('./middlewares/cache');
+
 const app = express();
 
-// Se atrás de proxy (Render/Heroku/NGINX), habilita IP correto para rate-limit
+// Configuração de proxy (Render/Heroku/NGINX)
 if (process.env.TRUST_PROXY === '1') {
   app.set('trust proxy', 1);
 }
 
-// Configurações de segurança
+// Middlewares de segurança e performance
 app.use(helmet());
 app.use(compression());
 
-// CORS - controlado por ambiente
-const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+// CORS configurável por ambiente
+const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // mobile apps/health checks
+    if (!origin) return callback(null, true);
     if (process.env.NODE_ENV !== 'production') return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Origem não permitida pelo CORS'));
@@ -40,25 +51,21 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting otimizado para produção
+// Rate limiting geral
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000, // limite aumentado para 1000 requisições (5x mais)
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
   message: 'Muitas requisições, tente novamente mais tarde',
   standardHeaders: true,
   legacyHeaders: false,
-  // Permitir mais requests para usuários autenticados
-  skip: (req) => {
-    // Pular rate limiting para usuários autenticados em algumas rotas
-    return req.user && req.path.includes('/stats');
-  }
+  skip: (req) => req.user && req.path.includes('/stats')
 });
 app.use('/api', limiter);
 
-// Rate limiting mais restrito para auth (mas ainda aumentado)
+// Rate limiting específico para Auth
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 300, // limite aumentado para 300 requisições (3x mais)
+  windowMs: 15 * 60 * 1000,
+  max: 300,
   message: 'Muitas tentativas, tente novamente mais tarde',
   standardHeaders: true,
   legacyHeaders: false
@@ -66,22 +73,22 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-// Rate limiting específico para stats (mais permissivo)
+// Rate limiting para estatísticas
 const statsLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 500, // limite específico para stats
+  windowMs: 15 * 60 * 1000,
+  max: 500,
   message: 'Muitas requisições de estatísticas, tente novamente mais tarde'
 });
 app.use('/api/users/stats', statsLimiter);
 
-// Parsers
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rota de health check (importante para Railway/Render)
+// Health check principal
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  res.status(200).json({
+    status: 'OK',
     message: 'API NoteMusic funcionando!',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
@@ -89,72 +96,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ✅ Rota para gerenciar cache (útil para limpar cache em produção)
-const { clearCache, getCacheStats, getCacheVersion, invalidateCache } = require('./middlewares/cache');
-
-app.get('/api/cache/stats', (req, res) => {
-  const stats = getCacheStats();
-  res.json({
-    success: true,
-    cache: {
-      ...stats,
-      version: getCacheVersion(),
-      timestamp: new Date().toISOString()
-    }
-  });
-});
-
-// ✅ Rota para limpar cache (protegida por token secreto ou desabilitada em produção)
-app.post('/api/cache/clear', (req, res) => {
-  // ✅ SEGURANÇA: Verificar token secreto ou desabilitar em produção
-  const secretToken = req.headers['x-cache-secret'] || req.body.secret;
-  const expectedToken = process.env.CACHE_CLEAR_SECRET || 'dev-only-secret';
-  
-  if (process.env.NODE_ENV === 'production' && secretToken !== expectedToken) {
-    return res.status(403).json({
-      success: false,
-      message: 'Acesso negado. Token secreto necessário para limpar cache em produção.'
-    });
-  }
-  
-  const cleared = clearCache();
-  res.json({
-    success: true,
-    message: 'Cache limpo com sucesso',
-    keysCleared: cleared,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// ✅ Rota para invalidar cache por padrão
-app.post('/api/cache/invalidate', (req, res) => {
-  const { pattern } = req.body;
-  
-  if (!pattern) {
-    return res.status(400).json({
-      success: false,
-      message: 'Padrão de invalidação é obrigatório'
-    });
-  }
-  
-  const invalidated = invalidateCache(pattern);
-  res.json({
-    success: true,
-    message: 'Cache invalidado com sucesso',
-    keysInvalidated: invalidated,
-    pattern,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Health check na raiz também (alguns serviços verificam aqui)
+// Health check alternativo
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// ✅ Rotas para gerenciar cache (DEVEM vir ANTES das rotas da API)
-const { clearCache, getCacheStats, getCacheVersion, invalidateCache } = require('./middlewares/cache');
+//
+// =========================
+// ROTAS DE CACHE (ORGANIZADAS)
+// =========================
+//
 
+// Estatísticas do cache
 app.get('/api/cache/stats', (req, res) => {
   const stats = getCacheStats();
   res.json({
@@ -167,19 +120,18 @@ app.get('/api/cache/stats', (req, res) => {
   });
 });
 
-// ✅ Rota para limpar cache (protegida por token secreto ou desabilitada em produção)
+// Limpar cache (seguro)
 app.post('/api/cache/clear', (req, res) => {
-  // ✅ SEGURANÇA: Verificar token secreto ou desabilitar em produção
   const secretToken = req.headers['x-cache-secret'] || req.body.secret;
   const expectedToken = process.env.CACHE_CLEAR_SECRET || 'dev-only-secret';
   
   if (process.env.NODE_ENV === 'production' && secretToken !== expectedToken) {
     return res.status(403).json({
       success: false,
-      message: 'Acesso negado. Token secreto necessário para limpar cache em produção.'
+      message: 'Acesso negado. Token secreto inválido.'
     });
   }
-  
+
   const cleared = clearCache();
   res.json({
     success: true,
@@ -189,17 +141,17 @@ app.post('/api/cache/clear', (req, res) => {
   });
 });
 
-// ✅ Rota para invalidar cache por padrão
+// Invalidação por padrão
 app.post('/api/cache/invalidate', (req, res) => {
   const { pattern } = req.body;
-  
+
   if (!pattern) {
     return res.status(400).json({
       success: false,
       message: 'Padrão de invalidação é obrigatório'
     });
   }
-  
+
   const invalidated = invalidateCache(pattern);
   res.json({
     success: true,
@@ -210,7 +162,11 @@ app.post('/api/cache/invalidate', (req, res) => {
   });
 });
 
-// Rotas da API
+//
+// =========================
+// ROTAS PRINCIPAIS DA API
+// =========================
+//
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/modules', moduleRoutes);
@@ -218,10 +174,10 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/quiz-attempts', quizAttemptRoutes);
 
-// Middleware de erro (deve ser o último)
+// Middleware de erro (por último)
 app.use(errorHandler);
 
-// Rota 404
+// Rota 404 padrão
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
