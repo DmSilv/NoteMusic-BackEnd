@@ -9,8 +9,8 @@ if (!RAILWAY_MONGODB_URI) {
   process.exit(1);
 }
 
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 
 async function exportarEImportar() {
   try {

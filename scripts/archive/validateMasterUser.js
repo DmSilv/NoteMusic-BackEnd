@@ -6,9 +6,9 @@
  */
 
 const mongoose = require('mongoose');
-const User = require('../../src/models/User');
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const User = require('../../src/models/user.model');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 require('dotenv').config();
 
 const MASTER_EMAIL = process.env.MASTER_EMAIL || 'master@notemusic.com';

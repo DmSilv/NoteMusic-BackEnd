@@ -2,8 +2,8 @@
 require('dotenv').config();
 
 const QuizAttempt = require('../../src/models/quizAttempt.model');
-const User = require('../../src/models/User');
-const Module = require('../../src/models/Module');
+const User = require('../../src/models/user.model');
+const Module = require('../../src/models/module.model');
 
 async function main() {
   const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/notemusic';

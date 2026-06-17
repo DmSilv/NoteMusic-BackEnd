@@ -1,6 +1,6 @@
 ﻿const mongoose = require('mongoose');
-const User = require('../../src/models/User');
-const Module = require('../../src/models/Module');
+const User = require('../../src/models/user.model');
+const Module = require('../../src/models/module.model');
 
 // Mapear níveis antigos para novos
 const levelMap = {

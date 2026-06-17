@@ -1,7 +1,7 @@
 ﻿const mongoose = require('mongoose');
 require('dotenv').config();
 
-const User = require('../../src/models/User');
+const User = require('../../src/models/user.model');
 const { USER_LEVELS } = require('../../src/utils/constants');
 
 // Conectar ao banco

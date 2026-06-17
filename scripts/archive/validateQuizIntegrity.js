@@ -1,7 +1,7 @@
 ﻿const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Quiz = require('../../src/models/Quiz');
+const Quiz = require('../../src/models/quiz.model');
 
 // Função para validar integridade de uma pergunta
 function validateQuestionIntegrity(question, questionIndex) {

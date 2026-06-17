@@ -1,6 +1,6 @@
-const Module = require('../models/Module');
-const User = require('../models/User');
-const Quiz = require('../models/Quiz');
+﻿const Module = require('../models/module.model');
+const User = require('../models/user.model');
+const Quiz = require('../models/quiz.model');
 const { GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 const { invalidateCache } = require('../middlewares/cache');
 

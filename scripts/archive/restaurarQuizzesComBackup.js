@@ -3,9 +3,9 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const User = require('../../src/models/User');
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const User = require('../../src/models/user.model');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 const { quizQuestionsData } = require('../../src/utils/seedData');
 
 // =====================================================

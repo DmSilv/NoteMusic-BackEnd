@@ -16,8 +16,8 @@ if (!PRODUCTION_MONGODB_URI) {
   process.exit(1);
 }
 
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 
 // Conectar aos bancos
 let localConnection = null;

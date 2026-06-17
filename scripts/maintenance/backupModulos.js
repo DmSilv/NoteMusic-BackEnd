@@ -1,6 +1,6 @@
 ﻿require('dotenv').config();
 const mongoose = require('mongoose');
-const Module = require('../../src/models/Module');
+const Module = require('../../src/models/module.model');
 const fs = require('fs');
 const path = require('path');
 

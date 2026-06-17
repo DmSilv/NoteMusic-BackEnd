@@ -2,9 +2,9 @@
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-const User = require('../../src/models/User');
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const User = require('../../src/models/user.model');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 const { modulesData, quizQuestionsData } = require('../../src/utils/seedData');
 
 const seedDatabase = async () => {

@@ -1,5 +1,5 @@
 ﻿const mongoose = require('mongoose');
-const Module = require('../../src/models/Module');
+const Module = require('../../src/models/module.model');
 require('dotenv').config();
 
 const fixModuleLevels = async () => {

@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Quiz = require('../models/Quiz');
-const User = require('../models/User');
-const Module = require('../models/Module');
+﻿const mongoose = require('mongoose');
+const Quiz = require('../models/quiz.model');
+const User = require('../models/user.model');
+const Module = require('../models/module.model');
 const { USER_LEVELS, POINTS, LIMITS } = require('../utils/constants');
 const { calculateRebalancedPoints, GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 const { generateDailyChallengeConfig, getTodayChallengeInfo } = require('../utils/dailyChallengeGenerator');

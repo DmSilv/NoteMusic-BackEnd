@@ -1,4 +1,4 @@
-# 📊 Melhorias no Cálculo de Aprovação dos Quizzes
+﻿# 📊 Melhorias no Cálculo de Aprovação dos Quizzes
 
 ## 🎯 Problema Identificado
 
@@ -76,7 +76,7 @@ Os arquivos `perguntas_nivel_aprendiz.json` e `perguntas_nivel_virtuoso.json` pr
 
 ```javascript
 const mongoose = require('mongoose');
-const Quiz = require('../src/models/Quiz');
+const Quiz = require('../src/models/quiz.model');
 const aprendizQuestions = require('../../perguntas_nivel_aprendiz.json');
 const virtuosoQuestions = require('../../perguntas_nivel_virtuoso.json');
 

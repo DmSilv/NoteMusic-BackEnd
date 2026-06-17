@@ -1,4 +1,4 @@
-const User = require('../models/User');
+﻿const User = require('../models/user.model');
 
 /**
  * Middleware para verificar se o usuário está usando uma senha temporária

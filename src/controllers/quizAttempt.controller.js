@@ -1,4 +1,4 @@
-const QuizAttempt = require('../models/quizAttempt.model');
+﻿const QuizAttempt = require('../models/quizAttempt.model');
 
 // ✅ VERIFICAR SE PODE TENTAR NOVAMENTE (COOLDOWN ESPECÍFICO POR QUIZ)
 exports.checkQuizAttempt = async (req, res) => {

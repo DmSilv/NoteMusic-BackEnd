@@ -1,4 +1,4 @@
-# 🎮 MELHORIAS NO SISTEMA DE GAMIFICAÇÃO - NoteMusic
+﻿# 🎮 MELHORIAS NO SISTEMA DE GAMIFICAÇÃO - NoteMusic
 
 ## ✅ IMPLEMENTAÇÃO CONCLUÍDA
 
@@ -230,7 +230,7 @@ O sistema agora registra logs detalhados:
 ## ✅ ARQUIVOS MODIFICADOS
 
 1. ✅ `Back End/src/utils/constants.js` - Sistema de pontos e níveis
-2. ✅ `Back End/src/models/User.js` - Novos campos e hook de nível
+2. ✅ `Back End/src/models/user.model.js` - Novos campos e hook de nível
 3. ✅ `Back End/src/controllers/module.controller.js` - Pontos por módulos e tracking
 4. ✅ `Back End/src/routes/module.routes.js` - Novas rotas
 5. ✅ `Back End/src/services/gamification.service.js` - Cálculo simplificado

@@ -1,8 +1,8 @@
 ﻿const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Quiz = require('../../src/models/Quiz');
-const Module = require('../../src/models/Module');
+const Quiz = require('../../src/models/quiz.model');
+const Module = require('../../src/models/module.model');
 const aprendizQuestions = require('../../perguntas_nivel_aprendiz.json');
 
 /**

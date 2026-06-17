@@ -4,7 +4,7 @@
  */
 
 const mongoose = require('mongoose');
-const User = require('../../src/models/User');
+const User = require('../../src/models/user.model');
 const QuizAttempt = require('../../src/models/quizAttempt.model');
 
 // Conectar ao MongoDB

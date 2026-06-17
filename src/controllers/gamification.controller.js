@@ -1,4 +1,4 @@
-const User = require('../models/User');
+﻿const User = require('../models/user.model');
 const GamificationService = require('../services/gamification.service');
 const { 
   calculateModuleBasedProgress, 
@@ -486,7 +486,7 @@ exports.getModuleProgress = async (req, res, next) => {
     }
 
     // Buscar módulos do nível atual do usuário ou todos os níveis acessíveis
-    const Module = require('../models/Module');
+    const Module = require('../models/module.model');
     
     // Definir quais níveis buscar baseado no nível do usuário
     let levelQuery = {};
@@ -592,7 +592,7 @@ exports.getCategoryCompletion = async (req, res, next) => {
     const { level } = req.query; // Nível filtrado (opcional)
 
     // Buscar módulos do nível especificado ou de todos os níveis acessíveis ao usuário
-    const Module = require('../models/Module');
+    const Module = require('../models/module.model');
     
     // Definir quais níveis buscar
     let levelQuery = {};

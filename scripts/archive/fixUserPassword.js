@@ -1,5 +1,5 @@
 ﻿const mongoose = require('mongoose');
-const User = require('../../src/models/User');
+const User = require('../../src/models/user.model');
 require('dotenv').config({ path: '../.env' });
 
 const fixUserPassword = async (email, newPassword) => {

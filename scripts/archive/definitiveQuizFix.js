@@ -1,7 +1,7 @@
 ﻿const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Quiz = require('../../src/models/Quiz');
+const Quiz = require('../../src/models/quiz.model');
 
 // Importar JSONs originais
 const aprendizQuestions = require('../../perguntas_nivel_aprendiz.json');

@@ -1,9 +1,9 @@
-# Guia de Limpeza e Arquitetura — NoteMusic BackEnd
+﻿# Guia de Limpeza e Arquitetura — NoteMusic BackEnd
 
 > Documento vivo. Atualizar este arquivo ao concluir cada tarefa ou fase.
 >
 > **Última atualização:** 17/06/2025  
-> **Fase atual:** Fase 5 ✅ — próxima: Fase 6
+> **Fase atual:** Fase 6 ✅ — próxima: Fase 7
 
 ---
 
@@ -49,7 +49,7 @@ server.js → src/app.js → routes → controllers → models
 | 3 | Corrigir bugs de rotas e validações | 🟡 Baixo-médio | ✅ Concluída | 17/06/2025 |
 | 4 | Limpar e categorizar `scripts/` | 🟡 Médio | ✅ Concluída | 17/06/2025 |
 | 5 | Segurança: secrets e endpoints | 🟠 Médio-alto | ✅ Concluída (5A+5B) | 17/06/2025 |
-| 6 | Padronizar naming e validators | 🟡 Médio | ⬜ Pendente | — |
+| 6 | Padronizar naming e validators | 🟡 Médio | ✅ Concluída | 17/06/2025 |
 | 7 | Extrair services dos fat controllers | 🟠 Alto | ⬜ Pendente | — |
 | 8 | Dependências e config centralizada | 🟡 Médio | ⬜ Pendente | — |
 | 9 | Testes automatizados (Jest + Supertest) | 🔴 Alto | ⬜ Pendente | — |
@@ -360,7 +360,7 @@ chore: categoriza scripts e arquiva one-offs de debug/fix
 | `scripts/exportarEImportarModulos.js` | URI hardcoded |
 | `env.example` / `env.production.example` | valores reais/fracos |
 | `src/config/email.config.js` | fallback Gmail + senha |
-| `src/services/emailService.js` | fallback app password |
+| `src/services/email.service.js` | fallback app password |
 | `scripts/createOrUpdateUser.js` | senha plaintext |
 | `scripts/createMasterUser.js` | senha default `Master123!@#` |
 
@@ -406,27 +406,16 @@ security: remove secrets hardcoded e protege endpoints sensiveis
 
 **Risco:** 🟡 médio · **Objetivo:** consistência de nomes e validações reutilizáveis.
 
-### Naming de models (breaking change interno — atualizar todos os `require`)
+### Tarefas
 
-| Atual | Alvo |
-|-------|------|
-| `User.js` | `user.model.js` |
-| `Module.js` | `module.model.js` |
-| `Quiz.js` | `quiz.model.js` |
-| `quizAttempt.model.js` | ✅ já correto |
-
-> Fazer um model por commit ou todos de uma vez com grep global.
-
-### Nova pasta `src/validators/`
-
-- [ ] `auth.validator.js` — login, register, forgot password, change password
-- [ ] `user.validator.js` — update profile
-- [ ] `quiz.validator.js` — submit, validate question
-- [ ] `common.validator.js` — email domains, palavras inapropriadas (hoje duplicadas)
-
-### Services naming
-
-- [ ] Renomear `emailService.js` → `email.service.js` (padrão uniforme)
+- [x] Renomear models: `user.model.js`, `module.model.js`, `quiz.model.js`
+- [x] Atualizar todos os `require` em `src/` e `scripts/`
+- [x] Criar `src/validators/auth.validator.js`
+- [x] Criar `src/validators/user.validator.js`
+- [x] Criar `src/validators/quiz.validator.js`
+- [x] `common.validator.js` já existia (Fase 3)
+- [x] Renomear `emailService.js` → `email.service.js`
+- [x] Rotas slim — só wiring, validações nos validators
 
 ### Commit sugerido
 
@@ -619,7 +608,7 @@ Registrar aqui o que foi feito em cada sessão de trabalho.
 | 17/06/2025 | 1 | 32 docs → `docs/`; 6 scripts → `scripts/archive/`; `.gitignore` corrigido; import `cacheMiddleware` removido; `README.md` atualizado | `GET /api/health` 200 |
 | 17/06/2025 | 2 | Removidos 4 arquivos mortos em `src/`; `dotenv` duplicado removido; imports limpos em `auth.routes.js` | `GET /api/health` 200 |
 | 17/06/2025 | 3 | Ordem de rotas quiz corrigida; submitQuizValidation aplicada; validators compartilhados | `/quiz/history` e `/stats` → 401 |
-| 17/06/2025 | 5 | 5A+5B: secrets removidos do código, endpoints protegidos, adminSecret | `GET /api/health` 200 |
+| 17/06/2025 | 6 | Models `*.model.js`, validators extraídos, `email.service.js` | `GET /api/health` 200 |
 
 ---
 
@@ -645,7 +634,6 @@ GET    /api/health
 
 ## Próximo passo recomendado
 
-1. **5C manual:** rotacionar credenciais no Atlas/Railway e definir `ADMIN_SECRET`
-2. **Fase 6:** padronizar naming de models e extrair validators restantes
+**Fase 7** — extrair services dos fat controllers (começar por `auth.service.js`).
 
-Quando quiser continuar no código, diga **"vamos fazer a Fase 6 do backend"**.
+Quando quiser continuar, diga **"vamos fazer a Fase 7 do backend"**.

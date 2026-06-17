@@ -1,5 +1,5 @@
-const { validationResult } = require('express-validator');
-const User = require('../models/User');
+﻿const { validationResult } = require('express-validator');
+const User = require('../models/user.model');
 const QuizAttempt = require('../models/quizAttempt.model');
 
 // @desc    Solicitar exclusão de conta

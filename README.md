@@ -12,9 +12,9 @@ NoteMusic-BackEnd/
 │   ├── config/            # database, email
 │   ├── controllers/       # handlers HTTP
 │   ├── middlewares/       # auth, cache, errors
-│   ├── models/            # schemas Mongoose
-│   ├── routes/            # routers por domínio
-│   ├── services/          # lógica de negócio (parcial)
+│   ├── models/            # user.model, module.model, quiz.model...
+│   ├── validators/        # auth, user, quiz, common
+│   ├── services/          # email.service, gamification.service
 │   └── utils/
 ├── scripts/
 │   ├── seed/

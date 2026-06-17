@@ -10,8 +10,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 
 // URL do banco local
 const LOCAL_MONGODB_URI = process.env.MONGODB_URI_LOCAL || 'mongodb://localhost:27017/notemusic';

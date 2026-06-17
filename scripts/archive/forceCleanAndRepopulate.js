@@ -1,8 +1,8 @@
 ﻿const mongoose = require('mongoose');
 require('dotenv').config();
 
-const Module = require('../../src/models/Module');
-const Quiz = require('../../src/models/Quiz');
+const Module = require('../../src/models/module.model');
+const Quiz = require('../../src/models/quiz.model');
 
 // Conectar ao banco
 const connectDB = async () => {
