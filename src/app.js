@@ -14,6 +14,7 @@ const quizAttemptRoutes = require('./routes/quizAttempt.routes');
 
 // Importar middlewares
 const errorHandler = require('./middlewares/errorHandler');
+const requireAdminSecret = require('./middlewares/adminSecret');
 
 // Importar funções de cache
 const { 
@@ -105,8 +106,8 @@ app.get('/health', (req, res) => {
 // =========================
 //
 
-// Estatísticas do cache
-app.get('/api/cache/stats', (req, res) => {
+// Estatísticas do cache (admin)
+app.get('/api/cache/stats', requireAdminSecret, (req, res) => {
   const stats = getCacheStats();
   res.json({
     success: true,
@@ -118,18 +119,8 @@ app.get('/api/cache/stats', (req, res) => {
   });
 });
 
-// Limpar cache (seguro)
-app.post('/api/cache/clear', (req, res) => {
-  const secretToken = req.headers['x-cache-secret'] || req.body.secret;
-  const expectedToken = process.env.CACHE_CLEAR_SECRET || 'dev-only-secret';
-  
-  if (process.env.NODE_ENV === 'production' && secretToken !== expectedToken) {
-    return res.status(403).json({
-      success: false,
-      message: 'Acesso negado. Token secreto inválido.'
-    });
-  }
-
+// Limpar cache
+app.post('/api/cache/clear', requireAdminSecret, (req, res) => {
   const cleared = clearCache();
   res.json({
     success: true,
@@ -140,7 +131,7 @@ app.post('/api/cache/clear', (req, res) => {
 });
 
 // Invalidação por padrão
-app.post('/api/cache/invalidate', (req, res) => {
+app.post('/api/cache/invalidate', requireAdminSecret, (req, res) => {
   const { pattern } = req.body;
 
   if (!pattern) {

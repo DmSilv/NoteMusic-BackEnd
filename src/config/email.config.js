@@ -1,55 +1,53 @@
 /**
- * 📧 Configuração do Serviço de Email - NoteMusic
- * Configurações específicas para Gmail SMTP
+ * Configuração do serviço de email — sem credenciais hardcoded.
+ * Use SENDGRID_API_KEY (produção) ou EMAIL_USER + EMAIL_PASS (dev local).
  */
 
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS;
+
 module.exports = {
-  // Configurações do Gmail
-  gmail: {
+  gmail: emailUser && emailPass ? {
     service: 'gmail',
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // true para 465, false para outras portas
+    secure: false,
     auth: {
-      user: process.env.EMAIL_USER || 'notemusic.oficial@gmail.com',
-      pass: process.env.EMAIL_PASS || 'daniel250900'
+      user: emailUser,
+      pass: emailPass,
     },
     tls: {
-      rejectUnauthorized: false
-    }
-  },
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+    },
+  } : null,
 
-  // Configurações de fallback para desenvolvimento
   development: {
     host: 'smtp.ethereal.email',
     port: 587,
     secure: false,
     auth: {
       user: process.env.ETHEREAL_USER,
-      pass: process.env.ETHEREAL_PASS
-    }
+      pass: process.env.ETHEREAL_PASS,
+    },
   },
 
-  // Configurações de email
   email: {
-    from: `"NoteMusic App" <notemusic.oficial@gmail.com>`,
-    replyTo: 'notemusic.oficial@gmail.com',
+    from: emailUser ? `"NoteMusic App" <${emailUser}>` : '"NoteMusic App" <noreply@notemusic.app>',
+    replyTo: emailUser || 'noreply@notemusic.app',
     subject: {
       passwordReset: '🎵 NoteMusic - Recuperação de Senha',
       welcome: '🎵 NoteMusic - Bem-vindo!',
-      notification: '🎵 NoteMusic - Notificação'
-    }
+      notification: '🎵 NoteMusic - Notificação',
+    },
   },
 
-  // Validações
   validation: {
     requireAuth: true,
     requireTLS: true,
     maxRetries: 3,
-    timeout: 10000 // 10 segundos
+    timeout: 10000,
   },
 
-  // Logs e debugging
   debug: process.env.NODE_ENV === 'development',
-  logger: true
+  logger: true,
 };

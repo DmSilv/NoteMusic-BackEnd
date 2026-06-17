@@ -13,11 +13,16 @@ require('dotenv').config();
 
 // ✅ CONFIGURAÇÃO
 const MASTER_EMAIL = process.env.MASTER_EMAIL || 'master@notemusic.com';
-const MASTER_PASSWORD = process.env.MASTER_PASSWORD || 'Master123!@#';
+const MASTER_PASSWORD = process.env.MASTER_PASSWORD;
 const MASTER_NAME = process.env.MASTER_NAME || 'Master';
 
 async function createMasterUser() {
   try {
+    if (!MASTER_PASSWORD) {
+      console.error('❌ Defina MASTER_PASSWORD no .env antes de executar este script');
+      process.exit(1);
+    }
+
     console.log('👑 CRIAÇÃO DE USUÁRIO MASTER');
     console.log('='.repeat(60));
     console.log();

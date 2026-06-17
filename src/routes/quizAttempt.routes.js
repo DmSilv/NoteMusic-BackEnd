@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const quizAttemptController = require('../controllers/quizAttempt.controller');
 const { protect } = require('../middlewares/auth');
+const requireAdminSecret = require('../middlewares/adminSecret');
 
 // ✅ APLICAR MIDDLEWARE DE AUTENTICAÇÃO em todas as rotas
 router.use(protect);
@@ -18,12 +19,10 @@ router.post('/register', quizAttemptController.registerQuizAttempt);
 // GET /api/quiz-attempts/history?moduleId=optional
 router.get('/history', quizAttemptController.getQuizAttempts);
 
-// ✅ LIMPEZA AUTOMÁTICA (pode ser chamada por cron job)
-// POST /api/quiz-attempts/cleanup
-router.post('/cleanup', quizAttemptController.cleanupExpiredAttempts);
+// Limpeza automática (admin / cron)
+router.post('/cleanup', requireAdminSecret, quizAttemptController.cleanupExpiredAttempts);
 
-// ✅ RESETAR TENTATIVAS (ADMIN)
-// POST /api/quiz-attempts/reset
-router.post('/reset', quizAttemptController.resetQuizAttempts);
+// Resetar tentativas (admin)
+router.post('/reset', requireAdminSecret, quizAttemptController.resetQuizAttempts);
 
 module.exports = router;

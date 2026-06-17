@@ -34,7 +34,7 @@ npm install
 
 # Configurar ambiente
 cp env.example .env
-# Editar .env com MONGODB_URI, JWT_SECRET, etc.
+# Editar .env: MONGODB_URI, JWT_SECRET, DEV_USER_* (scripts), ADMIN_SECRET (opcional em dev)
 
 # Desenvolvimento
 npm run dev
@@ -74,4 +74,4 @@ Guia de limpeza e reestruturação (em andamento):
 
 ## Deploy
 
-Backend em produção no Railway. Ver `docs/EXECUTAR_NO_RAILWAY.md` e `docs/SYNC_DATABASE_TO_PRODUCTION.md`.
+Backend em produção no Railway. Variáveis obrigatórias: `MONGODB_URI`, `JWT_SECRET`, `ADMIN_SECRET`, `SENDGRID_API_KEY` (ou email). Ver `env.production.example` e `docs/EXECUTAR_NO_RAILWAY.md`.

@@ -1,8 +1,13 @@
-﻿const mongoose = require('mongoose');
+﻿require('dotenv').config();
+const mongoose = require('mongoose');
 
-// URLs dos bancos
-const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/notemusic';
-const RAILWAY_MONGODB_URI = 'mongodb+srv://danielmingoranse84:NoteMusic2024@notemusicdb.y9jf3qj.mongodb.net/notemusic?retryWrites=true&w=majority&appName=NoteMusicDB';
+const LOCAL_MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/notemusic';
+const RAILWAY_MONGODB_URI = process.env.MONGODB_URI_PRODUCTION || process.env.RAILWAY_MONGODB_URI;
+
+if (!RAILWAY_MONGODB_URI) {
+  console.error('❌ Defina MONGODB_URI_PRODUCTION ou RAILWAY_MONGODB_URI no .env');
+  process.exit(1);
+}
 
 const Module = require('../../src/models/Module');
 const Quiz = require('../../src/models/Quiz');

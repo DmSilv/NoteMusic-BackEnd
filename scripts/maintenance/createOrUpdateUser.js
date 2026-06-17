@@ -1,65 +1,56 @@
 ﻿const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const User = require('../../src/models/User');
 
+const DEV_EMAIL = process.env.DEV_USER_EMAIL;
+const DEV_PASSWORD = process.env.DEV_USER_PASSWORD;
+const DEV_NAME = process.env.DEV_USER_NAME || 'Dev User';
+
 const createOrUpdateUser = async () => {
   try {
-    // Conectar ao banco
+    if (!DEV_EMAIL || !DEV_PASSWORD) {
+      console.error('❌ Defina DEV_USER_EMAIL e DEV_USER_PASSWORD no .env');
+      process.exit(1);
+    }
+
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notemusic');
     console.log('✅ Conectado ao MongoDB');
 
-    // Buscar usuário
-    let user = await User.findOne({ email: 'danielmingoranse84@gmail.com' });
-    
+    let user = await User.findOne({ email: DEV_EMAIL });
+
     if (!user) {
-      console.log('👤 Usuário não encontrado, criando novo usuário...');
-      
-      // Criar novo usuário
+      console.log('👤 Usuário não encontrado, criando...');
       user = new User({
-        name: 'Daniel',
-        email: 'danielmingoranse84@gmail.com',
-        password: 'daniel250900',
+        name: DEV_NAME,
+        email: DEV_EMAIL,
+        password: DEV_PASSWORD,
         level: 'maestro',
         totalPoints: 3000,
         streak: 30,
         weeklyProgress: 10,
-        weeklyGoal: 10
+        weeklyGoal: 10,
       });
-
       await user.save();
       console.log('✅ Usuário criado com sucesso!');
     } else {
       console.log('👤 Usuário encontrado, atualizando...');
-      console.log(`   Nome: ${user.name}`);
-      console.log(`   Email: ${user.email}`);
-      console.log(`   Nível atual: ${user.level}`);
-      console.log(`   Pontos atuais: ${user.totalPoints || 0}`);
-
-      // Atualizar para nível Maestro e redefinir senha de teste
       user.level = 'maestro';
       user.totalPoints = 3000;
       user.streak = 30;
       user.weeklyProgress = 10;
       user.weeklyGoal = 10;
-      user.password = 'daniel250900';
+      user.password = DEV_PASSWORD;
       user.isActive = true;
-
       await user.save();
       console.log('✅ Usuário atualizado com sucesso!');
     }
 
-    console.log('\n📊 Dados finais do usuário:');
-    console.log(`   Nome: ${user.name}`);
+    console.log('\n📊 Dados finais:');
     console.log(`   Email: ${user.email}`);
     console.log(`   Nível: ${user.level}`);
     console.log(`   Pontos: ${user.totalPoints}`);
-    console.log(`   Streak: ${user.streak}`);
-    console.log(`   Progresso semanal: ${user.weeklyProgress}/${user.weeklyGoal}`);
-    console.log('\n🔐 Credenciais de login (app):');
-    console.log('   Email: danielmingoranse84@gmail.com');
-    console.log('   Senha: daniel250900');
+    console.log('\n🔐 Use as credenciais definidas em DEV_USER_EMAIL / DEV_USER_PASSWORD');
 
     process.exit(0);
   } catch (error) {
@@ -69,10 +60,3 @@ const createOrUpdateUser = async () => {
 };
 
 createOrUpdateUser();
-
-
-
-
-
-
-

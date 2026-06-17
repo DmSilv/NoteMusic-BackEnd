@@ -18,7 +18,6 @@ const {
   unlockDailyChallenge
 } = require('../controllers/quiz.controller');
 
-// Validação alinhada ao formato do frontend: { answers: number[], timeSpent?: number }
 const submitQuizValidation = [
   body('answers')
     .isArray({ min: 1 })
@@ -37,25 +36,28 @@ const submitQuizValidation = [
     .withMessage('Tempo deve ser um número positivo'),
 ];
 
-// ⚠️ Rotas literais DEVEM vir ANTES de rotas com parâmetros dinâmicos (/:id)
-// Caso contrário, Express trata "history" e "stats" como IDs de módulo
+// Rotas literais ANTES de parâmetros dinâmicos
 
-// Rotas públicas
+// Públicas — desafio diário (sem respostas corretas expostas)
 router.get('/daily-challenge', getDailyChallenge);
 router.get('/daily-challenge-info', getDailyChallengeInfo);
-router.get('/module/:moduleId', getQuizByModule);
 
-// Rotas protegidas — literais primeiro
+// Protegidas — literais
 router.get('/history', protect, getQuizHistory);
 router.get('/stats', protect, getQuizStats);
 router.post('/unlock-daily-challenge', protect, unlockDailyChallenge);
+router.get('/module/:moduleId', protect, getQuizByModule);
 router.post('/:quizId/submit/private', protect, submitQuizValidation, validate, submitQuizPrivate);
 
-// Rotas com parâmetros dinâmicos — por último
-router.get('/:moduleId', getQuiz);
+// Parametrizadas — por último
+router.get('/:moduleId', protect, getQuiz);
 router.get('/:quizId/completion-status', protect, getQuizCompletionStatus);
 router.get('/:quizId/attempts-status', protect, getQuizAttemptsStatus);
-router.post('/:quizId/submit', submitQuizValidation, validate, submitQuiz);
-router.post('/:quizId/validate/:questionIndex', validateQuestion);
+router.post('/:quizId/validate/:questionIndex', protect, validateQuestion);
+
+// Submit público legado — apenas em desenvolvimento (app usa /submit/private)
+if (process.env.NODE_ENV !== 'production') {
+  router.post('/:quizId/submit', submitQuizValidation, validate, submitQuiz);
+}
 
 module.exports = router;

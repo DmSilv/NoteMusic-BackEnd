@@ -148,15 +148,6 @@ exports.cleanupExpiredAttempts = async (req, res) => {
 exports.resetQuizAttempts = async (req, res) => {
     try {
         const { quizId, userId } = req.body;
-        const adminId = req.user.id;
-
-        // Verificar se é admin (implementar lógica de admin)
-        // if (!req.user.isAdmin) {
-        //     return res.status(403).json({
-        //         success: false,
-        //         message: 'Acesso negado: apenas administradores'
-        //     });
-        // }
 
         if (!quizId) {
             return res.status(400).json({

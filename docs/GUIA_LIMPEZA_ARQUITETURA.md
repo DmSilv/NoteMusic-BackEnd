@@ -3,7 +3,7 @@
 > Documento vivo. Atualizar este arquivo ao concluir cada tarefa ou fase.
 >
 > **Última atualização:** 17/06/2025  
-> **Fase atual:** Fase 4 ✅ — próxima: Fase 5
+> **Fase atual:** Fase 5 ✅ — próxima: Fase 6
 
 ---
 
@@ -48,7 +48,7 @@ server.js → src/app.js → routes → controllers → models
 | 2 | Remover código morto em `src/` | 🟢 Baixo | ✅ Concluída | 17/06/2025 |
 | 3 | Corrigir bugs de rotas e validações | 🟡 Baixo-médio | ✅ Concluída | 17/06/2025 |
 | 4 | Limpar e categorizar `scripts/` | 🟡 Médio | ✅ Concluída | 17/06/2025 |
-| 5 | Segurança: secrets e endpoints | 🟠 Médio-alto | ⬜ Pendente | — |
+| 5 | Segurança: secrets e endpoints | 🟠 Médio-alto | ✅ Concluída (5A+5B) | 17/06/2025 |
 | 6 | Padronizar naming e validators | 🟡 Médio | ⬜ Pendente | — |
 | 7 | Extrair services dos fat controllers | 🟠 Alto | ⬜ Pendente | — |
 | 8 | Dependências e config centralizada | 🟡 Médio | ⬜ Pendente | — |
@@ -375,14 +375,24 @@ chore: categoriza scripts e arquiva one-offs de debug/fix
 | `POST /api/quiz-attempts/reset` | Admin check comentado | Implementar `authorize('admin')` |
 | `POST /api/quiz-attempts/cleanup` | Qualquer autenticado | Restringir a admin |
 
-### Tarefas
+### Tarefas — 5A+5B (concluídas)
 
-- [ ] Substituir todos os secrets hardcoded por `process.env.*`
-- [ ] Limpar `env.example` — só placeholders (`your_jwt_secret_here`)
-- [ ] Rotacionar: `JWT_SECRET`, senha MongoDB, Gmail/SendGrid
-- [ ] Proteger rotas listadas acima
-- [ ] Remover `tls: { rejectUnauthorized: false }` em produção (`email.config.js`)
-- [ ] Documentar variáveis obrigatórias no `README.md`
+- [x] Remover secrets hardcoded de `src/config/email.config.js` e `emailService.js`
+- [x] Limpar `env.example` e `env.production.example` (só placeholders)
+- [x] Parametrizar scripts de manutenção (`DEV_USER_*`, `MASTER_PASSWORD`)
+- [x] Remover URIs hardcoded de `scripts/archive/sync-*` e `exportarEImportar*`
+- [x] Criar `src/middlewares/adminSecret.js`
+- [x] Proteger `GET /quiz/:moduleId`, `POST /validate`, cache admin, reset/cleanup
+- [x] `POST /quiz/:id/submit` público — só em `development`
+- [x] `tls.rejectUnauthorized` ativo em produção no email
+
+### Tarefas — 5C (pendente — ação manual sua)
+
+- [ ] Rotacionar senha MongoDB Atlas (exposta no histórico do git)
+- [ ] Rotacionar `JWT_SECRET` no Railway (desloga todos os usuários)
+- [ ] Rotacionar Gmail app password / validar SendGrid
+- [ ] Definir `ADMIN_SECRET` no Railway antes do próximo deploy
+- [ ] Atualizar `.env` local com novos valores
 
 ### Commit sugerido
 
@@ -563,10 +573,9 @@ refactor: consolida arquitetura final e adiciona migrations
 
 ### Críticos (corrigir nas Fases 3 e 5)
 
-- [x] Ordem de rotas `/api/quiz/history` e `/api/quiz/stats` quebrada
-- [ ] Credenciais MongoDB/Gmail/JWT hardcoded em scripts e configs
-- [ ] Endpoints de quiz submit/validate públicos em produção
-- [x] `submitQuizValidation` definida mas não aplicada
+- [x] Credenciais MongoDB/Gmail/JWT hardcoded em `src/` — removidas (rotacionar ainda — 5C)
+- [x] Endpoints de quiz submit/validate públicos em produção — corrigidos
+- [x] `submitQuizValidation` definida mas não aplicada — corrigido (Fase 3)
 
 ### Médios
 
@@ -610,7 +619,7 @@ Registrar aqui o que foi feito em cada sessão de trabalho.
 | 17/06/2025 | 1 | 32 docs → `docs/`; 6 scripts → `scripts/archive/`; `.gitignore` corrigido; import `cacheMiddleware` removido; `README.md` atualizado | `GET /api/health` 200 |
 | 17/06/2025 | 2 | Removidos 4 arquivos mortos em `src/`; `dotenv` duplicado removido; imports limpos em `auth.routes.js` | `GET /api/health` 200 |
 | 17/06/2025 | 3 | Ordem de rotas quiz corrigida; submitQuizValidation aplicada; validators compartilhados | `/quiz/history` e `/stats` → 401 |
-| 17/06/2025 | 4 | 122 scripts → `archive/`; oficiais em `seed/` e `maintenance/`; package.json atualizado | `GET /api/health` 200 |
+| 17/06/2025 | 5 | 5A+5B: secrets removidos do código, endpoints protegidos, adminSecret | `GET /api/health` 200 |
 
 ---
 
@@ -636,6 +645,7 @@ GET    /api/health
 
 ## Próximo passo recomendado
 
-**Fase 5** — segurança: remover credenciais hardcoded e proteger endpoints sensíveis.
+1. **5C manual:** rotacionar credenciais no Atlas/Railway e definir `ADMIN_SECRET`
+2. **Fase 6:** padronizar naming de models e extrair validators restantes
 
-Quando quiser continuar, diga **"vamos fazer a Fase 5 do backend"**.
+Quando quiser continuar no código, diga **"vamos fazer a Fase 6 do backend"**.

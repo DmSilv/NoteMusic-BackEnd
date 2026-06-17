@@ -13,13 +13,13 @@ const mongoose = require('mongoose');
 const Module = require('../../src/models/Module');
 const Quiz = require('../../src/models/Quiz');
 
-// URLs dos bancos
-const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/mongodb+srv://danielmingoranse84:NoteMusic2024@notemusicdb.y9jf3qj.mongodb.net/notemusic?retryWrites=true&w=majority&appName=NoteMusicDB';
-const PRODUCTION_MONGODB_URI = process.env.MONGODB_URI; // Railway
+// URL do banco local
+const LOCAL_MONGODB_URI = process.env.MONGODB_URI_LOCAL || 'mongodb://localhost:27017/notemusic';
+const PRODUCTION_MONGODB_URI = process.env.MONGODB_URI_PRODUCTION || process.env.MONGODB_URI;
 
 // Validar se a URL de produção está configurada
 if (!PRODUCTION_MONGODB_URI) {
-  console.error('❌ ERRO: A variável MONGODB_URI não está configurada!\n');
+  console.error('❌ ERRO: Defina MONGODB_URI_PRODUCTION ou MONGODB_URI no .env\n');
   console.log('📋 Para configurar, você tem duas opções:\n');
   console.log('Opção 1: Criar arquivo .env na pasta Back End');
   console.log('   Criar um arquivo chamado ".env" com o conteúdo:');

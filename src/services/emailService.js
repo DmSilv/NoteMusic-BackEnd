@@ -20,12 +20,19 @@ class EmailService {
         return;
       }
       
-      // Fallback para Gmail (desenvolvimento local apenas)
-      const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
-      const emailPass = process.env.EMAIL_PASS || 'bdkh durt qter agpa';
-      
+      // Gmail apenas em desenvolvimento, com credenciais no .env
+      const emailUser = process.env.EMAIL_USER;
+      const emailPass = process.env.EMAIL_PASS;
+
+      if (!emailUser || !emailPass) {
+        this.useSendGrid = false;
+        this.transporter = null;
+        console.warn('⚠️  Email não configurado (defina SENDGRID_API_KEY ou EMAIL_USER + EMAIL_PASS)');
+        return;
+      }
+
       this.useSendGrid = false;
-      console.log('⚠️  SendGrid não configurado, usando Gmail (pode não funcionar em produção)');
+      console.log('⚠️  SendGrid não configurado, usando Gmail (desenvolvimento local)');
       console.log('📧 Usuário:', emailUser);
       console.log('🌐 Host:', 'smtp.gmail.com');
       console.log('🔌 Porta:', 465);
@@ -39,7 +46,7 @@ class EmailService {
           pass: emailPass
         },
         tls: {
-          rejectUnauthorized: false
+          rejectUnauthorized: process.env.NODE_ENV === 'production',
         },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
@@ -67,7 +74,15 @@ class EmailService {
       console.log('📬 Destinatário:', email);
       console.log('👤 Nome do usuário:', userName);
       
-      const emailUser = process.env.EMAIL_USER || 'notemusic.oficial@gmail.com';
+      const emailUser = process.env.EMAIL_USER;
+
+      if (!this.useSendGrid && !this.transporter) {
+        throw new Error('Serviço de email não configurado no servidor');
+      }
+
+      if (this.useSendGrid && !emailUser) {
+        throw new Error('EMAIL_USER é obrigatório para envio via SendGrid');
+      }
       
       if (this.useSendGrid) {
         // ✅ USAR SENDGRID (API HTTPS)

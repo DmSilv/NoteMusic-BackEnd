@@ -19,7 +19,7 @@ require('dotenv').config();
 // ✅ CONFIGURAÇÃO DE SEGURANÇA
 const CONFIRM_DELETE = process.env.CONFIRM_DELETE === 'true'; // Deve ser 'true' para executar
 const MASTER_EMAIL = process.env.MASTER_EMAIL || 'master@notemusic.com';
-const MASTER_PASSWORD = process.env.MASTER_PASSWORD || 'Master123!@#';
+const MASTER_PASSWORD = process.env.MASTER_PASSWORD;
 const MASTER_NAME = process.env.MASTER_NAME || 'Master';
 
 // ✅ VALIDAÇÃO DE SEGURANÇA
@@ -27,6 +27,11 @@ if (!CONFIRM_DELETE) {
   console.error('❌ SEGURANÇA: CONFIRM_DELETE não está definido como "true"');
   console.error('   Para executar este script, defina: CONFIRM_DELETE=true');
   console.error('   Exemplo: CONFIRM_DELETE=true node scripts/cleanUsersAndCreateMaster.js');
+  process.exit(1);
+}
+
+if (!MASTER_PASSWORD) {
+  console.error('❌ Defina MASTER_PASSWORD no .env');
   process.exit(1);
 }
 
