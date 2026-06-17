@@ -3,7 +3,7 @@
 > Documento vivo. Atualizar este arquivo ao concluir cada tarefa ou fase.
 >
 > **Última atualização:** 17/06/2025  
-> **Fase atual:** Fase 3 ✅ — próxima: Fase 4
+> **Fase atual:** Fase 4 ✅ — próxima: Fase 5
 
 ---
 
@@ -47,7 +47,7 @@ server.js → src/app.js → routes → controllers → models
 | 1 | Organização sem impacto no runtime | 🟢 Zero | ✅ Concluída | 17/06/2025 |
 | 2 | Remover código morto em `src/` | 🟢 Baixo | ✅ Concluída | 17/06/2025 |
 | 3 | Corrigir bugs de rotas e validações | 🟡 Baixo-médio | ✅ Concluída | 17/06/2025 |
-| 4 | Limpar e categorizar `scripts/` | 🟡 Médio | ⬜ Pendente | — |
+| 4 | Limpar e categorizar `scripts/` | 🟡 Médio | ✅ Concluída | 17/06/2025 |
 | 5 | Segurança: secrets e endpoints | 🟠 Médio-alto | ⬜ Pendente | — |
 | 6 | Padronizar naming e validators | 🟡 Médio | ⬜ Pendente | — |
 | 7 | Extrair services dos fat controllers | 🟠 Alto | ⬜ Pendente | — |
@@ -330,9 +330,13 @@ Mover (não apagar de imediato) scripts destas categorias:
 
 ### Tarefas
 
-- [ ] Inventariar scripts: criar `scripts/archive/README.md` com lista do que foi arquivado e por quê
-- [ ] Atualizar `package.json` scripts (`seed`, `cleanup`) com novos caminhos
-- [ ] Após 1–2 semanas sem uso, deletar `archive/` (fase futura opcional)
+- [x] Mover scripts oficiais: `seed/seed.js`, `maintenance/` (cleanup, backup, createMaster, createOrUpdateUser)
+- [x] Arquivar ~122 scripts one-off em `scripts/archive/`
+- [x] Mover `README_MUSICAL_CONTENT.md` para `docs/`
+- [x] Atualizar `package.json` (`seed`, `cleanup`, `test:performance`)
+- [x] Corrigir paths `require('../../src/...')` nos scripts movidos
+- [x] Criar `scripts/archive/README.md` e `scripts/maintenance/README.md`
+- [x] Atualizar `README.md` com nova estrutura de scripts
 
 ### Commit sugerido
 
@@ -569,8 +573,8 @@ refactor: consolida arquitetura final e adiciona migrations
 - [ ] `quiz.controller.js` com ~1350 linhas — difícil manter
 - [ ] Gamificação espalhada entre controller, service e utils
 - [ ] Naming inconsistente de models (`Quiz.js` vs `quizAttempt.model.js`)
-- [ ] ~120 scripts ad-hoc sem documentação
-- [ ] 29 docs na raiz poluindo o repositório
+- [x] ~120 scripts ad-hoc — arquivados e documentados em `scripts/archive/README.md`
+- [x] 29 docs na raiz — movidos para `docs/` (Fase 1)
 
 ### Baixos / futuro
 
@@ -606,6 +610,7 @@ Registrar aqui o que foi feito em cada sessão de trabalho.
 | 17/06/2025 | 1 | 32 docs → `docs/`; 6 scripts → `scripts/archive/`; `.gitignore` corrigido; import `cacheMiddleware` removido; `README.md` atualizado | `GET /api/health` 200 |
 | 17/06/2025 | 2 | Removidos 4 arquivos mortos em `src/`; `dotenv` duplicado removido; imports limpos em `auth.routes.js` | `GET /api/health` 200 |
 | 17/06/2025 | 3 | Ordem de rotas quiz corrigida; submitQuizValidation aplicada; validators compartilhados | `/quiz/history` e `/stats` → 401 |
+| 17/06/2025 | 4 | 122 scripts → `archive/`; oficiais em `seed/` e `maintenance/`; package.json atualizado | `GET /api/health` 200 |
 
 ---
 
@@ -631,6 +636,6 @@ GET    /api/health
 
 ## Próximo passo recomendado
 
-**Fase 4** — categorizar ~120 scripts em `scripts/seed/`, `scripts/maintenance/` e `scripts/archive/`.
+**Fase 5** — segurança: remover credenciais hardcoded e proteger endpoints sensíveis.
 
-Quando quiser continuar, diga **"vamos fazer a Fase 4 do backend"**.
+Quando quiser continuar, diga **"vamos fazer a Fase 5 do backend"**.

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔄 SINCRONIZAÇÃO DE DADOS: LOCAL → PRODUÇÃO
  * 
  * Este script sincroniza módulos e quizzes do banco local
@@ -10,8 +10,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const Module = require('./src/models/Module');
-const Quiz = require('./src/models/Quiz');
+const Module = require('../../src/models/Module');
+const Quiz = require('../../src/models/Quiz');
 
 // URLs dos bancos
 const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/mongodb+srv://danielmingoranse84:NoteMusic2024@notemusicdb.y9jf3qj.mongodb.net/notemusic?retryWrites=true&w=majority&appName=NoteMusicDB';

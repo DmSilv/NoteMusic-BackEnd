@@ -17,9 +17,11 @@ NoteMusic-BackEnd/
 │   ├── services/          # lógica de negócio (parcial)
 │   └── utils/
 ├── scripts/
-│   ├── seed.js            # npm run seed
-│   ├── cleanupAttempts.js # npm run cleanup
-│   └── archive/           # scripts manuais arquivados
+│   ├── seed/
+│   │   └── seed.js              # npm run seed
+│   ├── maintenance/             # cleanup, backup, usuários dev
+│   ├── archive/                 # ~122 scripts one-off arquivados
+│   └── backups/                 # JSON de backup (gitignored)
 └── docs/                  # documentação operacional
     └── GUIA_LIMPEZA_ARQUITETURA.md
 ```
@@ -49,6 +51,7 @@ curl http://localhost:3333/api/health
 | `npm run dev` | Desenvolvimento com nodemon |
 | `npm run seed` | Popular banco com dados iniciais |
 | `npm run cleanup` | Limpar tentativas de quiz antigas |
+| `npm run test:performance` | Teste manual de performance (arquivo em `scripts/archive/`) |
 
 ## Rotas principais
 
