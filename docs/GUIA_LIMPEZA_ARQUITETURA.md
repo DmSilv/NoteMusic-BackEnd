@@ -3,7 +3,7 @@
 > Documento vivo. Atualizar este arquivo ao concluir cada tarefa ou fase.
 >
 > **Última atualização:** 17/06/2025  
-> **Fase atual:** Fase 2 ✅ — próxima: Fase 3
+> **Fase atual:** Fase 3 ✅ — próxima: Fase 4
 
 ---
 
@@ -46,7 +46,7 @@ server.js → src/app.js → routes → controllers → models
 |------|-----------|-------|--------|--------------|
 | 1 | Organização sem impacto no runtime | 🟢 Zero | ✅ Concluída | 17/06/2025 |
 | 2 | Remover código morto em `src/` | 🟢 Baixo | ✅ Concluída | 17/06/2025 |
-| 3 | Corrigir bugs de rotas e validações | 🟡 Baixo-médio | ⬜ Pendente | — |
+| 3 | Corrigir bugs de rotas e validações | 🟡 Baixo-médio | ✅ Concluída | 17/06/2025 |
 | 4 | Limpar e categorizar `scripts/` | 🟡 Médio | ⬜ Pendente | — |
 | 5 | Segurança: secrets e endpoints | 🟠 Médio-alto | ⬜ Pendente | — |
 | 6 | Padronizar naming e validators | 🟡 Médio | ⬜ Pendente | — |
@@ -280,10 +280,10 @@ router.get('/:moduleId', getQuiz);
 
 ### Outras tarefas
 
-- [ ] Aplicar `submitQuizValidation` nos handlers `submitQuiz` e `submitQuizPrivate`
-- [ ] Revisar `module.routes.js` — já documenta ordem correta; usar como referência
-- [ ] Consolidar listas duplicadas de domínios de email (`auth.routes.js` + `user.routes.js`) em constante compartilhada (preparação para Fase 6)
-- [ ] Testar manualmente `GET /api/quiz/history` e `GET /api/quiz/stats` após correção
+- [x] Aplicar `submitQuizValidation` em `submitQuiz` e `submitQuizPrivate` (formato corrigido: `answers: number[]`)
+- [x] Criar `src/middlewares/validate.js` para erros do express-validator
+- [x] Consolidar domínios de email e palavras inapropriadas em `src/validators/common.validator.js`
+- [x] Testar `GET /api/quiz/history` e `GET /api/quiz/stats` → retornam **401** (rota correta, exige auth)
 
 ### Commit sugerido
 
@@ -559,10 +559,10 @@ refactor: consolida arquitetura final e adiciona migrations
 
 ### Críticos (corrigir nas Fases 3 e 5)
 
-- [ ] Ordem de rotas `/api/quiz/history` e `/api/quiz/stats` quebrada
+- [x] Ordem de rotas `/api/quiz/history` e `/api/quiz/stats` quebrada
 - [ ] Credenciais MongoDB/Gmail/JWT hardcoded em scripts e configs
 - [ ] Endpoints de quiz submit/validate públicos em produção
-- [ ] `submitQuizValidation` definida mas não aplicada
+- [x] `submitQuizValidation` definida mas não aplicada
 
 ### Médios
 
@@ -604,7 +604,7 @@ Registrar aqui o que foi feito em cada sessão de trabalho.
 |------|------|-----------------|----------|
 | 17/06/2025 | — | Guia criado com diagnóstico completo do backend | — |
 | 17/06/2025 | 1 | 32 docs → `docs/`; 6 scripts → `scripts/archive/`; `.gitignore` corrigido; import `cacheMiddleware` removido; `README.md` atualizado | `GET /api/health` 200 |
-| 17/06/2025 | 2 | Removidos 4 arquivos mortos em `src/`; `dotenv` duplicado removido; imports limpos em `auth.routes.js` | `GET /api/health` 200 |
+| 17/06/2025 | 3 | Ordem de rotas quiz corrigida; submitQuizValidation aplicada; validators compartilhados | `/quiz/history` e `/stats` → 401 |
 
 ---
 
@@ -630,6 +630,6 @@ GET    /api/health
 
 ## Próximo passo recomendado
 
-**Fase 3** — corrigir ordem de rotas em `quiz.routes.js` (`/history` e `/stats` antes de `/:moduleId`) e aplicar `submitQuizValidation`.
+**Fase 4** — categorizar ~120 scripts em `scripts/seed/`, `scripts/maintenance/` e `scripts/archive/`.
 
-Quando quiser continuar, diga **"vamos fazer a Fase 3 do backend"**.
+Quando quiser continuar, diga **"vamos fazer a Fase 4 do backend"**.
