@@ -1,21 +1,13 @@
-﻿const User = require('../models/user.model');
-const { validationResult } = require('express-validator');
+﻿const { validationResult } = require('express-validator');
+const UserService = require('../services/user.service');
 
 // @desc    Obter dados básicos do usuário (público)
 // @route   GET /api/users/basic-info
 // @access  Public
 exports.getBasicInfo = async (req, res, next) => {
   try {
-    res.json({
-      success: true,
-      message: 'Dados básicos disponíveis',
-      defaultUser: {
-        name: 'Usuário',
-        level: 'Aprendiz',
-        progress: 0,
-        streak: 0
-      }
-    });
+    const result = UserService.getBasicInfo();
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
@@ -26,27 +18,8 @@ exports.getBasicInfo = async (req, res, next) => {
 // @access  Private
 exports.getProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate('completedModules.moduleId', 'title category level')
-      .populate('completedQuizzes.quizId', 'title moduleId');
-
-    // Calcular estatísticas
-    const stats = {
-      totalModulesCompleted: user.completedModules.length,
-      totalQuizzesCompleted: user.completedQuizzes.length,
-      averageQuizScore: user.completedQuizzes.length > 0
-        ? user.completedQuizzes.reduce((acc, quiz) => acc + quiz.score, 0) / user.completedQuizzes.length
-        : 0,
-      currentStreak: user.streak,
-      totalPoints: user.totalPoints,
-      weeklyProgress: `${user.weeklyProgress}/${user.weeklyGoal}`
-    };
-
-    res.json({
-      success: true,
-      user,
-      stats
-    });
+    const result = await UserService.getProfile(req.user.id);
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
@@ -65,83 +38,8 @@ exports.updateProfile = async (req, res, next) => {
       });
     }
 
-    const { name, email, currentPassword, newPassword, level, weeklyGoal, notifications } = req.body;
-    
-    // Buscar usuário atual
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuário não encontrado'
-      });
-    }
-
-    // Se tentando alterar email ou senha, verificar senha atual
-    if ((email && email !== user.email) || newPassword) {
-      if (!currentPassword) {
-        return res.status(400).json({
-          success: false,
-          message: 'Senha atual é obrigatória para alterar email ou senha'
-        });
-      }
-
-      // Verificar senha atual
-      const isCurrentPasswordValid = await user.comparePassword(currentPassword);
-      if (!isCurrentPasswordValid) {
-        return res.status(400).json({
-          success: false,
-          message: 'Senha atual incorreta'
-        });
-      }
-    }
-
-    // Verificar se email já está em uso
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'Este email já está sendo usado por outro usuário'
-        });
-      }
-    }
-
-    const fieldsToUpdate = {
-      name,
-      email,
-      level,
-      weeklyGoal,
-      notifications
-    };
-
-    // Se tem nova senha, incluir no update
-    if (newPassword) {
-      fieldsToUpdate.password = newPassword;
-    }
-
-    // Remover campos undefined
-    Object.keys(fieldsToUpdate).forEach(key => 
-      fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
-    );
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      fieldsToUpdate,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
-
-    // Remover senha da resposta
-    const userResponse = updatedUser.toObject();
-    delete userResponse.password;
-
-    res.json({
-      success: true,
-      message: 'Perfil atualizado com sucesso',
-      user: userResponse
-    });
+    const result = await UserService.updateProfile(req.user.id, req.body);
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
@@ -152,51 +50,8 @@ exports.updateProfile = async (req, res, next) => {
 // @access  Private
 exports.getProgress = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate({
-        path: 'completedModules.moduleId',
-        select: 'title category points'
-      });
-
-    // Agrupar por categoria
-    const progressByCategory = {};
-    const categories = [
-      'propriedades-som',
-      'escalas-maiores',
-      'figuras-musicais',
-      'ritmo-ternarios',
-      'compasso-simples',
-      'andamento-dinamica',
-      'solfegio-basico',
-      'articulacao-musical',
-      'intervalos-musicais',
-      'expressao-musical',
-      'sincopa-contratempo',
-      'compasso-composto'
-    ];
-
-    categories.forEach(category => {
-      const modulesInCategory = user.completedModules.filter(
-        item => item.moduleId && item.moduleId.category === category
-      );
-      
-      progressByCategory[category] = {
-        completed: modulesInCategory.length,
-        lastCompleted: modulesInCategory.length > 0 
-          ? modulesInCategory[modulesInCategory.length - 1].completedAt
-          : null
-      };
-    });
-
-    res.json({
-      success: true,
-      progress: {
-        totalModulesCompleted: user.completedModules.length,
-        totalPoints: user.totalPoints,
-        currentLevel: user.level,
-        progressByCategory
-      }
-    });
+    const result = await UserService.getProgress(req.user.id);
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
@@ -207,28 +62,8 @@ exports.getProgress = async (req, res, next) => {
 // @access  Private
 exports.getRanking = async (req, res, next) => {
   try {
-    const { limit = 10, offset = 0 } = req.query;
-
-    const topUsers = await User.find({ isActive: true })
-      .select('name totalPoints level streak')
-      .sort({ totalPoints: -1 })
-      .limit(parseInt(limit))
-      .skip(parseInt(offset));
-
-    const totalUsers = await User.countDocuments({ isActive: true });
-
-    // Posição do usuário atual
-    const userPosition = await User.countDocuments({
-      isActive: true,
-      totalPoints: { $gt: req.user.totalPoints }
-    }) + 1;
-
-    res.json({
-      success: true,
-      ranking: topUsers,
-      userPosition,
-      totalUsers
-    });
+    const result = await UserService.getRanking(req.user.id, req.user.totalPoints, req.query);
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
@@ -239,21 +74,8 @@ exports.getRanking = async (req, res, next) => {
 // @access  Private
 exports.updateNotifications = async (req, res, next) => {
   try {
-    const { email, push } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      {
-        'notifications.email': email,
-        'notifications.push': push
-      },
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      notifications: user.notifications
-    });
+    const result = await UserService.updateNotifications(req.user.id, req.body);
+    return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);
   }
