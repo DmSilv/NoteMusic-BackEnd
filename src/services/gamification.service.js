@@ -1,4 +1,55 @@
 ﻿const User = require('../models/user.model');
+const Module = require('../models/module.model');
+const { calculateModuleBasedProgress } = require('../utils/gamificationRebalanced');
+
+const getLevelName = (level) => {
+  const names = {
+    aprendiz: 'Aprendiz',
+    virtuoso: 'Virtuoso',
+    maestro: 'Maestro'
+  };
+  return names[level] || 'Aprendiz';
+};
+
+const formatCategoryName = (category) => {
+  if (!category) return null;
+
+  const names = {
+    'propriedades-som': 'Propriedades do Som',
+    'escalas-maiores': 'Escalas Maiores',
+    'figuras-musicais': 'Figuras Musicais',
+    'expressao-musical': 'Expressão Musical'
+  };
+
+  return names[category] || category;
+};
+
+const getNextAchievement = (user) => {
+  const completedModules = user.completedModules.length;
+  const streak = user.streak || 0;
+
+  if (completedModules === 0) return 'Complete seu primeiro módulo';
+  if (completedModules < 3) return 'Complete 3 módulos para avançar de nível';
+  if (streak < 3) return 'Mantenha um streak de 3 dias';
+  if (completedModules < 5) return 'Complete 5 módulos';
+  if (streak < 7) return 'Mantenha um streak de 7 dias';
+  return 'Continue estudando para novas conquistas!';
+};
+
+const buildLevelProgress = (user) => {
+  const progress = calculateModuleBasedProgress(user);
+
+  if (progress.pointsProgress) {
+    progress.pointsProgress = {
+      current: 0,
+      required: 0,
+      percentage: 0,
+      note: 'Progresso baseado apenas em módulos completos'
+    };
+  }
+
+  return progress;
+};
 
 class GamificationService {
   // Verificar conquistas do usuário
@@ -247,6 +298,536 @@ class GamificationService {
     await user.save();
     
     return user.streak;
+  }
+
+  static getMockStats() {
+    return {
+      level: 'Aprendiz',
+      progress: 0,
+      streak: 0,
+      achievements: [],
+      challenges: [],
+      totalModules: 16,
+      completedModules: 0,
+      weeklyGoal: 5,
+      weeklyProgress: 0,
+      nextAchievement: 'Complete seu primeiro módulo',
+      totalPoints: 0,
+      averageScorePercentage: 0,
+      bestCategory: null,
+      currentStreak: 0,
+      longestStreak: 0,
+      totalStudyDays: 0,
+      quizPassRate: 0,
+      levelProgress: {
+        current: 'Aprendiz',
+        next: 'Virtuoso',
+        percentage: 0,
+        requirements: 'Complete 3 módulos OU ganhe 300 pontos',
+        pointsProgress: { current: 0, required: 300 },
+        modulesProgress: { current: 0, required: 3 }
+      },
+      weeklyProgressDetail: {
+        current: 0,
+        goal: 5,
+        percentage: 0
+      },
+      recentActivity: {
+        lastStudyDate: null,
+        modulesLast7Days: 0,
+        quizzesLast7Days: 0
+      }
+    };
+  }
+
+  static buildDashboardStats(user) {
+    const completedModules = user.completedModules.length;
+    const totalQuizzes = user.completedQuizzes.length;
+    const totalModules = 43;
+    const progress =
+      completedModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+
+    const currentStreak = user.streak || 0;
+    const longestStreak = Math.max(currentStreak, user.longestStreak || 0);
+
+    const quizScores = user.completedQuizzes.map((q) => q.score || 0);
+    const averageScore =
+      quizScores.length > 0
+        ? Math.round(
+            (quizScores.reduce((sum, score) => sum + score, 0) / quizScores.length) * 10
+          )
+        : 0;
+
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const modulesLast7Days = user.completedModules.filter(
+      (m) => new Date(m.completedAt) > weekAgo
+    ).length;
+
+    const quizzesLast7Days = user.completedQuizzes.filter(
+      (q) => new Date(q.completedAt) > weekAgo
+    ).length;
+
+    const categoryStats = {};
+    user.completedModules.forEach((cm) => {
+      if (cm.moduleId && cm.moduleId.category) {
+        categoryStats[cm.moduleId.category] = (categoryStats[cm.moduleId.category] || 0) + 1;
+      }
+    });
+
+    const bestCategory =
+      Object.keys(categoryStats).length > 0
+        ? Object.keys(categoryStats).reduce((a, b) =>
+            categoryStats[a] > categoryStats[b] ? a : b
+          )
+        : null;
+
+    const levelProgress = buildLevelProgress(user);
+
+    const passedQuizzes = user.completedQuizzes.filter((q) => q.passed === true).length;
+    const quizPassRate =
+      totalQuizzes > 0 ? Math.round((passedQuizzes / totalQuizzes) * 100) : 0;
+
+    console.log(`📊 Taxa de aprovação: ${passedQuizzes}/${totalQuizzes} = ${quizPassRate}%`);
+
+    return {
+      level: getLevelName(user.level),
+      progress,
+      streak: currentStreak,
+      achievements: [],
+      challenges: [],
+      totalModules,
+      completedModules,
+      weeklyGoal: user.weeklyGoal || 5,
+      weeklyProgress: user.weeklyProgress || 0,
+      nextAchievement: getNextAchievement(user),
+      totalPoints: user.totalPoints || 0,
+      averageScorePercentage: averageScore,
+      bestCategory: formatCategoryName(bestCategory),
+      currentStreak,
+      longestStreak,
+      totalStudyDays: Math.max(currentStreak, user.completedModules.length),
+      quizPassRate,
+      levelProgress,
+      weeklyProgressDetail: {
+        current: user.weeklyProgress || 0,
+        goal: user.weeklyGoal || 5,
+        percentage: Math.round(((user.weeklyProgress || 0) / (user.weeklyGoal || 5)) * 100)
+      },
+      recentActivity: {
+        lastStudyDate: user.lastActivityDate,
+        modulesLast7Days,
+        quizzesLast7Days
+      }
+    };
+  }
+
+  static async getStats(userId) {
+    if (!userId) {
+      console.log('📱 Usuário não autenticado, retornando dados mock');
+      return {
+        status: 200,
+        body: {
+          success: true,
+          stats: GamificationService.getMockStats()
+        }
+      };
+    }
+
+    console.log('👤 Buscando dados reais para usuário:', userId);
+
+    const user = await User.findById(userId)
+      .select(
+        'completedModules completedQuizzes streak totalPoints level weeklyProgress weeklyGoal lastActivityDate longestStreak name email'
+      )
+      .populate({
+        path: 'completedModules.moduleId',
+        select: 'title category points level',
+        options: { lean: true }
+      })
+      .populate({
+        path: 'completedQuizzes.quizId',
+        select: 'title',
+        options: { lean: true }
+      })
+      .lean();
+
+    if (!user) {
+      console.log('❌ Usuário não encontrado no banco');
+      return {
+        status: 404,
+        body: {
+          success: false,
+          message: 'Usuário não encontrado'
+        }
+      };
+    }
+
+    console.log('✅ Usuário encontrado:', {
+      id: user._id,
+      name: user.name,
+      level: user.level,
+      totalPoints: user.totalPoints,
+      streak: user.streak
+    });
+
+    const stats = GamificationService.buildDashboardStats(user);
+
+    console.log('📊 Estatísticas calculadas:', {
+      level: stats.level,
+      totalPoints: stats.totalPoints,
+      streak: stats.streak,
+      levelProgress: stats.levelProgress
+    });
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        stats
+      }
+    };
+  }
+
+  static async getAchievements(userId) {
+    const user = await User.findById(userId)
+      .populate('completedModules.moduleId', 'title category')
+      .populate('completedQuizzes.quizId', 'title');
+
+    const achievements = GamificationService.checkAchievements(user);
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        achievements,
+        totalAchievements: achievements.length,
+        totalPoints: achievements.reduce((sum, ach) => sum + ach.points, 0)
+      }
+    };
+  }
+
+  static async getChallenges(userId) {
+    const user = await User.findById(userId)
+      .populate('completedModules.moduleId')
+      .populate('completedQuizzes.quizId');
+
+    const challenges = GamificationService.generatePersonalizedChallenges(user);
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        challenges,
+        activeChallenges: challenges.filter((c) => c.progress < 100).length
+      }
+    };
+  }
+
+  static async getDetailedStats(userId) {
+    const user = await User.findById(userId)
+      .populate('completedModules.moduleId', 'title category points')
+      .populate('completedQuizzes.quizId', 'title');
+
+    const stats = GamificationService.calculateUserStats(user);
+
+    const extraStats = {
+      ...stats,
+      currentStreak: user.streak,
+      totalPoints: user.totalPoints,
+      weeklyProgress: {
+        current: user.weeklyProgress,
+        goal: user.weeklyGoal,
+        percentage: (user.weeklyProgress / user.weeklyGoal) * 100
+      },
+      recentActivity: {
+        lastStudyDate: user.lastActivityDate,
+        modulesLast7Days: user.completedModules.filter((m) => {
+          const date = new Date(m.completedAt);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return date > weekAgo;
+        }).length,
+        quizzesLast7Days: user.completedQuizzes.filter((q) => {
+          const date = new Date(q.completedAt);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return date > weekAgo;
+        }).length
+      }
+    };
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        stats: extraStats
+      }
+    };
+  }
+
+  static async getLeaderboard(userId, userTotalPoints, userStreak, { period = 'all', limit = 10 } = {}) {
+    let dateFilter = {};
+    const now = new Date();
+
+    switch (period) {
+      case 'week': {
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        dateFilter = { lastActivityDate: { $gte: weekAgo } };
+        break;
+      }
+      case 'month': {
+        const monthAgo = new Date();
+        monthAgo.setMonth(now.getMonth() - 1);
+        dateFilter = { lastActivityDate: { $gte: monthAgo } };
+        break;
+      }
+      default:
+        break;
+    }
+
+    const [topByPoints, topByStreak, userPointsCount, userStreakCount] = await Promise.all([
+      User.find({ isActive: true, ...dateFilter })
+        .select('name totalPoints level')
+        .sort({ totalPoints: -1 })
+        .limit(parseInt(limit))
+        .lean(),
+      User.find({ isActive: true, streak: { $gt: 0 } })
+        .select('name streak level')
+        .sort({ streak: -1 })
+        .limit(parseInt(limit))
+        .lean(),
+      User.countDocuments({
+        isActive: true,
+        totalPoints: { $gt: userTotalPoints || 0 },
+        ...dateFilter
+      }),
+      User.countDocuments({
+        isActive: true,
+        streak: { $gt: userStreak || 0 }
+      })
+    ]);
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        leaderboard: {
+          byPoints: {
+            top: topByPoints,
+            userRank: userPointsCount + 1
+          },
+          byStreak: {
+            top: topByStreak,
+            userRank: userStreakCount + 1
+          }
+        },
+        period
+      }
+    };
+  }
+
+  static async getLevelProgress(userId) {
+    const user = await User.findById(userId);
+    const levelProgress = GamificationService.calculateLevelProgress(user.totalPoints);
+
+    const nextLevelRewards = {
+      virtuoso: [
+        'Acesso a módulos intermediários',
+        'Novos desafios semanais',
+        'Badge de Músico Virtuoso'
+      ],
+      maestro: [
+        'Acesso a todos os módulos',
+        'Desafios especiais de IA',
+        'Badge de Mestre Musical',
+        'Certificado de conclusão'
+      ]
+    };
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        levelProgress: {
+          ...levelProgress,
+          rewards: levelProgress.nextLevel ? nextLevelRewards[levelProgress.nextLevel] : []
+        }
+      }
+    };
+  }
+
+  static async getModuleProgress(userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          message: 'Usuário não encontrado'
+        }
+      };
+    }
+
+    let levelQuery = {};
+
+    if (user.level === 'maestro') {
+      levelQuery = { level: { $in: ['aprendiz', 'virtuoso', 'maestro'] } };
+    } else if (user.level === 'virtuoso') {
+      levelQuery = { level: { $in: ['aprendiz', 'virtuoso'] } };
+    } else {
+      levelQuery = { level: 'aprendiz' };
+    }
+
+    console.log(`🔍 Buscando módulos para progresso com filtro:`, levelQuery);
+
+    const modulesInLevel = await Module.find({
+      ...levelQuery,
+      isActive: true
+    }).select('_id title quizzes');
+
+    const completedQuizIds = user.completedQuizzes
+      .filter((cq) => cq.passed)
+      .map((cq) => cq.quizId.toString());
+
+    let completedModulesCount = 0;
+    const moduleProgress = modulesInLevel.map((module) => {
+      const moduleQuizIds = module.quizzes.map((quiz) => quiz.toString());
+      const completedQuizzesInModule = moduleQuizIds.filter((quizId) =>
+        completedQuizIds.includes(quizId)
+      );
+
+      const isCompleted =
+        moduleQuizIds.length > 0 && completedQuizzesInModule.length === moduleQuizIds.length;
+
+      if (isCompleted) {
+        completedModulesCount++;
+      }
+
+      return {
+        moduleId: module._id,
+        title: module.title,
+        totalQuizzes: moduleQuizIds.length,
+        completedQuizzes: completedQuizzesInModule.length,
+        isCompleted
+      };
+    });
+
+    let responseData = {
+      success: true,
+      level: user.level,
+      totalModules: modulesInLevel.length,
+      completedModules: completedModulesCount,
+      progress: `${completedModulesCount}/${modulesInLevel.length}`,
+      moduleDetails: moduleProgress
+    };
+
+    if (user.level === 'maestro' && modulesInLevel.length === 0) {
+      responseData = {
+        success: true,
+        level: 'Maestro',
+        totalModules: 0,
+        completedModules: 0,
+        progress: '0/0',
+        moduleDetails: [],
+        message: 'Parabéns! Você atingiu o nível máximo. Todos os módulos foram concluídos!'
+      };
+    }
+
+    return {
+      status: 200,
+      body: responseData
+    };
+  }
+
+  static async getCategoryCompletion(userId, { level } = {}) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          message: 'Usuário não encontrado'
+        }
+      };
+    }
+
+    let levelQuery = {};
+
+    if (level) {
+      levelQuery = { level };
+    } else if (user.level === 'maestro') {
+      levelQuery = { level: { $in: ['aprendiz', 'virtuoso', 'maestro'] } };
+    } else if (user.level === 'virtuoso') {
+      levelQuery = { level: { $in: ['aprendiz', 'virtuoso'] } };
+    } else {
+      levelQuery = { level: 'aprendiz' };
+    }
+
+    console.log(`🔍 Buscando módulos com filtro:`, levelQuery);
+
+    const modulesInLevel = await Module.find({
+      ...levelQuery,
+      isActive: true
+    }).select('_id title category quizzes');
+
+    const completedQuizIds = user.completedQuizzes
+      .filter((cq) => cq.passed)
+      .map((cq) => cq.quizId.toString());
+
+    const categoryCompletion = {};
+
+    modulesInLevel.forEach((module) => {
+      const category = module.category;
+
+      if (!categoryCompletion[category]) {
+        categoryCompletion[category] = {
+          category,
+          totalModules: 0,
+          completedModules: 0,
+          modules: []
+        };
+      }
+
+      const moduleQuizIds = module.quizzes.map((quiz) => quiz.toString());
+      const completedQuizzesInModule = moduleQuizIds.filter((quizId) =>
+        completedQuizIds.includes(quizId)
+      );
+
+      const isCompleted =
+        moduleQuizIds.length > 0 && completedQuizzesInModule.length === moduleQuizIds.length;
+
+      categoryCompletion[category].totalModules++;
+      if (isCompleted) {
+        categoryCompletion[category].completedModules++;
+      }
+
+      categoryCompletion[category].modules.push({
+        moduleId: module._id,
+        title: module.title,
+        isCompleted,
+        totalQuizzes: moduleQuizIds.length,
+        completedQuizzes: completedQuizzesInModule.length
+      });
+    });
+
+    const result = Object.values(categoryCompletion).map((cat) => ({
+      ...cat,
+      isFullyCompleted: cat.completedModules === cat.totalModules && cat.totalModules > 0
+    }));
+
+    const responseLevel = level || user.level;
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        level: responseLevel,
+        categoryCompletion: result
+      }
+    };
   }
 }
 
