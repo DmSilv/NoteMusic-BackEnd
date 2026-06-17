@@ -3,7 +3,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
 
 // Importar rotas
 const authRoutes = require('./routes/auth.routes');
@@ -15,9 +14,8 @@ const quizAttemptRoutes = require('./routes/quizAttempt.routes');
 
 // Importar middlewares
 const errorHandler = require('./middlewares/errorHandler');
-const { cacheMiddleware } = require('./middlewares/cache');
 
-// Importar funções de cache (APENAS UMA VEZ)
+// Importar funções de cache
 const { 
   clearCache,
   getCacheStats,

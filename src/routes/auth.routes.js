@@ -13,9 +13,7 @@ const {
 const {
   requestAccountDeletion,
   cancelAccountDeletion,
-  getDeletionStatus,
-  permanentlyDeleteAccount,
-  getPendingDeletions
+  getDeletionStatus
 } = require('../controllers/accountDeletion.controller');
 const { protect } = require('../middlewares/auth');
 const { checkTempPassword, requireTempPassword } = require('../middlewares/tempPasswordCheck');

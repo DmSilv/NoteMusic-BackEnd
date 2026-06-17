@@ -1,56 +1,74 @@
-# NoteMusic Backend - Reset de Banco de Dados
+# NoteMusic BackEnd
 
-Este diretório contém o backend da aplicação NoteMusic, incluindo os novos scripts para gerenciar o conteúdo educacional do banco de dados.
+API **Express + MongoDB/Mongoose** para o app educacional NoteMusic.
 
-## Como Usar o Script de Reset de Banco de Dados
+## Estrutura do projeto
 
-O script `resetDatabase.js` permite limpar e recriar todo o conteúdo educacional (módulos e quizzes) da aplicação de maneira estruturada.
-
-### Passo a passo para executar:
-
-1. Certifique-se de que o MongoDB esteja rodando
-2. Edite o arquivo `resetDatabase.js` e altere `CONFIRM_RESET` para `true`
-3. Execute o script:
-
-```bash
-# No PowerShell
-cd "Back End"
-node scripts/resetDatabase.js
-
-# No CMD
-cd "Back End"
-node scripts/resetDatabase.js
-
-# Em sistemas Linux/Mac
-cd "Back End"
-node scripts/resetDatabase.js
+```
+NoteMusic-BackEnd/
+├── server.js              # Entry point
+├── src/
+│   ├── app.js             # Express app, middlewares, rotas
+│   ├── config/            # database, email
+│   ├── controllers/       # handlers HTTP
+│   ├── middlewares/       # auth, cache, errors
+│   ├── models/            # schemas Mongoose
+│   ├── routes/            # routers por domínio
+│   ├── services/          # lógica de negócio (parcial)
+│   └── utils/
+├── scripts/
+│   ├── seed.js            # npm run seed
+│   ├── cleanupAttempts.js # npm run cleanup
+│   └── archive/           # scripts manuais arquivados
+└── docs/                  # documentação operacional
+    └── GUIA_LIMPEZA_ARQUITETURA.md
 ```
 
-### Importante:
+## Início rápido
 
-- O script manterá os usuários existentes, mas resetará seu progresso
-- Todos os módulos, quizzes e desafios diários serão recriados
-- As perguntas são organizadas por níveis (aprendiz, virtuoso, maestro) e categorias
+```bash
+# Instalar dependências
+npm install
 
-## Conteúdo Educacional
+# Configurar ambiente
+cp env.example .env
+# Editar .env com MONGODB_URI, JWT_SECRET, etc.
 
-O novo conteúdo está estruturado em três níveis:
+# Desenvolvimento
+npm run dev
 
-1. **Aprendiz**: Fundamentos da música (propriedades do som, notação básica)
-2. **Virtuoso**: Conhecimentos intermediários (intervalos musicais)
-3. **Maestro**: Conhecimentos avançados (harmonia avançada)
+# Health check
+curl http://localhost:3333/api/health
+```
 
-Cada módulo possui:
-- Conteúdo teórico estruturado
-- Exemplos práticos
-- Quiz com perguntas de diferentes níveis de dificuldade
-- Sistema de pontuação progressivo
+## Scripts npm
 
-## Sistema de Gamificação
+| Comando | Descrição |
+|---------|-----------|
+| `npm start` | Produção |
+| `npm run dev` | Desenvolvimento com nodemon |
+| `npm run seed` | Popular banco com dados iniciais |
+| `npm run cleanup` | Limpar tentativas de quiz antigas |
 
-Após o reset, o sistema de gamificação continuará funcionando com:
-- Pontuação progressiva por questões corretas
-- Bônus por desempenho excelente (acima de 90%)
-- Bônus por streaks (dias consecutivos)
-- Bônus para desafios diários
-- Progresso por categorias e níveis
+## Rotas principais
+
+| Prefixo | Domínio |
+|---------|---------|
+| `/api/auth` | Login, registro, senha |
+| `/api/users` | Perfil do usuário |
+| `/api/modules` | Módulos educacionais |
+| `/api/quiz` | Quizzes e desafio diário |
+| `/api/gamification` | Pontos, achievements, leaderboard |
+| `/api/quiz-attempts` | Tentativas de quiz |
+
+## Documentação
+
+Toda a documentação operacional está em [`docs/`](docs/).
+
+Guia de limpeza e reestruturação (em andamento):
+
+- [`docs/GUIA_LIMPEZA_ARQUITETURA.md`](docs/GUIA_LIMPEZA_ARQUITETURA.md)
+
+## Deploy
+
+Backend em produção no Railway. Ver `docs/EXECUTAR_NO_RAILWAY.md` e `docs/SYNC_DATABASE_TO_PRODUCTION.md`.
