@@ -37,12 +37,14 @@ const createOrUpdateUser = async () => {
       console.log(`   Nível atual: ${user.level}`);
       console.log(`   Pontos atuais: ${user.totalPoints || 0}`);
 
-      // Atualizar para nível Maestro
+      // Atualizar para nível Maestro e redefinir senha de teste
       user.level = 'maestro';
       user.totalPoints = 3000;
       user.streak = 30;
       user.weeklyProgress = 10;
       user.weeklyGoal = 10;
+      user.password = 'daniel250900';
+      user.isActive = true;
 
       await user.save();
       console.log('✅ Usuário atualizado com sucesso!');
@@ -55,6 +57,9 @@ const createOrUpdateUser = async () => {
     console.log(`   Pontos: ${user.totalPoints}`);
     console.log(`   Streak: ${user.streak}`);
     console.log(`   Progresso semanal: ${user.weeklyProgress}/${user.weeklyGoal}`);
+    console.log('\n🔐 Credenciais de login (app):');
+    console.log('   Email: danielmingoranse84@gmail.com');
+    console.log('   Senha: daniel250900');
 
     process.exit(0);
   } catch (error) {
