@@ -604,6 +604,7 @@ Registrar aqui o que foi feito em cada sessão de trabalho.
 |------|------|-----------------|----------|
 | 17/06/2025 | — | Guia criado com diagnóstico completo do backend | — |
 | 17/06/2025 | 1 | 32 docs → `docs/`; 6 scripts → `scripts/archive/`; `.gitignore` corrigido; import `cacheMiddleware` removido; `README.md` atualizado | `GET /api/health` 200 |
+| 17/06/2025 | 2 | Removidos 4 arquivos mortos em `src/`; `dotenv` duplicado removido; imports limpos em `auth.routes.js` | `GET /api/health` 200 |
 | 17/06/2025 | 3 | Ordem de rotas quiz corrigida; submitQuizValidation aplicada; validators compartilhados | `/quiz/history` e `/stats` → 401 |
 
 ---
