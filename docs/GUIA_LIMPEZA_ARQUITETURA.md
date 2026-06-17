@@ -3,7 +3,7 @@
 > Documento vivo. Atualizar este arquivo ao concluir cada tarefa ou fase.
 >
 > **Última atualização:** 17/06/2025  
-> **Fase atual:** Fase 6 ✅ — próxima: Fase 7
+> **Fase atual:** Fase 7 ✅ — próxima: Fase 8
 
 ---
 
@@ -429,6 +429,8 @@ refactor: padroniza naming de models e extrai validators
 
 **Risco:** 🟠 alto · **Objetivo:** controllers finos; lógica de negócio nos services.
 
+> **Mapa de execução:** [`FASE_7_MAPA_SERVICES.md`](FASE_7_MAPA_SERVICES.md) — seguir sub-passos 7.1 → 7.6 na ordem, um commit por domínio.
+
 > Fazer **um domínio por vez**, com testes manuais entre cada extração.
 
 ### Ordem recomendada (menor → maior risco)
@@ -636,6 +638,6 @@ GET    /api/health
 
 ## Próximo passo recomendado
 
-**Fase 7** — extrair services dos fat controllers (começar por `auth.service.js`).
+**Fase 8** — dependências e config centralizada de env.
 
-Quando quiser continuar, diga **"vamos fazer a Fase 7 do backend"**.
+Quando quiser continuar, diga **"vamos fazer a Fase 8"**.
