@@ -44,10 +44,37 @@ const accountDeletionValidation = [
   body('reason').optional().isLength({ max: 500 }).withMessage('Motivo deve ter no máximo 500 caracteres'),
 ];
 
+const forgotPasswordValidation = [
+  body('email')
+    .isEmail().withMessage('Email inválido')
+    .normalizeEmail()
+    .custom(isValidEmailDomain)
+    .withMessage('Use um e-mail de provedor válido (Gmail, Outlook, Yahoo, etc.)'),
+];
+
+const resetPasswordValidation = [
+  body('email')
+    .isEmail().withMessage('Email inválido')
+    .normalizeEmail()
+    .custom(isValidEmailDomain)
+    .withMessage('Use um e-mail de provedor válido (Gmail, Outlook, Yahoo, etc.)'),
+  body('resetCode')
+    .trim()
+    .notEmpty().withMessage('Código de verificação é obrigatório')
+    .isLength({ min: 6, max: 6 }).withMessage('Código deve ter 6 dígitos')
+    .isNumeric().withMessage('Código deve conter apenas números'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Nova senha deve ter no mínimo 6 caracteres'),
+  body('confirmPassword')
+    .custom((value, { req }) => value === req.body.newPassword)
+    .withMessage('A confirmação da senha não confere'),
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
   updatePasswordValidation,
   changeTempPasswordValidation,
   accountDeletionValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
 };

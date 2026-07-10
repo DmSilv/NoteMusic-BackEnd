@@ -39,9 +39,18 @@ exports.protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Sessão expirada. Faça login novamente.',
+        code: 'SESSION_EXPIRED'
+      });
+    }
+
     return res.status(401).json({
       success: false,
-      message: 'Token inválido'
+      message: 'Token inválido',
+      code: 'UNAUTHORIZED'
     });
   }
 };

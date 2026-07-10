@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Quiz = require('../models/quiz.model');
 const User = require('../models/user.model');
 const Module = require('../models/module.model');
+const { invalidateCache } = require('../middlewares/cache');
 const { USER_LEVELS, POINTS, LIMITS } = require('../utils/constants');
 const { calculateRebalancedPoints, GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 const { generateDailyChallengeConfig, getTodayChallengeInfo } = require('../utils/dailyChallengeGenerator');
@@ -1158,6 +1159,39 @@ static async submitQuizPrivate(userId, quizId, { answers, timeSpent }) {
     
     await user.save();
 
+    let moduleCompleted = false;
+    let responseTotalPoints = user.totalPoints;
+    let responseLevel = user.level;
+
+    if (isQuizPassed && quiz.moduleId && !isDailyChallenge) {
+      try {
+        const ModuleService = require('./module.service');
+        const completeResult = await ModuleService.completeModule(
+          quiz.moduleId.toString(),
+          userId
+        );
+
+        if (completeResult.status === 200) {
+          moduleCompleted = true;
+          const freshUser = await User.findById(userId);
+          if (freshUser) {
+            responseTotalPoints = freshUser.totalPoints;
+            responseLevel = freshUser.level;
+          }
+          console.log(`✅ [SUBMIT] Módulo auto-concluído após quiz aprovado: ${quiz.moduleId}`);
+        } else {
+          console.warn(
+            `⚠️ [SUBMIT] Não foi possível auto-concluir módulo: ${completeResult.body?.message}`
+          );
+        }
+      } catch (autoCompleteError) {
+        console.warn('⚠️ [SUBMIT] Erro ao auto-concluir módulo:', autoCompleteError.message);
+      }
+    }
+
+    invalidateCache('/api/gamification');
+    console.log('🗑️ [SUBMIT] Cache de gamificação invalidado após quiz');
+
     // Atualizar estatísticas do quiz
     quiz.totalAttempts += 1;
     const newAverage = ((quiz.averageScore * (quiz.totalAttempts - 1)) + percentage) / quiz.totalAttempts;
@@ -1189,7 +1223,9 @@ static async submitQuizPrivate(userId, quizId, { answers, timeSpent }) {
       correctAnswers: correctAnswers,
       userAnswers: userAnswers,
       pointsEarned: totalPointsEarned,
-      totalPoints: user.totalPoints,
+      totalPoints: responseTotalPoints,
+      level: responseLevel,
+      moduleCompleted,
       isDailyChallenge,
       passed: isQuizPassed,
       attempts: {

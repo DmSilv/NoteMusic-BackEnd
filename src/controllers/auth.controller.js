@@ -82,7 +82,35 @@ exports.logout = async (req, res, next) => {
 // @access  Public
 exports.forgotPassword = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const result = await AuthService.forgotPassword(req.body);
+    return res.status(result.status).json(result.body);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Redefinir senha com código enviado por e-mail
+// @route   POST /api/auth/resetpassword
+// @access  Public
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const result = await AuthService.resetPassword(req.body);
     return res.status(result.status).json(result.body);
   } catch (error) {
     next(error);

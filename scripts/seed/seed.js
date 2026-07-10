@@ -5,7 +5,9 @@ require('dotenv').config();
 const User = require('../../src/models/user.model');
 const Module = require('../../src/models/module.model');
 const Quiz = require('../../src/models/quiz.model');
-const { modulesData, quizQuestionsData } = require('../../src/utils/seedData');
+const { modulesData, quizQuestionsData, dailyChallengeQuestions } = require('../../src/utils/seedData');
+const { findModuleInList } = require('../../src/utils/quizModuleMatcher');
+const { shuffleQuizQuestions } = require('../../src/utils/shuffle');
 
 const seedDatabase = async () => {
   try {
@@ -40,24 +42,20 @@ const seedDatabase = async () => {
       console.log(`  ✓ Módulo criado: ${module.title} (${module.level})`);
     }
 
-    // Criar quizzes baseados em seedData (por categoria/nível)
+    // Criar quizzes vinculados por título do módulo (1 quiz por módulo)
     console.log('📝 Criando quizzes...');
-    const moduleIdToQuizCount = new Map();
+    let quizzesCreated = 0;
     for (const quizData of quizQuestionsData) {
-      // Encontrar o primeiro módulo correspondente por categoria e nível que ainda não recebeu quiz
-      const module = createdModules.find(m => 
-        m.category === quizData.moduleCategory && 
-        m.level === quizData.level &&
-        (moduleIdToQuizCount.get(m._id.toString()) || 0) === 0
-      );
+      const match = findModuleInList(createdModules, quizData);
+      const module = match?.module;
 
       if (module) {
         const quiz = await Quiz.create({
           title: `Quiz - ${module.title}`,
           description: `Teste seus conhecimentos sobre ${module.title}`,
           moduleId: module._id,
-          questions: quizData.questions,
-          level: quizData.level,
+          questions: shuffleQuizQuestions(quizData.questions),
+          level: module.level,
           type: 'module',
           timeLimit: 300,
           passingScore: 70,
@@ -66,14 +64,13 @@ const seedDatabase = async () => {
           averageScore: 0
         });
 
-        // Atualizar módulo com referência ao quiz
         module.quizzes.push(quiz._id);
         await module.save();
 
-        moduleIdToQuizCount.set(module._id.toString(), 1);
+        quizzesCreated += 1;
         console.log(`  ✓ Quiz criado: ${quiz.title} (${quiz.questions.length} questões)`);
       } else {
-        console.log(`  ⚠️ Módulo não encontrado para quiz: ${quizData.moduleCategory} - ${quizData.level}`);
+        console.log(`  ⚠️ Módulo não encontrado: "${quizData.moduleTitle}" (${quizData.level})`);
       }
     }
 
@@ -85,24 +82,24 @@ const seedDatabase = async () => {
         // Gerar um quiz simples automaticamente com base no conteúdo do módulo
         const autoQuestions = [
           {
-            question: `Qual tema melhor descreve o módulo "${module.title}"?`,
+            question: `Qual é o tema principal do módulo "${module.title}"?`,
             options: [
-              { id: 'A', label: module.category.replace(/-/g, ' '), isCorrect: true },
-              { id: 'B', label: 'Ritmo', isCorrect: false },
-              { id: 'C', label: 'Instrumentação aleatória', isCorrect: false },
-              { id: 'D', label: 'História da música', isCorrect: false }
+              { id: 'A', label: module.category.replace(/-/g, ' '), isCorrect: true, explanation: `Este módulo aborda ${module.category.replace(/-/g, ' ')}.` },
+              { id: 'B', label: 'História da música popular', isCorrect: false },
+              { id: 'C', label: 'Técnica de gravação', isCorrect: false },
+              { id: 'D', label: 'Afinação de instrumentos', isCorrect: false }
             ],
             category: module.category,
             difficulty: 'facil',
             points: 10
           },
           {
-            question: `Este módulo é indicado para qual nível?`,
+            question: `Este módulo pertence a qual nível de estudo?`,
             options: [
               { id: 'A', label: 'aprendiz', isCorrect: module.level === 'aprendiz' },
-              { id: 'B', label: 'intermediario', isCorrect: module.level === 'intermediario' },
-              { id: 'C', label: 'avancado', isCorrect: module.level === 'avancado' },
-              { id: 'D', label: 'todos', isCorrect: false }
+              { id: 'B', label: 'virtuoso', isCorrect: module.level === 'virtuoso' },
+              { id: 'C', label: 'maestro', isCorrect: module.level === 'maestro' },
+              { id: 'D', label: 'todos os níveis', isCorrect: false }
             ],
             category: module.category,
             difficulty: 'facil',
@@ -114,7 +111,7 @@ const seedDatabase = async () => {
           title: `Quiz - ${module.title}`,
           description: `Avalie seu entendimento sobre ${module.title}`,
           moduleId: module._id,
-          questions: autoQuestions,
+          questions: shuffleQuizQuestions(autoQuestions),
           level: module.level,
           type: 'module',
           timeLimit: 300,
@@ -136,32 +133,7 @@ const seedDatabase = async () => {
       title: 'Desafio Diário de Música',
       description: 'Complete o desafio diário para ganhar pontos extras!',
       moduleId: createdModules[0]._id, // Usar primeiro módulo como referência
-      questions: [
-        {
-          question: 'Qual instrumento é conhecido como "rei dos instrumentos"?',
-          options: [
-            { id: 'A', label: 'Piano', isCorrect: false },
-            { id: 'B', label: 'Violino', isCorrect: false },
-            { id: 'C', label: 'Órgão', isCorrect: true, explanation: 'O órgão é tradicionalmente conhecido como o "rei dos instrumentos".' },
-            { id: 'D', label: 'Guitarra', isCorrect: false }
-          ],
-          category: 'daily',
-          difficulty: 'facil',
-          points: 10
-        },
-        {
-          question: 'Qual é a nota musical mais alta?',
-          options: [
-            { id: 'A', label: 'Dó', isCorrect: false },
-            { id: 'B', label: 'Ré', isCorrect: false },
-            { id: 'C', label: 'Mi', isCorrect: false },
-            { id: 'D', label: 'Si', isCorrect: true, explanation: 'Si é a nota mais alta na escala musical básica.' }
-          ],
-          category: 'daily',
-          difficulty: 'facil',
-          points: 10
-        }
-      ],
+      questions: shuffleQuizQuestions(dailyChallengeQuestions),
       level: 'aprendiz',
       type: 'daily-challenge',
       timeLimit: 600, // 10 minutos para desafio diário
@@ -179,7 +151,7 @@ const seedDatabase = async () => {
       title: 'Quiz de Teste',
       description: 'Quiz para testar o sistema',
       moduleId: createdModules[0]._id,
-      questions: [
+      questions: shuffleQuizQuestions([
         {
           question: 'Qual é a nota musical mais alta?',
           options: [
@@ -216,7 +188,7 @@ const seedDatabase = async () => {
           difficulty: 'facil',
           points: 10
         }
-      ],
+      ]),
       level: 'aprendiz',
       type: 'module',
       timeLimit: 300,
@@ -231,7 +203,7 @@ const seedDatabase = async () => {
     console.log('\n🎉 Seed concluído com sucesso!');
     console.log('\n📊 Resumo:');
     console.log(`   Módulos criados: ${createdModules.length}`);
-    console.log(`   Quizzes criados: ${quizQuestionsData.length + 2}`); // +2 para desafio diário e teste
+    console.log(`   Quizzes criados: ${quizzesCreated + 2}`); // +2 desafio diário e teste
     console.log(`   Usuário de teste criado: 1`);
     
     console.log('\n📧 Usuário de teste:');

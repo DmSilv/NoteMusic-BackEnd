@@ -7,7 +7,8 @@ const {
   getMe,
   updatePassword,
   forgotPassword,
-  changeTempPassword
+  changeTempPassword,
+  resetPassword
 } = require('../controllers/auth.controller');
 const {
   requestAccountDeletion,
@@ -22,11 +23,14 @@ const {
   updatePasswordValidation,
   changeTempPasswordValidation,
   accountDeletionValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
 } = require('../validators/auth.validator');
 
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
-router.post('/forgotpassword', forgotPassword);
+router.post('/forgotpassword', forgotPasswordValidation, forgotPassword);
+router.post('/resetpassword', resetPasswordValidation, resetPassword);
 
 router.get('/me', protect, getMe);
 router.post('/logout', protect, logout);

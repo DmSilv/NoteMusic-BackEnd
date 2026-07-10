@@ -30,6 +30,15 @@ const userSchema = new mongoose.Schema({
   tempPasswordCreatedAt: {
     type: Date
   },
+  // Token de redefinição de senha (hash SHA-256 do código enviado por e-mail)
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
+  },
   level: {
     type: String,
     enum: ['aprendiz', 'virtuoso', 'maestro'],

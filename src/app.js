@@ -69,8 +69,27 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/register', authLimiter);
+}
+
+// Rate limiting para recuperação de senha (anti-abuso)
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: {
+    success: false,
+    message: 'Muitas solicitações de recuperação. Tente novamente em 1 hora.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/auth/forgotpassword', passwordResetLimiter);
+  app.use('/api/auth/resetpassword', passwordResetLimiter);
+}
 
 // Rate limiting para estatísticas
 const statsLimiter = rateLimit({

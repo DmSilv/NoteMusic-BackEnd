@@ -1,9 +1,37 @@
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const emailService = require('./email.service');
 const { invalidateCache } = require('../middlewares/cache');
 
+const GENERIC_RESET_MESSAGE =
+  'Se este e-mail estiver cadastrado, enviaremos instruções para redefinir sua senha.';
+
 class AuthService {
+  static getResetPasswordExpiresMinutes() {
+    const parsed = parseInt(process.env.RESET_PASSWORD_EXPIRES_MIN, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 15;
+  }
+
+  static hashResetToken(token) {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  static generateResetCode() {
+    return crypto.randomInt(100000, 999999).toString();
+  }
+
+  static buildGenericResetResponse(extra = {}) {
+    return {
+      status: 200,
+      body: {
+        success: true,
+        message: GENERIC_RESET_MESSAGE,
+        ...extra
+      }
+    };
+  }
+
   static generateToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d'
@@ -104,6 +132,22 @@ class AuthService {
           message: 'Email ou senha inválidos'
         }
       };
+    }
+
+    // Senha temporária legada (fluxo antigo) — bloquear se expirada
+    if (user.tempPassword && user.tempPasswordCreatedAt) {
+      const tempPasswordAge = Date.now() - new Date(user.tempPasswordCreatedAt).getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      if (tempPasswordAge > twentyFourHours) {
+        return {
+          status: 401,
+          body: {
+            success: false,
+            message: 'Sua senha temporária expirou. Solicite uma nova recuperação de senha.',
+            code: 'TEMP_PASSWORD_EXPIRED'
+          }
+        };
+      }
     }
 
     if (!user.isActive) {
@@ -262,75 +306,146 @@ class AuthService {
       };
     }
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return {
-        status: 404,
-        body: {
-          success: false,
-          message: 'Não existe usuário com este email'
-        }
-      };
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Resposta genérica — evita enumeração de usuários
+    if (!user || !user.isActive || user.deletionRequested) {
+      return AuthService.buildGenericResetResponse();
     }
 
-    if (user.deletionRequested) {
+    const resetCode = AuthService.generateResetCode();
+    const expiresMinutes = AuthService.getResetPasswordExpiresMinutes();
+
+    // Invalida solicitações anteriores ao sobrescrever token e expiração
+    user.resetPasswordToken = AuthService.hashResetToken(resetCode);
+    user.resetPasswordExpires = new Date(Date.now() + expiresMinutes * 60 * 1000);
+    user.tempPassword = false;
+    user.tempPasswordCreatedAt = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    try {
+      await emailService.sendPasswordResetEmail(
+        normalizedEmail,
+        resetCode,
+        user.name,
+        expiresMinutes
+      );
+
+      return AuthService.buildGenericResetResponse({
+        expiresInMinutes: expiresMinutes
+      });
+    } catch (emailError) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      console.error('Erro no envio de email de recuperação:', emailError.message);
+
       return {
-        status: 403,
+        status: 503,
         body: {
           success: false,
           message:
-            'Esta conta foi desativada e está marcada para exclusão. Não é possível recuperar a senha. Entre em contato com o suporte para mais informações.',
-          accountStatus: 'deactivated',
-          deletionScheduledFor: user.deletionScheduledFor,
-          daysRemaining: user.daysRemaining
+            'Não foi possível enviar o e-mail no momento. Tente novamente em alguns minutos.',
+          code: 'EMAIL_SEND_FAILED'
+        }
+      };
+    }
+  }
+
+  static async resetPassword({ email, resetCode, newPassword, confirmPassword }) {
+    if (!email || !resetCode || !newPassword) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'E-mail, código e nova senha são obrigatórios'
         }
       };
     }
 
-    const generateSecurePassword = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
-      let result = '';
-      for (let i = 0; i < 12; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    };
+    if (newPassword !== confirmPassword) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'A confirmação da senha não confere',
+          code: 'PASSWORDS_DONT_MATCH'
+        }
+      };
+    }
 
-    const tempPassword = generateSecurePassword();
+    if (newPassword.length < 6) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'Nova senha deve ter pelo menos 6 caracteres',
+          code: 'WEAK_PASSWORD'
+        }
+      };
+    }
 
-    user.password = tempPassword;
-    user.tempPassword = true;
-    user.tempPasswordCreatedAt = new Date();
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail }).select(
+      '+resetPasswordToken +resetPasswordExpires +password'
+    );
+
+    if (!user || !user.resetPasswordToken || !user.resetPasswordExpires) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'Código inválido ou expirado. Solicite uma nova recuperação de senha.',
+          code: 'INVALID_RESET_TOKEN'
+        }
+      };
+    }
+
+    if (user.resetPasswordExpires.getTime() < Date.now()) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'O código expirou. Solicite uma nova recuperação de senha.',
+          code: 'RESET_TOKEN_EXPIRED'
+        }
+      };
+    }
+
+    const hashedCode = AuthService.hashResetToken(String(resetCode).trim());
+    if (hashedCode !== user.resetPasswordToken) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          message: 'Código inválido ou expirado. Solicite uma nova recuperação de senha.',
+          code: 'INVALID_RESET_TOKEN'
+        }
+      };
+    }
+
+    user.password = newPassword;
+    user.tempPassword = false;
+    user.tempPasswordCreatedAt = undefined;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
 
     await user.save();
 
-    try {
-      const emailResult = await emailService.sendPasswordResetEmail(email, tempPassword, user.name);
-
-      console.log(`✅ Email de recuperação enviado para: ${email}`);
-
-      return {
-        status: 200,
-        body: {
-          success: true,
-          message:
-            'Senha temporária enviada para seu email. Verifique sua caixa de entrada (e spam) e use-a para fazer login.',
-          expiresIn: '24 horas',
-          previewUrl: process.env.NODE_ENV === 'development' ? emailResult.previewUrl : undefined
-        }
-      };
-    } catch (emailError) {
-      console.error('Erro no envio de email:', emailError);
-
-      return {
-        status: 500,
-        body: {
-          success: false,
-          message:
-            'Erro no envio do email. Por favor, tente novamente. Se o problema persistir, entre em contato com o suporte.'
-        }
-      };
-    }
+    return {
+      status: 200,
+      body: {
+        success: true,
+        message: 'Senha redefinida com sucesso. Faça login com sua nova senha.'
+      }
+    };
   }
 
   static async changeTempPassword(userId, { currentPassword, newPassword }) {
