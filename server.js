@@ -1,8 +1,11 @@
+// Carregar variáveis de ambiente ANTES de importar qualquer módulo da app.
+// Serviços como email.service.js leem process.env na hora do require()
+// (instanciados como singleton), então se o dotenv carregasse depois, esses
+// módulos veriam as variáveis como undefined mesmo com o .env configurado.
+require('dotenv').config();
+
 const app = require('./src/app');
 const connectDB = require('./src/config/database');
-
-// Carregar variáveis de ambiente
-require('dotenv').config();
 
 const PORT = process.env.PORT || 3333;
 
