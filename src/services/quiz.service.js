@@ -6,6 +6,7 @@ const { invalidateCache } = require('../middlewares/cache');
 const { USER_LEVELS, POINTS, LIMITS } = require('../utils/constants');
 const { calculateRebalancedPoints, GAMIFICATION_CONSTANTS } = require('../utils/gamificationRebalanced');
 const { generateDailyChallengeConfig, getTodayChallengeInfo } = require('../utils/dailyChallengeGenerator');
+const { shuffleArray, shuffleQuestionOptions } = require('../utils/shuffle');
 
 class QuizService {
 
@@ -377,76 +378,99 @@ static async getDailyChallengeInfo() {
     } };
 }
 
+/**
+ * Monta (ou reaproveita) o quiz do tipo 'daily-challenge' de hoje, sorteando
+ * `count` questões distintas de um pool grande (todas as questões de módulos
+ * ativos) e embaralhando as alternativas de cada uma. Isso resolve dois
+ * problemas: (1) o desafio diário sempre repetia as mesmas ~5 perguntas fixas
+ * (sem rotação); (2) com um pool tão pequeno, a resposta certa acabava
+ * concentrada nas mesmas letras (ex.: sempre B).
+ */
+static async _regenerateDailyChallenge(existingDoc, config) {
+    const pool = await Quiz.aggregate([
+      { $match: { type: 'module', isActive: true } },
+      { $unwind: '$questions' },
+      {
+        $project: {
+          moduleId: 1,
+          level: 1,
+          question: '$questions'
+        }
+      }
+    ]);
+
+    if (pool.length === 0) {
+      return null;
+    }
+
+    const count = Math.min(config.questions, pool.length);
+    const selected = shuffleArray(pool).slice(0, count);
+
+    const questions = selected.map((item) => {
+      const shuffled = shuffleQuestionOptions(item.question);
+      return {
+        question: shuffled.question,
+        options: shuffled.options.map((option) => ({
+          id: option.id,
+          label: option.label,
+          isCorrect: option.isCorrect,
+          explanation: option.explanation
+        })),
+        category: shuffled.category,
+        difficulty: shuffled.difficulty || 'medio',
+        points: shuffled.points || 15
+      };
+    });
+
+    const sampleModuleId = selected[0].moduleId;
+    const sampleLevel = selected[0].level || 'aprendiz';
+
+    if (existingDoc) {
+      existingDoc.questions = questions;
+      existingDoc.timeLimit = config.timeLimit;
+      existingDoc.dailyChallengeDate = config.date;
+      existingDoc.isActive = true;
+      existingDoc.moduleId = existingDoc.moduleId || sampleModuleId;
+      existingDoc.level = existingDoc.level || sampleLevel;
+      await existingDoc.save();
+      return existingDoc;
+    }
+
+    return await Quiz.create({
+      title: 'Desafio Diário de Teoria Musical',
+      description: 'Teste seus conhecimentos musicais com o desafio especial de hoje!',
+      moduleId: sampleModuleId,
+      questions,
+      timeLimit: config.timeLimit,
+      level: sampleLevel,
+      type: 'daily-challenge',
+      isActive: true,
+      dailyChallengeDate: config.date
+    });
+}
+
 static async getDailyChallenge() {
     // Obter configuração do dia
     const config = generateDailyChallengeConfig();
-    
+
     // Buscar quiz marcado como desafio diário
-    const dailyQuiz = await Quiz.findOne({ 
-      type: 'daily-challenge',
-      isActive: true 
-    });
+    let dailyQuiz = await Quiz.findOne({ type: 'daily-challenge' });
 
-    if (!dailyQuiz) {
-      // Se não houver desafio específico, usar um quiz aleatório
-      const randomQuiz = await Quiz.aggregate([
-        { $match: { type: { $ne: 'daily-challenge' }, isActive: true } },
-        { $sample: { size: 1 } }
-      ]);
-
-      if (randomQuiz.length === 0) {
+    // Gera um novo conjunto de perguntas quando ainda não existe desafio
+    // salvo ou quando o salvo é de um dia anterior — garante rotação diária
+    // e evita que as mesmas perguntas/posições fiquem fixas para sempre.
+    if (!dailyQuiz || dailyQuiz.dailyChallengeDate !== config.date) {
+      const regenerated = await this._regenerateDailyChallenge(dailyQuiz, config);
+      if (regenerated) {
+        dailyQuiz = regenerated;
+      } else if (!dailyQuiz) {
         return { status: 404, body: {
           success: false,
           message: 'Nenhum quiz disponível para desafio diário'
         } };
       }
-
-      const quiz = randomQuiz[0];
-      
-      // Modificar para criar um desafio diário estruturado
-      const dailyChallengeQuiz = {
-        id: 'daily-challenge-mock',
-        title: 'Desafio Diário',
-        description: 'Teste seus conhecimentos musicais com perguntas selecionadas especialmente para hoje!',
-        category: quiz.category,
-        questions: quiz.questions
-          .slice(0, config.questions)
-          .map((question, questionIndex) => {
-            // Preservar a pergunta original
-            const enhancedQuestion = {
-              _id: question._id || `daily_q_${questionIndex}`,
-              question: question.question,
-              options: question.options.map((option, optionIndex) => ({
-                id: option.id || option._id || `daily_opt_${questionIndex}_${optionIndex}`,
-                label: option.label,
-                isCorrect: option.isCorrect // Preservar a resposta correta para validação
-              })),
-              explanation: question.explanation || 'Esta questão testa seu conhecimento de teoria musical fundamental.',
-              category: question.category || quiz.category,
-              difficulty: question.difficulty || 'medio',
-              points: question.points || 15 // Mais pontos para desafio diário
-            };
-            
-            // Log detalhado para depuração
-            console.log(`📝 Questão ${questionIndex + 1} do desafio:`, {
-              pergunta: enhancedQuestion.question.substring(0, 30) + '...',
-              categoria: enhancedQuestion.category,
-              dificuldade: enhancedQuestion.difficulty,
-              pontos: enhancedQuestion.points,
-              opcoes: enhancedQuestion.options.length
-            });
-            
-            return enhancedQuestion;
-          }),
-        timeLimit: config.timeLimit, // Tempo dinâmico baseado no dia
-        level: quiz.level,
-        type: 'daily-challenge'
-      };
-
-      return { status: 200, body: {
-        success: true,
-        dailyChallenge: dailyChallengeQuiz
-      } };
+      // Se a regeneração falhar mas já existir um desafio salvo de dia
+      // anterior, seguimos usando-o como fallback em vez de falhar a request.
     }
 
     // Retornar desafio diário real com estrutura melhorada
@@ -508,7 +532,10 @@ static async validateQuestion(quizId, questionIndex, selectedAnswer) {
     // Converter para número para garantir comparação consistente
     const selectedAnswerIndex = Number(selectedAnswer);
 
-    // Tratar desafio diário mock
+    // Tratar desafio diário mock (compatibilidade com apps antigos que ainda
+    // enviam esse id fixo). Em vez de usar perguntas fixas embutidas no
+    // código — que ficavam com a resposta certa quase sempre em B — busca o
+    // desafio diário real gravado no banco, que é sorteado e embaralhado.
     if (quizId === 'daily-challenge-mock') {
       // ✅ VALIDAÇÃO: Converter questionIndex para número e validar
       const questionIdx = parseInt(questionIndex);
@@ -520,63 +547,12 @@ static async validateQuestion(quizId, questionIndex, selectedAnswer) {
           message: `Índice de questão inválido: ${questionIndex}`
         } };
       }
-      
-      // Para o mock, usar dados simulados com 5 questões para evitar erro de índice inválido
-      const mockQuestions = [
-        {
-          question: "Qual é a duração de uma semibreve?",
-          options: [
-            { label: "1 tempo", isCorrect: false },
-            { label: "2 tempos", isCorrect: false },
-            { label: "4 tempos", isCorrect: true },
-            { label: "8 tempos", isCorrect: false }
-          ],
-          explanation: "A semibreve é a figura musical de maior duração no sistema tradicional, valendo 4 tempos em um compasso quaternário."
-        },
-        {
-          question: "Quantas linhas tem a pauta musical?",
-          options: [
-            { label: "4 linhas", isCorrect: false },
-            { label: "5 linhas", isCorrect: true },
-            { label: "6 linhas", isCorrect: false },
-            { label: "7 linhas", isCorrect: false }
-          ],
-          explanation: "A pauta musical tradicional possui 5 linhas e 4 espaços onde são escritas as notas musicais."
-        },
-        {
-          question: "Qual símbolo musical indica que devemos tocar suavemente?",
-          options: [
-            { label: "f (forte)", isCorrect: false },
-            { label: "p (piano)", isCorrect: true },
-            { label: "m (mezzo)", isCorrect: false },
-            { label: "s (suave)", isCorrect: false }
-          ],
-          explanation: "O termo 'piano' (p) em italiano significa suave e indica que o trecho deve ser tocado com pouca intensidade."
-        },
-        {
-          question: "Qual é o intervalo entre as notas Dó e Sol?",
-          options: [
-            { label: "3ª Maior", isCorrect: false },
-            { label: "4ª Justa", isCorrect: false },
-            { label: "5ª Justa", isCorrect: true },
-            { label: "6ª Menor", isCorrect: false }
-          ],
-          explanation: "O intervalo entre Dó e Sol é uma 5ª Justa, pois contém 5 graus diatônicos (Dó, Ré, Mi, Fá, Sol)."
-        },
-        {
-          question: "Qual a figura musical que vale metade de uma semínima?",
-          options: [
-            { label: "Mínima", isCorrect: false },
-            { label: "Colcheia", isCorrect: true },
-            { label: "Semicolcheia", isCorrect: false },
-            { label: "Fusa", isCorrect: false }
-          ],
-          explanation: "A colcheia vale metade do valor de uma semínima. Se a semínima vale um tempo, a colcheia vale meio tempo."
-        }
-      ];
+
+      const dailyQuiz = await Quiz.findOne({ type: 'daily-challenge' });
+      const mockQuestions = dailyQuiz ? dailyQuiz.questions : [];
 
       // ✅ VALIDAÇÃO ROBUSTA: Verificar se o índice está dentro do array
-      if (questionIdx >= mockQuestions.length) {
+      if (mockQuestions.length === 0 || questionIdx >= mockQuestions.length) {
         console.error(`❌ Índice de questão ${questionIdx} inválido para desafio diário (max: ${mockQuestions.length - 1})`);
         return { status: 400, body: {
           success: false,
@@ -701,28 +677,11 @@ static async submitQuiz(quizId, { answers, timeSpent }) {
       } };
     }
 
-    // Tratar desafio diário mock
+    // Tratar desafio diário mock (compatibilidade com apps antigos) — usa o
+    // desafio diário real gravado no banco em vez de perguntas fixas.
     if (quizId === 'daily-challenge-mock') {
-      const mockQuestions = [
-        {
-          question: "Qual é a duração de uma semibreve?",
-          options: [
-            { label: "1 tempo", isCorrect: false },
-            { label: "2 tempos", isCorrect: false },
-            { label: "4 tempos", isCorrect: true },
-            { label: "8 tempos", isCorrect: false }
-          ]
-        },
-        {
-          question: "Quantas linhas tem a pauta musical?",
-          options: [
-            { label: "4 linhas", isCorrect: false },
-            { label: "5 linhas", isCorrect: true },
-            { label: "6 linhas", isCorrect: false },
-            { label: "7 linhas", isCorrect: false }
-          ]
-        }
-      ];
+      const dailyQuiz = await Quiz.findOne({ type: 'daily-challenge' });
+      const mockQuestions = dailyQuiz ? dailyQuiz.questions : [];
 
       let score = 0;
       const totalQuestions = mockQuestions.length;

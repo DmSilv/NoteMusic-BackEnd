@@ -64,6 +64,13 @@ const quizSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  // Data (YYYY-MM-DD) em que este desafio diário foi gerado. Usado só em
+  // documentos type: 'daily-challenge' para saber quando é preciso sortear
+  // um novo conjunto de perguntas.
+  dailyChallengeDate: {
+    type: String,
+    default: null
+  },
   // Estatísticas
   totalAttempts: {
     type: Number,

@@ -45,3 +45,6 @@ test-*.js
 
 # Backups com possível PII
 scripts/backups/*.json
+
+# Relatórios de auditoria gerados localmente (não são código-fonte)
+scripts/audit-report-*.json

@@ -86,7 +86,9 @@ const passwordResetLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
-if (process.env.NODE_ENV !== 'test') {
+// Só aplica o limite de recuperação de senha em produção. Em desenvolvimento/teste
+// isso travava os testes manuais por 1 hora a cada poucas tentativas.
+if (process.env.NODE_ENV === 'production') {
   app.use('/api/auth/forgotpassword', passwordResetLimiter);
   app.use('/api/auth/resetpassword', passwordResetLimiter);
 }
