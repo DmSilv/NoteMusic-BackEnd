@@ -22,6 +22,8 @@
 
 **Nota de segurança: 4,5 / 10** — fundamentos presentes, falhas críticas em quiz e senhas.
 
+> **Atualização (mesma sessão):** correções Críticas/Altas de baixo risco foram implementadas localmente (gabarito do desafio diário, hash no update de perfil, bloqueio de `level`, rate limit, remoção de `test-login.json`, app sem salvar/logar senha, restore do cadastro). Após deploy dessas mudanças, a nota estimada sobe para ~**6,5 / 10**, ainda limitada por JWT sem revogação, token em AsyncStorage e ausência de AuthGate completo. `npm test` **não foi executado** nesta máquina (Node.js/npm não instalados) — rode localmente antes do deploy.
+
 ---
 
 ## Problemas encontrados
