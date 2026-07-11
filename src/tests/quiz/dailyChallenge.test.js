@@ -36,7 +36,7 @@ async function seedModuleQuizzes(totalQuestions = 40) {
 }
 
 describe('QuizService.getDailyChallenge — geração dinâmica', () => {
-  it('gera o desafio embaralhando as alternativas e preservando qual é a correta', async () => {
+  it('gera o desafio embaralhando as alternativas e NÃO expõe isCorrect na API', async () => {
     await seedModuleQuizzes();
 
     const result = await QuizService.getDailyChallenge();
@@ -46,8 +46,14 @@ describe('QuizService.getDailyChallenge — geração dinâmica', () => {
     expect(dailyChallenge.questions.length).toBeGreaterThan(0);
     dailyChallenge.questions.forEach((q) => {
       expect(q.options).toHaveLength(4);
-      expect(q.options.filter((o) => o.isCorrect)).toHaveLength(1);
+      q.options.forEach((o) => {
+        expect(o.isCorrect).toBeUndefined();
+      });
     });
+
+    // Gabarito permanece apenas no banco (para validação no submit)
+    const stored = await Quiz.findOne({ type: 'daily-challenge' });
+    expect(stored.questions[0].options.some((o) => o.isCorrect === true)).toBe(true);
   });
 
   it('mantém o mesmo conjunto de perguntas ao chamar novamente no mesmo dia', async () => {

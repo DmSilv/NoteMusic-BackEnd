@@ -486,8 +486,8 @@ static async getDailyChallenge() {
           question: question.question,
           options: question.options.map((option, optionIndex) => ({
             id: option.id || option._id || `daily_real_opt_${questionIndex}_${optionIndex}`,
-            label: option.label,
-            isCorrect: option.isCorrect // Preservar para validação
+            label: option.label
+            // isCorrect NÃO é exposto na API pública — validação só no servidor
           })),
           explanation: question.explanation || 'Esta questão testa aspectos importantes da teoria musical.',
           category: question.category || dailyQuiz.category,
@@ -1200,8 +1200,12 @@ static async submitQuizPrivate(userId, quizId, { answers, timeSpent }) {
 }
 
 static async getQuizHistory(userId, { page = 1, limit = 10 } = {}) {
-    
-    
+    const { LIMITS } = require('../utils/constants');
+    const safeLimit = Math.min(
+      Math.max(parseInt(limit, 10) || LIMITS.DEFAULT_PAGE_LIMIT, 1),
+      LIMITS.MAX_PAGE_LIMIT
+    );
+    const safePage = Math.max(parseInt(page, 10) || 1, 1);
 
     const user = await User.findById(userId)
       .populate('completedQuizzes.quizId', 'title category level');
@@ -1215,21 +1219,21 @@ static async getQuizHistory(userId, { page = 1, limit = 10 } = {}) {
 
     // Ordenar por data (mais recente primeiro) e paginar
     const totalQuizzes = user.completedQuizzes.length;
-    const skip = (page - 1) * limit;
+    const skip = (safePage - 1) * safeLimit;
     
     const paginatedQuizzes = user.completedQuizzes
       .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-      .slice(skip, skip + limit);
+      .slice(skip, skip + safeLimit);
 
     return { status: 200, body: {
       success: true,
       quizzes: paginatedQuizzes,
       pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalQuizzes / limit),
+        currentPage: safePage,
+        totalPages: Math.ceil(totalQuizzes / safeLimit) || 0,
         totalQuizzes,
-        hasNextPage: page < Math.ceil(totalQuizzes / limit),
-        hasPrevPage: page > 1
+        hasNextPage: safePage < Math.ceil(totalQuizzes / safeLimit),
+        hasPrevPage: safePage > 1
       }
     } };
 }
