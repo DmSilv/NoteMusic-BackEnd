@@ -61,11 +61,15 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Rate limiting específico para Auth
+// Rate limiting específico para Auth (anti brute-force)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
-  message: 'Muitas tentativas, tente novamente mais tarde',
+  max: 20,
+  message: {
+    success: false,
+    message: 'Muitas tentativas, tente novamente mais tarde',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
   standardHeaders: true,
   legacyHeaders: false
 });
@@ -101,22 +105,36 @@ const statsLimiter = rateLimit({
 });
 app.use('/api/users/stats', statsLimiter);
 
-// Body parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body parsers — limite explícito contra payloads grandes
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Health check principal
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: 'API NoteMusic funcionando!',
+const mongoose = require('mongoose');
+
+function buildHealthPayload() {
+  const dbState = mongoose.connection.readyState;
+  // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  const dbOk = dbState === 1;
+  return {
+    status: dbOk ? 'OK' : 'DEGRADED',
+    message: dbOk ? 'API NoteMusic funcionando!' : 'API no ar, mas MongoDB indisponível',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0'
-  });
+    version: '1.0.0',
+    database: {
+      connected: dbOk,
+      readyState: dbState
+    }
+  };
+}
+
+// Health check principal (inclui readiness do MongoDB)
+app.get('/api/health', (req, res) => {
+  const payload = buildHealthPayload();
+  res.status(payload.database.connected ? 200 : 503).json(payload);
 });
 
-// Health check alternativo
+// Health check alternativo (liveness leve — processo vivo)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });

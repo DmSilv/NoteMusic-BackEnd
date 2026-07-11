@@ -568,6 +568,12 @@ class GamificationService {
   }
 
   static async getLeaderboard(userId, userTotalPoints, userStreak, { period = 'all', limit = 10 } = {}) {
+    const { LIMITS } = require('../utils/constants');
+    const safeLimit = Math.min(
+      Math.max(parseInt(limit, 10) || LIMITS.DEFAULT_PAGE_LIMIT, 1),
+      LIMITS.MAX_PAGE_LIMIT
+    );
+
     let dateFilter = {};
     const now = new Date();
 
@@ -592,12 +598,12 @@ class GamificationService {
       User.find({ isActive: true, ...dateFilter })
         .select('name totalPoints level')
         .sort({ totalPoints: -1 })
-        .limit(parseInt(limit))
+        .limit(safeLimit)
         .lean(),
       User.find({ isActive: true, streak: { $gt: 0 } })
         .select('name streak level')
         .sort({ streak: -1 })
-        .limit(parseInt(limit))
+        .limit(safeLimit)
         .lean(),
       User.countDocuments({
         isActive: true,
