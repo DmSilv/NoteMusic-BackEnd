@@ -1,0 +1,595 @@
+{
+  "version": 1,
+  "categories": [
+    "solfegio-basico",
+    "figuras-musicais",
+    "compasso-simples",
+    "andamento-dinamica",
+    "propriedades-som",
+    "escalas-maiores",
+    "intervalos-musicais",
+    "articulacao-musical",
+    "expressao-musical",
+    "sincopa-contratempo",
+    "compasso-composto",
+    "ritmo-ternarios"
+  ],
+  "facts": [
+    {
+      "id": "notas-7-escala",
+      "category": "solfegio-basico",
+      "difficulty": "facil",
+      "fact": "A escala natural básica tem 7 notas: Dó, Ré, Mi, Fá, Sol, Lá e Si.",
+      "answer": "7 notas",
+      "distractors": ["5 notas", "6 notas", "8 notas"],
+      "questionTemplates": [
+        "Quantas notas musicais formam a escala natural básica (Dó a Si)?",
+        "De Dó a Si, quantas notas formam a escala natural básica?"
+      ],
+      "explanation": "A escala natural básica tem 7 notas: Dó, Ré, Mi, Fá, Sol, Lá e Si.",
+      "keywords": ["7", "sete", "escala"]
+    },
+    {
+      "id": "nota-apos-do",
+      "category": "solfegio-basico",
+      "difficulty": "facil",
+      "fact": "Na escala natural, depois de Dó vem Ré.",
+      "answer": "Ré",
+      "distractors": ["Si", "Mi", "Lá"],
+      "questionTemplates": [
+        "Qual nota vem imediatamente depois de Dó na escala natural?",
+        "Na sequência natural ascendente, o que vem logo após Dó?"
+      ],
+      "explanation": "Na escala natural, a sequência ascendente após Dó é Ré.",
+      "keywords": ["dó", "ré", "depois"]
+    },
+    {
+      "id": "nota-antes-si",
+      "category": "solfegio-basico",
+      "difficulty": "facil",
+      "fact": "Na escala natural, Lá vem imediatamente antes de Si.",
+      "answer": "Lá",
+      "distractors": ["Sol", "Fá", "Ré"],
+      "questionTemplates": [
+        "Qual nota vem imediatamente antes de Si na escala natural?",
+        "Na escala natural, qual nota precede Si?"
+      ],
+      "explanation": "Na escala natural, Lá vem imediatamente antes de Si.",
+      "keywords": ["lá", "si", "antes"]
+    },
+    {
+      "id": "clave-sol-segunda-linha",
+      "category": "solfegio-basico",
+      "difficulty": "facil",
+      "fact": "Na clave de Sol, a segunda linha da pauta representa a nota Sol.",
+      "answer": "Sol",
+      "distractors": ["Fá", "Ré", "Lá"],
+      "questionTemplates": [
+        "Na clave de Sol, qual nota fica na segunda linha da pauta?",
+        "A segunda linha da pauta, em clave de Sol, representa qual nota?"
+      ],
+      "explanation": "Na clave de Sol, a segunda linha da pauta representa a nota Sol.",
+      "keywords": ["sol", "segunda", "clave"]
+    },
+    {
+      "id": "clave-sol-uso",
+      "category": "solfegio-basico",
+      "difficulty": "facil",
+      "fact": "A clave de Sol é a mais comum para instrumentos agudos como violino e flauta.",
+      "answer": "Clave de Sol",
+      "distractors": ["Clave de Fá", "Clave de Dó", "Sem clave"],
+      "questionTemplates": [
+        "Qual clave é mais usada para instrumentos agudos como violino e flauta?",
+        "Instrumentos agudos como violino e flauta costumam usar qual clave?"
+      ],
+      "explanation": "A clave de Sol é a mais comum para instrumentos de registro agudo, como violino e flauta.",
+      "keywords": ["clave", "sol", "agudo"]
+    },
+    {
+      "id": "clave-funcao",
+      "category": "solfegio-basico",
+      "difficulty": "medio",
+      "fact": "A clave define qual nota corresponde às linhas e espaços da pauta.",
+      "answer": "Definir qual nota corresponde às linhas e espaços da pauta",
+      "distractors": [
+        "Indicar o andamento da música",
+        "Marcar o volume da execução",
+        "Separar os compassos"
+      ],
+      "questionTemplates": [
+        "Para que serve uma clave musical na pauta?",
+        "Qual é a função principal da clave na pauta?"
+      ],
+      "explanation": "A clave indica a altura das notas — define qual nota cada linha ou espaço representa.",
+      "keywords": ["clave", "pauta", "nota"]
+    },
+    {
+      "id": "semibreve-4-tempos",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "A semibreve dura 4 tempos no compasso 4/4.",
+      "answer": "Semibreve",
+      "distractors": ["Mínima", "Semínima", "Colcheia"],
+      "questionTemplates": [
+        "Qual figura musical dura 4 tempos no compasso 4/4?",
+        "No compasso 4/4, qual figura vale 4 tempos?"
+      ],
+      "explanation": "A semibreve dura 4 tempos — é a figura de maior duração no sistema básico.",
+      "keywords": ["semibreve", "4", "tempos"]
+    },
+    {
+      "id": "seminimas-na-semibreve",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "Cabem 4 semínimas no valor de uma semibreve.",
+      "answer": "4 semínimas",
+      "distractors": ["2 semínimas", "3 semínimas", "8 semínimas"],
+      "questionTemplates": [
+        "Quantas semínimas cabem no valor de uma semibreve?",
+        "Uma semibreve equivale a quantas semínimas?"
+      ],
+      "explanation": "Uma semibreve vale 4 tempos; cada semínima vale 1 tempo. Portanto, cabem 4 semínimas.",
+      "keywords": ["4", "semínima", "semibreve"]
+    },
+    {
+      "id": "colcheia-metade-seminima",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "A colcheia vale metade de uma semínima.",
+      "answer": "Colcheia",
+      "distractors": ["Mínima", "Semicolcheia", "Semibreve"],
+      "questionTemplates": [
+        "Qual figura musical vale metade de uma semínima?",
+        "A metade do valor de uma semínima corresponde a qual figura?"
+      ],
+      "explanation": "A colcheia vale metade da semínima: se a semínima vale 1 tempo, a colcheia vale meio tempo.",
+      "keywords": ["colcheia", "metade", "semínima"]
+    },
+    {
+      "id": "minima-2-tempos",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "A mínima dura 2 tempos no compasso 4/4.",
+      "answer": "Mínima",
+      "distractors": ["Semibreve", "Semínima", "Colcheia"],
+      "questionTemplates": [
+        "Qual figura musical dura 2 tempos no compasso 4/4?",
+        "No compasso 4/4, qual figura vale 2 tempos?"
+      ],
+      "explanation": "A mínima vale 2 tempos no compasso 4/4.",
+      "keywords": ["mínima", "2", "tempos"]
+    },
+    {
+      "id": "sustenido-sobe",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "O sustenido (♯) eleva a nota em meio tom.",
+      "answer": "Sobe meio tom",
+      "distractors": ["Abaixa meio tom", "Dobra a duração", "Cancela a nota"],
+      "questionTemplates": [
+        "O que o símbolo ♯ (sustenido) faz com uma nota?",
+        "Qual é o efeito do sustenido sobre a altura de uma nota?"
+      ],
+      "explanation": "O sustenido eleva a nota em meio tom, tornando-a mais aguda.",
+      "keywords": ["sustenido", "meio", "tom"]
+    },
+    {
+      "id": "bemol-abaixa",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "O bemol (♭) abaixa a nota em meio tom.",
+      "answer": "Abaixa meio tom",
+      "distractors": ["Sobe meio tom", "Aumenta o volume", "Indica pausa"],
+      "questionTemplates": [
+        "O que o símbolo ♭ (bemol) faz com uma nota?",
+        "Qual é o efeito do bemol sobre a altura de uma nota?"
+      ],
+      "explanation": "O bemol abaixa a nota em meio tom, tornando-a mais grave.",
+      "keywords": ["bemol", "abaixa", "meio"]
+    },
+    {
+      "id": "becquadro-cancela",
+      "category": "figuras-musicais",
+      "difficulty": "medio",
+      "fact": "O becquadro (♮) cancela um acidente e volta a nota ao natural.",
+      "answer": "Cancelar um acidente e voltar à nota natural",
+      "distractors": [
+        "Elevar a nota em um tom",
+        "Indicar o fim da música",
+        "Marcar o compasso composto"
+      ],
+      "questionTemplates": [
+        "Para que serve o becquadro (♮) na partitura?",
+        "Qual é a função do becquadro em relação aos acidentes?"
+      ],
+      "explanation": "O becquadro cancela um sustenido ou bemol anterior, restaurando a nota natural.",
+      "keywords": ["becquadro", "cancela", "natural"]
+    },
+    {
+      "id": "compasso-4-4-superior",
+      "category": "compasso-simples",
+      "difficulty": "facil",
+      "fact": "No compasso 4/4, o número superior indica 4 tempos por compasso.",
+      "answer": "4 tempos por compasso",
+      "distractors": ["4 compassos na música", "4 notas por compasso", "4 instrumentos tocando"],
+      "questionTemplates": [
+        "No compasso 4/4, o que o número superior indica?",
+        "O que significa o 4 de cima na fórmula de compasso 4/4?"
+      ],
+      "explanation": "No compasso 4/4, o número de cima indica que há 4 tempos em cada compasso.",
+      "keywords": ["4", "tempos", "superior"]
+    },
+    {
+      "id": "valsa-3-4",
+      "category": "compasso-simples",
+      "difficulty": "facil",
+      "fact": "A valsa usa tradicionalmente o compasso 3/4.",
+      "answer": "3/4",
+      "distractors": ["2/4", "4/4", "6/8"],
+      "questionTemplates": [
+        "Qual compasso é tradicionalmente usado na valsa?",
+        "A valsa costuma ser escrita em qual fórmula de compasso?"
+      ],
+      "explanation": "A valsa usa o compasso 3/4, com três tempos por compasso e acento no primeiro tempo.",
+      "keywords": ["valsa", "3/4", "compasso"]
+    },
+    {
+      "id": "acento-tempo-1",
+      "category": "compasso-simples",
+      "difficulty": "facil",
+      "fact": "No compasso 4/4, o acento principal costuma cair no tempo 1.",
+      "answer": "Tempo 1",
+      "distractors": ["Tempo 2", "Tempo 3", "Tempo 4"],
+      "questionTemplates": [
+        "No compasso 4/4, em qual tempo costuma cair o acento principal?",
+        "Qual tempo recebe a batida forte no compasso 4/4?"
+      ],
+      "explanation": "No compasso 4/4, o tempo 1 recebe o acento principal (batida forte).",
+      "keywords": ["tempo", "1", "acento"]
+    },
+    {
+      "id": "dinamica-f",
+      "category": "andamento-dinamica",
+      "difficulty": "facil",
+      "fact": "O símbolo \"f\" indica tocar forte (alto).",
+      "answer": "Tocar forte (alto)",
+      "distractors": ["Tocar rápido", "Tocar lento", "Tocar suave"],
+      "questionTemplates": [
+        "O que indica o símbolo \"f\" na partitura?",
+        "Na dinâmica musical, o que significa \"f\"?"
+      ],
+      "explanation": "\"f\" significa forte — o trecho deve ser tocado com volume alto.",
+      "keywords": ["f", "forte", "volume"]
+    },
+    {
+      "id": "dinamica-p",
+      "category": "andamento-dinamica",
+      "difficulty": "facil",
+      "fact": "O símbolo \"p\" indica tocar piano (suave).",
+      "answer": "Tocar piano (suave)",
+      "distractors": ["Tocar forte", "Tocar rápido", "Tocar lento"],
+      "questionTemplates": [
+        "O que indica o símbolo \"p\" na partitura?",
+        "Na dinâmica musical, o que significa \"p\"?"
+      ],
+      "explanation": "\"p\" significa piano — o trecho deve ser tocado com volume baixo.",
+      "keywords": ["p", "piano", "suave"]
+    },
+    {
+      "id": "dinamica-mf",
+      "category": "andamento-dinamica",
+      "difficulty": "facil",
+      "fact": "\"mf\" significa mezzo-forte (médio-forte).",
+      "answer": "Mezzo-forte (médio-forte)",
+      "distractors": ["Muito forte", "Muito suave", "Mezzo-piano"],
+      "questionTemplates": [
+        "O que significa \"mf\" em dinâmica musical?",
+        "Na partitura, \"mf\" indica qual intensidade?"
+      ],
+      "explanation": "\"mf\" significa mezzo-forte — volume médio-alto, entre piano e forte.",
+      "keywords": ["mf", "mezzo", "forte"]
+    },
+    {
+      "id": "altura-frequencia",
+      "category": "propriedades-som",
+      "difficulty": "facil",
+      "fact": "A frequência do som determina se ele é grave ou agudo.",
+      "answer": "A frequência do som",
+      "distractors": ["O volume do som", "A duração da nota", "O timbre do instrumento"],
+      "questionTemplates": [
+        "O que determina se um som é grave ou agudo?",
+        "Qual propriedade física está ligada ao grave e ao agudo?"
+      ],
+      "explanation": "Quanto maior a frequência, mais agudo é o som; quanto menor, mais grave.",
+      "keywords": ["frequência", "grave", "agudo"]
+    },
+    {
+      "id": "propriedade-altura",
+      "category": "propriedades-som",
+      "difficulty": "facil",
+      "fact": "Altura é a propriedade que distingue sons graves de agudos.",
+      "answer": "Altura",
+      "distractors": ["Intensidade", "Timbre", "Duração"],
+      "questionTemplates": [
+        "Como chamamos a propriedade do som que nos permite distinguir um som grave de um agudo?",
+        "Qual propriedade do som diferencia grave e agudo?"
+      ],
+      "explanation": "A altura é a propriedade que diferencia sons graves dos agudos.",
+      "keywords": ["altura", "grave", "agudo"]
+    },
+    {
+      "id": "escala-maior-formula",
+      "category": "escalas-maiores",
+      "difficulty": "medio",
+      "fact": "A escala maior segue a sequência T-T-S-T-T-T-S.",
+      "answer": "T-T-S-T-T-T-S",
+      "distractors": ["T-S-T-T-S-T-T", "S-T-T-S-T-T-T", "T-T-T-S-T-T-S"],
+      "questionTemplates": [
+        "Qual é a sequência de intervalos que forma uma escala maior?",
+        "A fórmula de tons e semitons da escala maior é qual?"
+      ],
+      "explanation": "A escala maior segue: Tom-Tom-Semiton-Tom-Tom-Tom-Semiton (T = tom, S = semitom).",
+      "keywords": ["T-T-S", "escala", "maior"]
+    },
+    {
+      "id": "sol-maior-fa-sustenido",
+      "category": "escalas-maiores",
+      "difficulty": "medio",
+      "fact": "Sol maior possui Fá sustenido na armadura de clave.",
+      "answer": "Fá sustenido",
+      "distractors": ["Si bemol", "Dó sustenido", "Mi bemol"],
+      "questionTemplates": [
+        "Uma música em Sol maior possui qual acidente na armadura de clave?",
+        "Qual acidente aparece na armadura de Sol maior?"
+      ],
+      "explanation": "A tonalidade de Sol maior possui um sustenido na armadura: Fá sustenido.",
+      "keywords": ["sol", "fá", "sustenido"]
+    },
+    {
+      "id": "do-maior-sem-acidente",
+      "category": "escalas-maiores",
+      "difficulty": "facil",
+      "fact": "Dó maior não possui acidentes na armadura.",
+      "answer": "Nenhum acidente",
+      "distractors": ["Um sustenido", "Um bemol", "Dois sustenidos"],
+      "questionTemplates": [
+        "Quantos acidentes possui a armadura de clave de Dó maior?",
+        "A armadura de Dó maior tem quantos acidentes?"
+      ],
+      "explanation": "Dó maior não possui acidentes na armadura — todas as notas são naturais.",
+      "keywords": ["dó", "maior", "nenhum"]
+    },
+    {
+      "id": "intervalo-do-mi",
+      "category": "intervalos-musicais",
+      "difficulty": "medio",
+      "fact": "O intervalo entre Dó e Mi é uma terça.",
+      "answer": "Terça",
+      "distractors": ["Segunda", "Quarta", "Quinta"],
+      "questionTemplates": [
+        "Qual é o intervalo entre as notas Dó e Mi?",
+        "De Dó até Mi forma-se qual intervalo?"
+      ],
+      "explanation": "De Dó até Mi há três graus diatônicos (Dó-Ré-Mi), formando um intervalo de terça.",
+      "keywords": ["dó", "mi", "terça"]
+    },
+    {
+      "id": "intervalo-do-sol",
+      "category": "intervalos-musicais",
+      "difficulty": "medio",
+      "fact": "O intervalo entre Dó e Sol é uma quinta.",
+      "answer": "Quinta",
+      "distractors": ["Quarta", "Terça", "Sexta"],
+      "questionTemplates": [
+        "Qual é o intervalo entre as notas Dó e Sol?",
+        "De Dó até Sol forma-se qual intervalo?"
+      ],
+      "explanation": "De Dó até Sol há cinco graus diatônicos, formando um intervalo de quinta justa.",
+      "keywords": ["dó", "sol", "quinta"]
+    },
+    {
+      "id": "terca-maior-consonante",
+      "category": "intervalos-musicais",
+      "difficulty": "medio",
+      "fact": "A terça maior é um intervalo consonante na música tonal.",
+      "answer": "Terça maior",
+      "distractors": ["Segunda menor", "Sétima menor", "Segunda aumentada"],
+      "questionTemplates": [
+        "Qual destes intervalos é uma terça consonante na música tonal?",
+        "Entre as opções, qual intervalo consonante é uma terça?"
+      ],
+      "explanation": "A terça maior é um intervalo consonante — soa estável na música tonal.",
+      "keywords": ["terça", "maior", "consonante"]
+    },
+    {
+      "id": "triade-do-mi-sol",
+      "category": "intervalos-musicais",
+      "difficulty": "medio",
+      "fact": "O acorde Dó-Mi-Sol é uma tríade maior.",
+      "answer": "Tríade maior",
+      "distractors": ["Tríade menor", "Tríade diminuta", "Tríade aumentada"],
+      "questionTemplates": [
+        "O acorde formado pelas notas Dó-Mi-Sol é de qual tipo?",
+        "Dó-Mi-Sol forma qual tipo de tríade?"
+      ],
+      "explanation": "Dó-Mi-Sol é uma tríade maior: terça maior (Dó-Mi) e quinta justa (Dó-Sol).",
+      "keywords": ["dó", "tríade", "maior"]
+    },
+    {
+      "id": "staccato",
+      "category": "articulacao-musical",
+      "difficulty": "medio",
+      "fact": "Staccato indica notas curtas e destacadas.",
+      "answer": "Notas curtas e destacadas",
+      "distractors": ["Notas longas e ligadas", "Aumento gradual de volume", "Andamento muito lento"],
+      "questionTemplates": [
+        "O que o staccato indica na execução musical?",
+        "Qual efeito articula o staccato nas notas?"
+      ],
+      "explanation": "Staccato pede notas curtas, separadas e destacadas umas das outras.",
+      "keywords": ["staccato", "curtas", "destacadas"]
+    },
+    {
+      "id": "legato",
+      "category": "articulacao-musical",
+      "difficulty": "medio",
+      "fact": "Legato indica notas ligadas, tocadas de forma contínua.",
+      "answer": "Notas ligadas e contínuas",
+      "distractors": ["Notas curtas e secas", "Pausa longa entre frases", "Mudança brusca de tom"],
+      "questionTemplates": [
+        "O que o legato indica na execução musical?",
+        "Qual articulação pede notas ligadas e contínuas?"
+      ],
+      "explanation": "Legato pede que as notas sejam ligadas, sem interrupção perceptível entre elas.",
+      "keywords": ["legato", "ligadas", "contínuas"]
+    },
+    {
+      "id": "crescendo",
+      "category": "expressao-musical",
+      "difficulty": "facil",
+      "fact": "Crescendo indica aumento gradual de volume.",
+      "answer": "Aumento gradual de volume",
+      "distractors": ["Diminuição gradual de volume", "Aceleração do andamento", "Notas cada vez mais curtas"],
+      "questionTemplates": [
+        "O que significa crescendo na partitura?",
+        "Crescendo indica qual mudança na execução?"
+      ],
+      "explanation": "Crescendo pede que o volume aumente gradualmente.",
+      "keywords": ["crescendo", "aumento", "volume"]
+    },
+    {
+      "id": "diminuendo",
+      "category": "expressao-musical",
+      "difficulty": "facil",
+      "fact": "Diminuendo (ou decrescendo) indica diminuição gradual de volume.",
+      "answer": "Diminuição gradual de volume",
+      "distractors": ["Aumento gradual de volume", "Aceleração do tempo", "Mudança de clave"],
+      "questionTemplates": [
+        "O que significa diminuendo na partitura?",
+        "Diminuendo indica qual mudança na execução?"
+      ],
+      "explanation": "Diminuendo pede que o volume diminua gradualmente.",
+      "keywords": ["diminuendo", "diminuição", "volume"]
+    },
+    {
+      "id": "sincopa-deslocamento",
+      "category": "sincopa-contratempo",
+      "difficulty": "dificil",
+      "fact": "Síncopa é o deslocamento do acento para um tempo fraco ou parte fraca do tempo.",
+      "answer": "Deslocar o acento para tempo fraco",
+      "distractors": [
+        "Tocar todas as notas no tempo forte",
+        "Usar apenas compassos compostos",
+        "Aumentar o volume no final da frase"
+      ],
+      "questionTemplates": [
+        "O que caracteriza a síncopa na música?",
+        "A síncopa ocorre quando o acento é deslocado de que forma?"
+      ],
+      "explanation": "Na síncopa, o acento sai do tempo forte e cai em tempo fraco ou na parte fraca do tempo.",
+      "keywords": ["síncopa", "acento", "fraco"]
+    },
+    {
+      "id": "contratempo",
+      "category": "sincopa-contratempo",
+      "difficulty": "dificil",
+      "fact": "Contratempo enfatiza as partes fracas do tempo, com silêncio ou ausência de ataque no tempo forte.",
+      "answer": "Enfatizar a parte fraca do tempo",
+      "distractors": [
+        "Marcar só o primeiro tempo do compasso",
+        "Tocar sem variação rítmica",
+        "Usar apenas figuras de semibreve"
+      ],
+      "questionTemplates": [
+        "O que é típico do contratempo?",
+        "No contratempo, o ataque costuma enfatizar o quê?"
+      ],
+      "explanation": "No contratempo, o ataque acontece na parte fraca, enquanto o tempo forte fica em silêncio ou sem ênfase.",
+      "keywords": ["contratempo", "fraca", "tempo"]
+    },
+    {
+      "id": "compasso-6-8",
+      "category": "compasso-composto",
+      "difficulty": "medio",
+      "fact": "O compasso 6/8 é um compasso composto com duas pulsaciones ternárias.",
+      "answer": "Compasso composto",
+      "distractors": ["Compasso simples binário", "Compasso irregular", "Sem fórmula de compasso"],
+      "questionTemplates": [
+        "O compasso 6/8 é classificado como qual tipo?",
+        "Como se classifica o compasso 6/8?"
+      ],
+      "explanation": "6/8 é compasso composto: cada tempo se subdivide em três partes iguais.",
+      "keywords": ["6/8", "composto", "compasso"]
+    },
+    {
+      "id": "andamento-adagio",
+      "category": "andamento-dinamica",
+      "difficulty": "medio",
+      "fact": "Adagio indica andamento lento.",
+      "answer": "Andamento lento",
+      "distractors": ["Andamento muito rápido", "Volume alto", "Articulação staccato"],
+      "questionTemplates": [
+        "O que indica a palavra Adagio na partitura?",
+        "Adagio se refere principalmente a qual aspecto da música?"
+      ],
+      "explanation": "Adagio é uma indicação de andamento lento.",
+      "keywords": ["adagio", "lento", "andamento"]
+    },
+    {
+      "id": "andamento-allegro",
+      "category": "andamento-dinamica",
+      "difficulty": "facil",
+      "fact": "Allegro indica andamento rápido e animado.",
+      "answer": "Andamento rápido e animado",
+      "distractors": ["Andamento bem lento", "Tocar apenas piano", "Usar só clave de Fá"],
+      "questionTemplates": [
+        "O que indica a palavra Allegro na partitura?",
+        "Allegro se refere principalmente a qual aspecto da música?"
+      ],
+      "explanation": "Allegro é uma indicação de andamento rápido e animado.",
+      "keywords": ["allegro", "rápido", "andamento"]
+    },
+    {
+      "id": "ritmo-ternario",
+      "category": "ritmo-ternarios",
+      "difficulty": "medio",
+      "fact": "Ritmo ternário organiza a pulsação em grupos de três.",
+      "answer": "Grupos de três",
+      "distractors": ["Grupos de dois", "Grupos de quatro", "Sem agrupamento regular"],
+      "questionTemplates": [
+        "O ritmo ternário organiza a pulsação em quê?",
+        "Qual agrupamento caracteriza o ritmo ternário?"
+      ],
+      "explanation": "No ritmo ternário, a pulsação se organiza em grupos de três tempos ou subdivisões.",
+      "keywords": ["ternário", "três", "grupos"]
+    },
+    {
+      "id": "seminima-1-tempo",
+      "category": "figuras-musicais",
+      "difficulty": "facil",
+      "fact": "A semínima vale 1 tempo no compasso 4/4.",
+      "answer": "1 tempo",
+      "distractors": ["2 tempos", "4 tempos", "Meio tempo"],
+      "questionTemplates": [
+        "Quanto vale a semínima no compasso 4/4?",
+        "No compasso 4/4, a semínima corresponde a quantos tempos?"
+      ],
+      "explanation": "No compasso 4/4, a semínima vale 1 tempo.",
+      "keywords": ["semínima", "1", "tempo"]
+    },
+    {
+      "id": "intensidade-volume",
+      "category": "propriedades-som",
+      "difficulty": "facil",
+      "fact": "Intensidade (ou volume) é a propriedade ligada ao forte e ao piano.",
+      "answer": "Intensidade",
+      "distractors": ["Altura", "Timbre", "Duração"],
+      "questionTemplates": [
+        "Qual propriedade do som está ligada ao forte e ao piano?",
+        "Forte e piano se referem principalmente a qual propriedade do som?"
+      ],
+      "explanation": "Intensidade (volume) diferencia sons fortes de sons suaves.",
+      "keywords": ["intensidade", "volume", "forte"]
+    }
+  ]
+}

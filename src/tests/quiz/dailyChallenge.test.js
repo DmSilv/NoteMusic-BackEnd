@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Quiz = require('../../models/quiz.model');
 const QuizService = require('../../services/quiz.service');
+const { generateDailyChallengeConfig } = require('../../utils/dailyChallengeGenerator');
 
 /**
  * Cria várias questões de módulo espalhadas em quizzes diferentes, para
@@ -52,7 +53,11 @@ describe('QuizService.getDailyChallenge — geração dinâmica', () => {
     });
 
     // Gabarito permanece apenas no banco (para validação no submit)
-    const stored = await Quiz.findOne({ type: 'daily-challenge' });
+    const config = generateDailyChallengeConfig();
+    const stored = await Quiz.findOne({
+      type: 'daily-challenge',
+      dailyChallengeDate: config.date
+    });
     expect(stored.questions[0].options.some((o) => o.isCorrect === true)).toBe(true);
   });
 
@@ -68,15 +73,14 @@ describe('QuizService.getDailyChallenge — geração dinâmica', () => {
     );
   });
 
-  it('sorteia um novo conjunto quando o desafio salvo é de um dia anterior', async () => {
+  it('cria um novo desafio do dia quando só existe pacote de data anterior', async () => {
     await seedModuleQuizzes();
 
     const first = await QuizService.getDailyChallenge();
+    const config = generateDailyChallengeConfig();
 
-    // Simula a "virada do dia": o desafio salvo passa a ser de uma data
-    // diferente da configuração atual, forçando a regeneração.
     await Quiz.updateOne(
-      { type: 'daily-challenge' },
+      { type: 'daily-challenge', dailyChallengeDate: config.date },
       { $set: { dailyChallengeDate: 'dia-anterior' } }
     );
 
@@ -85,19 +89,23 @@ describe('QuizService.getDailyChallenge — geração dinâmica', () => {
     const firstQuestions = first.body.dailyChallenge.questions.map((q) => q.question).sort();
     const secondQuestions = second.body.dailyChallenge.questions.map((q) => q.question).sort();
     expect(secondQuestions).not.toEqual(firstQuestions);
+    expect(String(second.body.dailyChallenge.id)).not.toBe(String(first.body.dailyChallenge.id));
   });
 
   it('distribui a resposta correta de forma equilibrada entre A/B/C/D ao longo de várias regenerações', async () => {
     await seedModuleQuizzes(60);
 
+    const config = generateDailyChallengeConfig();
     const positionCounts = [0, 0, 0, 0];
     for (let day = 0; day < 20; day++) {
-      await Quiz.updateOne(
-        { type: 'daily-challenge' },
-        { $set: { dailyChallengeDate: `dia-simulado-${day}` } }
-      );
+      await Quiz.deleteMany({
+        type: 'daily-challenge',
+        dailyChallengeDate: config.date
+      });
       const result = await QuizService.getDailyChallenge();
-      result.body.dailyChallenge.questions.forEach((q) => {
+      // Conta posição da correta no documento persistido (API não expõe isCorrect)
+      const stored = await Quiz.findById(result.body.dailyChallenge.id);
+      stored.questions.forEach((q) => {
         const idx = q.options.findIndex((o) => o.isCorrect);
         if (idx >= 0 && idx < 4) positionCounts[idx]++;
       });
@@ -115,5 +123,41 @@ describe('QuizService.getDailyChallenge — geração dinâmica', () => {
 
     expect(result.status).toBe(404);
     expect(result.body.success).toBe(false);
+  });
+
+  it('serve pacote semanal pré-gravado da data de hoje sem regenerar', async () => {
+    await seedModuleQuizzes();
+    const config = generateDailyChallengeConfig();
+    const moduleId = new mongoose.Types.ObjectId();
+
+    const prebuilt = await Quiz.create({
+      title: 'Desafio Diário de Teoria Musical',
+      description: 'Pacote semanal',
+      moduleId,
+      level: 'aprendiz',
+      type: 'daily-challenge',
+      isActive: true,
+      dailyChallengeDate: config.date,
+      timeLimit: 420,
+      questions: [
+        {
+          question: 'Pergunta pré-gerada da semana sobre escala natural básica?',
+          options: [
+            { id: 'A', label: '7 notas', isCorrect: true, explanation: 'ok' },
+            { id: 'B', label: '5 notas', isCorrect: false },
+            { id: 'C', label: '6 notas', isCorrect: false },
+            { id: 'D', label: '8 notas', isCorrect: false }
+          ],
+          category: 'solfegio-basico',
+          difficulty: 'facil',
+          points: 10
+        }
+      ]
+    });
+
+    const result = await QuizService.getDailyChallenge();
+    expect(result.status).toBe(200);
+    expect(String(result.body.dailyChallenge.id)).toBe(String(prebuilt._id));
+    expect(result.body.dailyChallenge.questions[0].question).toContain('pré-gerada');
   });
 });

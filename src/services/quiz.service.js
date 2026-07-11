@@ -386,7 +386,13 @@ static async getDailyChallengeInfo() {
  * (sem rotação); (2) com um pool tão pequeno, a resposta certa acabava
  * concentrada nas mesmas letras (ex.: sempre B).
  */
-static async _regenerateDailyChallenge(existingDoc, config) {
+static async _regenerateDailyChallenge(_existingDoc, config) {
+    // Sempre opera no documento DO DIA (semana pré-gerada pode ter 7 docs).
+    const existingForToday = await Quiz.findOne({
+      type: 'daily-challenge',
+      dailyChallengeDate: config.date
+    });
+
     const pool = await Quiz.aggregate([
       { $match: { type: 'module', isActive: true } },
       { $unwind: '$questions' },
@@ -425,15 +431,15 @@ static async _regenerateDailyChallenge(existingDoc, config) {
     const sampleModuleId = selected[0].moduleId;
     const sampleLevel = selected[0].level || 'aprendiz';
 
-    if (existingDoc) {
-      existingDoc.questions = questions;
-      existingDoc.timeLimit = config.timeLimit;
-      existingDoc.dailyChallengeDate = config.date;
-      existingDoc.isActive = true;
-      existingDoc.moduleId = existingDoc.moduleId || sampleModuleId;
-      existingDoc.level = existingDoc.level || sampleLevel;
-      await existingDoc.save();
-      return existingDoc;
+    if (existingForToday) {
+      existingForToday.questions = questions;
+      existingForToday.timeLimit = config.timeLimit;
+      existingForToday.dailyChallengeDate = config.date;
+      existingForToday.isActive = true;
+      existingForToday.moduleId = existingForToday.moduleId || sampleModuleId;
+      existingForToday.level = existingForToday.level || sampleLevel;
+      await existingForToday.save();
+      return existingForToday;
     }
 
     return await Quiz.create({
@@ -453,24 +459,24 @@ static async getDailyChallenge() {
     // Obter configuração do dia
     const config = generateDailyChallengeConfig();
 
-    // Buscar quiz marcado como desafio diário
-    let dailyQuiz = await Quiz.findOne({ type: 'daily-challenge' });
+    // Preferência: desafio da data de hoje (pacote semanal pré-gerado ou fallback).
+    let dailyQuiz = await Quiz.findOne({
+      type: 'daily-challenge',
+      dailyChallengeDate: config.date
+    });
 
-    // Gera um novo conjunto de perguntas quando ainda não existe desafio
-    // salvo ou quando o salvo é de um dia anterior — garante rotação diária
-    // e evita que as mesmas perguntas/posições fiquem fixas para sempre.
-    if (!dailyQuiz || dailyQuiz.dailyChallengeDate !== config.date) {
-      const regenerated = await this._regenerateDailyChallenge(dailyQuiz, config);
+    // Se a semana ainda não foi gerada, monta um desafio do dia a partir do pool
+    // de módulos — sem sobrescrever os outros dias da semana.
+    if (!dailyQuiz) {
+      const regenerated = await this._regenerateDailyChallenge(null, config);
       if (regenerated) {
         dailyQuiz = regenerated;
-      } else if (!dailyQuiz) {
+      } else {
         return { status: 404, body: {
           success: false,
           message: 'Nenhum quiz disponível para desafio diário'
         } };
       }
-      // Se a regeneração falhar mas já existir um desafio salvo de dia
-      // anterior, seguimos usando-o como fallback em vez de falhar a request.
     }
 
     // Retornar desafio diário real com estrutura melhorada

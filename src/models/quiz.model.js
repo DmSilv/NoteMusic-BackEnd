@@ -97,6 +97,10 @@ quizSchema.index({ moduleId: 1 }); // Índice único para busca por módulo
 quizSchema.index({ level: 1 });
 quizSchema.index({ isActive: 1, level: 1 }); // Para queries filtradas
 quizSchema.index({ type: 1 }); // Para filtrar por tipo (daily-challenge, module, etc)
+quizSchema.index(
+  { type: 1, dailyChallengeDate: 1 },
+  { unique: true, partialFilterExpression: { type: 'daily-challenge', dailyChallengeDate: { $type: 'string' } } }
+);
 
 // Método para calcular pontuação total
 quizSchema.methods.calculateTotalPoints = function() {

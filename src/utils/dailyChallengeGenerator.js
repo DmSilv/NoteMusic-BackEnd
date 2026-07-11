@@ -1,6 +1,7 @@
 /**
  * 🎯 GERADOR DINÂMICO DE DESAFIO DIÁRIO
- * Gera desafio diferente a cada dia com questões e tempo variáveis
+ * Configuração do dia (quantidade/tempo). O conteúdo preferencial vem do
+ * pacote semanal (npm run daily:week); este util só define meta do fallback.
  */
 
 /**
@@ -14,16 +15,16 @@ const generateDailyChallengeConfig = () => {
   // Gerar seed baseado no dia do ano
   const seed = dayOfYear;
   
-  // Configurações possíveis
+  // Pacotes leves (~5 perguntas / ~7 min) — alinhados ao gerador semanal
   const configs = [
-    { questions: 5, timeMinutes: 10, difficulty: 'facil' },
-    { questions: 7, timeMinutes: 12, difficulty: 'medio' },
-    { questions: 4, timeMinutes: 8, difficulty: 'facil' },
-    { questions: 8, timeMinutes: 15, difficulty: 'medio' },
-    { questions: 6, timeMinutes: 10, difficulty: 'medio' },
-    { questions: 9, timeMinutes: 15, difficulty: 'dificil' },
     { questions: 5, timeMinutes: 7, difficulty: 'facil' },
-    { questions: 10, timeMinutes: 18, difficulty: 'dificil' },
+    { questions: 5, timeMinutes: 7, difficulty: 'medio' },
+    { questions: 5, timeMinutes: 8, difficulty: 'facil' },
+    { questions: 5, timeMinutes: 8, difficulty: 'medio' },
+    { questions: 5, timeMinutes: 7, difficulty: 'medio' },
+    { questions: 5, timeMinutes: 9, difficulty: 'dificil' },
+    { questions: 5, timeMinutes: 7, difficulty: 'facil' },
+    { questions: 5, timeMinutes: 8, difficulty: 'dificil' },
   ];
   
   // Selecionar configuração baseada no seed
@@ -81,8 +82,3 @@ module.exports = {
   getTodayChallengeInfo,
   getDailyMotivation
 };
-
-
-
-
-

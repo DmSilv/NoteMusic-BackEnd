@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = require('./src/app');
 const connectDB = require('./src/config/database');
+const { startWeeklyDailyChallengeScheduler } = require('./src/jobs/weeklyDailyChallengeJob');
 
 const PORT = process.env.PORT || 3333;
 
@@ -20,6 +21,9 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   
   // Health check imediato após iniciar
   console.log('✅ Servidor pronto para receber requisições');
+
+  // Gera/completa a semana do desafio diário em background
+  startWeeklyDailyChallengeScheduler();
 });
 
 // Graceful shutdown - importante para Railway/Render
