@@ -61,9 +61,10 @@ class UserService {
   }
 
   static async updateProfile(userId, data) {
-    const { name, email, currentPassword, newPassword, level, weeklyGoal, notifications } = data;
+    // `level` NÃO é aceito do cliente (mass assignment) — só regras de negócio no servidor.
+    const { name, email, currentPassword, newPassword, weeklyGoal, notifications } = data;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select('+password');
     if (!user) {
       return {
         status: 404,
@@ -108,29 +109,19 @@ class UserService {
           }
         };
       }
+      user.email = email;
     }
 
-    const fieldsToUpdate = {
-      name,
-      email,
-      level,
-      weeklyGoal,
-      notifications
-    };
+    if (name !== undefined) user.name = name;
+    if (weeklyGoal !== undefined) user.weeklyGoal = weeklyGoal;
+    if (notifications !== undefined) user.notifications = notifications;
 
+    // Usar save() para disparar pre('save') do bcrypt — findByIdAndUpdate NÃO hasheia.
     if (newPassword) {
-      fieldsToUpdate.password = newPassword;
+      user.password = newPassword;
     }
 
-    Object.keys(fieldsToUpdate).forEach(
-      (key) => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
-    );
-
-    const updatedUser = await User.findByIdAndUpdate(userId, fieldsToUpdate, {
-      new: true,
-      runValidators: true
-    });
-
+    const updatedUser = await user.save();
     const userResponse = updatedUser.toObject();
     delete userResponse.password;
 
@@ -181,11 +172,18 @@ class UserService {
   }
 
   static async getRanking(userId, userTotalPoints, { limit = 10, offset = 0 } = {}) {
+    const { LIMITS } = require('../utils/constants');
+    const safeLimit = Math.min(
+      Math.max(parseInt(limit, 10) || LIMITS.DEFAULT_PAGE_LIMIT, 1),
+      LIMITS.MAX_PAGE_LIMIT
+    );
+    const safeOffset = Math.max(parseInt(offset, 10) || 0, 0);
+
     const topUsers = await User.find({ isActive: true })
       .select('name totalPoints level streak')
       .sort({ totalPoints: -1 })
-      .limit(parseInt(limit))
-      .skip(parseInt(offset));
+      .limit(safeLimit)
+      .skip(safeOffset);
 
     const totalUsers = await User.countDocuments({ isActive: true });
 

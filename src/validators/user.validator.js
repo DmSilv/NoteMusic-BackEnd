@@ -18,7 +18,7 @@ const updateProfileValidation = [
     .withMessage('Use um e-mail de provedor válido (Gmail, Outlook, Yahoo, etc.)'),
   body('currentPassword').optional().isLength({ min: 1 }).withMessage('Senha atual é obrigatória para alterar dados'),
   body('newPassword').optional().isLength({ min: 6 }).withMessage('Nova senha deve ter pelo menos 6 caracteres'),
-  body('level').optional().isIn(['aprendiz', 'virtuoso', 'maestro']),
+  // level não é aceito do cliente — evita mass assignment / escalação de progresso
   body('weeklyGoal').optional().isInt({ min: 1, max: 20 }).withMessage('Meta semanal deve ser entre 1 e 20'),
 ];
 

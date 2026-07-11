@@ -16,7 +16,7 @@ const registerValidation = [
     .custom(isValidEmailDomain)
     .withMessage('Use um e-mail de provedor válido (Gmail, Outlook, Yahoo, etc.)'),
   body('password').isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
-  body('level').optional().isIn(['aprendiz', 'virtuoso', 'maestro']),
+  // level não é aceito do cliente — progresso é controlado pelo servidor
 ];
 
 const loginValidation = [

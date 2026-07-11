@@ -38,7 +38,7 @@ class AuthService {
     });
   }
 
-  static async register({ name, email, password, level }) {
+  static async register({ name, email, password }) {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return {
@@ -50,11 +50,12 @@ class AuthService {
       };
     }
 
+    // Ignorar `level` do cliente — novos usuários sempre começam como aprendiz.
     const user = await User.create({
       name,
       email,
       password,
-      level: level || 'aprendiz',
+      level: 'aprendiz',
       completedModules: [],
       completedQuizzes: [],
       quizAttempts: [],
