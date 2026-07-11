@@ -42,6 +42,8 @@ build/
 
 # Scripts de teste manual na raiz (usar scripts/archive/)
 test-*.js
+test-*.json
+test-login.json
 
 # Backups com possível PII
 scripts/backups/*.json
