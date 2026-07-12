@@ -37,7 +37,12 @@ const generateDailyChallengeConfig = () => {
     ...selectedConfig,
     timeLimit: selectedConfig.timeMinutes * 60, // Converter para segundos
     seed, // Incluir seed para debug
-    date: today.toISOString().split('T')[0] // Data no formato YYYY-MM-DD
+    // Data local (não UTC) — evita virar “amanhã” à noite no Brasil
+    date: [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-')
   };
 };
 

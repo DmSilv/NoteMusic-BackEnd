@@ -321,6 +321,14 @@ class ModuleService {
 
     await user.save();
 
+    // Persistir progresso semanal (módulos nos últimos 7 dias) para ranking/perfil
+    try {
+      const GamificationService = require('./gamification.service');
+      await GamificationService.updateWeeklyProgress(userId);
+    } catch (weeklyError) {
+      console.warn('⚠️ Não foi possível atualizar weeklyProgress:', weeklyError?.message || weeklyError);
+    }
+
     invalidateCache('/api/gamification');
     invalidateCache('/api/modules');
     invalidateCache('/api/modules/categories-with-modules');

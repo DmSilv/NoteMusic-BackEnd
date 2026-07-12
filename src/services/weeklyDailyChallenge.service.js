@@ -36,8 +36,18 @@ async function upsertDayChallenge({ date, questions, timeLimit, moduleId, source
     return { date, id: existing._id, action: 'updated', source };
   }
 
-  const created = await Quiz.create(payload);
-  return { date, id: created._id, action: 'created', source };
+  try {
+    const created = await Quiz.create(payload);
+    return { date, id: created._id, action: 'created', source };
+  } catch (error) {
+    if (error && error.code === 11000) {
+      const raced = await Quiz.findOne({ type: 'daily-challenge', dailyChallengeDate: date });
+      if (raced) {
+        return { date, id: raced._id, action: 'created', source };
+      }
+    }
+    throw error;
+  }
 }
 
 function shouldUseGemini() {

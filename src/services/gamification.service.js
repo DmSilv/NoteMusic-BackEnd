@@ -248,18 +248,13 @@ class GamificationService {
     const now = new Date();
     const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     
-    // Contar módulos completados na semana
+    // Contar módulos completados na semana (quiz do módulo aprovado/concluído).
+    // Meta semanal = módulos; não soma quizzes avulsos para evitar contagem dupla.
     const weeklyModules = user.completedModules.filter(m => 
       new Date(m.completedAt) > lastWeek
     ).length;
     
-    // Contar quizzes completados na semana
-    const weeklyQuizzes = user.completedQuizzes.filter(q => 
-      new Date(q.completedAt) > lastWeek
-    ).length;
-    
-    // Atualizar progresso semanal
-    user.weeklyProgress = weeklyModules + weeklyQuizzes;
+    user.weeklyProgress = weeklyModules;
     user.lastActivityDate = now;
     
     await user.save();
@@ -391,6 +386,10 @@ class GamificationService {
 
     console.log(`📊 Taxa de aprovação: ${passedQuizzes}/${totalQuizzes} = ${quizPassRate}%`);
 
+    const weeklyGoal = user.weeklyGoal || 5;
+    // Source of truth: módulos concluídos nos últimos 7 dias (não o campo stale weeklyProgress)
+    const weeklyProgress = modulesLast7Days;
+
     return {
       level: getLevelName(user.level),
       progress,
@@ -399,8 +398,8 @@ class GamificationService {
       challenges: [],
       totalModules,
       completedModules,
-      weeklyGoal: user.weeklyGoal || 5,
-      weeklyProgress: user.weeklyProgress || 0,
+      weeklyGoal,
+      weeklyProgress,
       nextAchievement: getNextAchievement(user),
       totalPoints: user.totalPoints || 0,
       averageScorePercentage: averageScore,
@@ -411,9 +410,9 @@ class GamificationService {
       quizPassRate,
       levelProgress,
       weeklyProgressDetail: {
-        current: user.weeklyProgress || 0,
-        goal: user.weeklyGoal || 5,
-        percentage: Math.round(((user.weeklyProgress || 0) / (user.weeklyGoal || 5)) * 100)
+        current: weeklyProgress,
+        goal: weeklyGoal,
+        percentage: Math.round((weeklyProgress / weeklyGoal) * 100)
       },
       recentActivity: {
         lastStudyDate: user.lastActivityDate,

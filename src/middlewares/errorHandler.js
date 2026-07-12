@@ -14,10 +14,19 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Erro de Mongoose - Duplicação
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const message = `Este ${field} já está em uso`;
-    error = { message, statusCode: 400 };
+  if (err.code === 11000 || err?.cause?.code === 11000) {
+    const keyValue = err.keyValue || err?.cause?.keyValue || {};
+    const fields = Object.keys(keyValue);
+    // Índice composto type+dailyChallengeDate: mensagem genérica de "type" confundia
+    if (fields.includes('dailyChallengeDate') || fields.includes('type')) {
+      error = {
+        message: 'Desafio diário já existe para esta data',
+        statusCode: 409
+      };
+    } else {
+      const field = fields[0] || 'campo';
+      error = { message: `Este ${field} já está em uso`, statusCode: 400 };
+    }
   }
 
   // Erro de Mongoose - Validação

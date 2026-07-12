@@ -114,7 +114,19 @@ class UserService {
 
     if (name !== undefined) user.name = name;
     if (weeklyGoal !== undefined) user.weeklyGoal = weeklyGoal;
-    if (notifications !== undefined) user.notifications = notifications;
+    if (notifications !== undefined) {
+      // Merge parcial para não apagar email/push ao atualizar só um campo
+      user.notifications = {
+        email:
+          notifications.email !== undefined
+            ? notifications.email
+            : user.notifications?.email,
+        push:
+          notifications.push !== undefined
+            ? notifications.push
+            : user.notifications?.push,
+      };
+    }
 
     // Usar save() para disparar pre('save') do bcrypt — findByIdAndUpdate NÃO hasheia.
     if (newPassword) {

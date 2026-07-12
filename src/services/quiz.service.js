@@ -442,7 +442,7 @@ static async _regenerateDailyChallenge(_existingDoc, config) {
       return existingForToday;
     }
 
-    return await Quiz.create({
+    const payload = {
       title: 'Desafio Diário de Teoria Musical',
       description: 'Teste seus conhecimentos musicais com o desafio especial de hoje!',
       moduleId: sampleModuleId,
@@ -452,7 +452,35 @@ static async _regenerateDailyChallenge(_existingDoc, config) {
       type: 'daily-challenge',
       isActive: true,
       dailyChallengeDate: config.date
-    });
+    };
+
+    try {
+      return await Quiz.create(payload);
+    } catch (error) {
+      // 11000: corrida no mesmo dia OU índice legado único só em `type`
+      const isDup =
+        error?.code === 11000 ||
+        error?.cause?.code === 11000 ||
+        String(error?.message || '').includes('E11000');
+
+      if (!isDup) throw error;
+
+      const byDate = await Quiz.findOne({
+        type: 'daily-challenge',
+        dailyChallengeDate: config.date
+      });
+      if (byDate) return byDate;
+
+      // Legado: reaproveita o documento daily-challenge existente e atualiza para hoje
+      const legacy = await Quiz.findOne({ type: 'daily-challenge' }).sort({ updatedAt: -1 });
+      if (legacy) {
+        legacy.set(payload);
+        await legacy.save();
+        return legacy;
+      }
+
+      throw error;
+    }
 }
 
 static async getDailyChallenge() {
@@ -468,10 +496,30 @@ static async getDailyChallenge() {
     // Se a semana ainda não foi gerada, monta um desafio do dia a partir do pool
     // de módulos — sem sobrescrever os outros dias da semana.
     if (!dailyQuiz) {
-      const regenerated = await this._regenerateDailyChallenge(null, config);
-      if (regenerated) {
-        dailyQuiz = regenerated;
-      } else {
+      try {
+        const regenerated = await this._regenerateDailyChallenge(null, config);
+        if (regenerated) {
+          dailyQuiz = regenerated;
+        }
+      } catch (error) {
+        const isDup =
+          error?.code === 11000 ||
+          error?.cause?.code === 11000 ||
+          String(error?.message || '').includes('E11000');
+        if (isDup) {
+          dailyQuiz = await Quiz.findOne({
+            type: 'daily-challenge',
+            dailyChallengeDate: config.date
+          });
+          if (!dailyQuiz) {
+            dailyQuiz = await Quiz.findOne({ type: 'daily-challenge' }).sort({ updatedAt: -1 });
+          }
+        } else {
+          throw error;
+        }
+      }
+
+      if (!dailyQuiz) {
         return { status: 404, body: {
           success: false,
           message: 'Nenhum quiz disponível para desafio diário'
